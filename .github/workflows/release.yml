@@ -2,8 +2,8 @@ name: Release
 
 on:
   push:
-    tags:
-      - "v*.*.*"  # 推送标签时触发
+    branches:
+      - main
   workflow_dispatch:  # 手动触发
 
 jobs:
