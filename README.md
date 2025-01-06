@@ -5,11 +5,12 @@
 ---
 
 ## Features
-- Add new tasks
-- Update existing tasks
-- Remove tasks
-- Mark tasks as done or in progress
-- List tasks by various statuses
+- [x] Add new tasks
+- [x] Update existing tasks
+- [x] Remove tasks
+- [x] Mark tasks as done or in progress
+- [x] List tasks by various statuses
+- [ ] Support multiple task processing
 
 ---
 
@@ -75,7 +76,7 @@ tam list
 
 ## Contributing
 
-Contributions are welcome! Please submit an issue or pull request on the [GitHub repository](https://github.com/your_username/tam).
+Contributions are welcome! Please submit an issue or pull request on the [GitHub repository](https://github.com/wst7/tam).
 
 ---
 
