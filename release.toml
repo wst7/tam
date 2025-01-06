@@ -3,9 +3,8 @@ sign-commit = true    # 是否签署提交（需要 GPG）
 sign-tag = true       # 是否签署标签
 push-remote = "origin" # 推送到的远程分支
 allow-branch = ["main"] # 限制发布分支
-pre-release-hook = ["git", "cliff", "-o", "CHANGELOG.md", "--tag", "{{version}}"]
-post-release-hook = [
-    ["git", "add", "CHANGELOG.md"],
-    ["git", "commit", "-m", "Update changelog for {{version}}"],
-    ["git", "push", "origin", "main"]
-]
+pre-release-hook = [
+  "git", "cliff", "-o", "CHANGELOG.md", "--tag", "{{version}}",
+  "&&", "git", "add", ".",
+  "&&", "git", "commit", "-m", "changelog: {{version}}",
+  "&&", "git", "push"]
