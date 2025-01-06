@@ -7,19 +7,19 @@ use crate::{
 };
 
 pub fn list_done() -> anyhow::Result<bool> {
-    let tasks = filter_tasks(|task| task.status == TaskStatus::Done)?;
+    let tasks = filter_tasks(|(_, task)| task.status == TaskStatus::Done)?;
     print_table(&tasks);
     anyhow::Ok(true)
 }
 
 pub fn list_todo() -> anyhow::Result<bool> {
-    let tasks = filter_tasks(|task| task.status == TaskStatus::Todo)?;
+    let tasks = filter_tasks(|(_, task)| task.status == TaskStatus::Todo)?;
     print_table(&tasks);
     anyhow::Ok(true)
 }
 
 pub fn list_in_progress() -> anyhow::Result<bool> {
-    let tasks = filter_tasks(|task| task.status == TaskStatus::InProgress)?;
+    let tasks = filter_tasks(|(_, task)| task.status == TaskStatus::InProgress)?;
     print_table(&tasks);
     anyhow::Ok(true)
 }
@@ -30,10 +30,10 @@ pub fn list_all() -> anyhow::Result<bool> {
     anyhow::Ok(true)
 }
 
-fn print_table(tasks: &[Task]) {
+fn print_table(list: &[(usize, Task)]) {
     let mut builder = Builder::default();
     builder.push_record(["Index", "Title", "Status", "Created"]);
-    for (index, task) in tasks.iter().enumerate() {
+    for (index, task) in list {
         builder.push_record([
             (index + 1).to_string(),
             task.title.clone(),
@@ -47,15 +47,16 @@ fn print_table(tasks: &[Task]) {
     println!("{}", table);
 }
 
-fn filter_tasks<F>(f: F) -> anyhow::Result<Vec<Task>>
+fn filter_tasks<F>(f: F) -> anyhow::Result<Vec<(usize, Task)>>
 where
-    F: Fn(&Task) -> bool,
+    F: Fn(&(usize, Task)) -> bool,
 {
     let tasks = read_tasks()?;
-    let tasks: Vec<Task> = tasks
+    let tasks: Vec<(usize, Task)> = tasks
         .into_iter()
+        .enumerate()
         .filter(f)
-        .filter(|task| task.status != TaskStatus::Delete)
+        .filter(|(_, task)| task.status != TaskStatus::Delete)
         .collect();
     anyhow::Ok(tasks)
 }
