@@ -1,5 +1,4 @@
 [workspace]
-auto_version = true
 publish = true
 git_release_enable = true
 changelog_config = "cliff.toml"
