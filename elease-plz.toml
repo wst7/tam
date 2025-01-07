@@ -1,5 +1,6 @@
 [workspace]
 name = "tam"
+auto_version = true
 publish = true
 git_release_enable = true
 changelog_update = true
