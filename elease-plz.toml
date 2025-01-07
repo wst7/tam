@@ -3,6 +3,6 @@ name = "tam"
 auto_version = true
 publish = true
 git_release_enable = true
-changelog_update = true
 changelog_config = "cliff.toml"
+release_commits = "^(feat:|docs:|fix:|refactor:)"
 # publish_allow_dirty = true # add `--allow-dirty` to `cargo publish`
