@@ -8,10 +8,10 @@ mod utils;
 
 #[derive(Parser)]
 #[command(
-    name = "tam",
+    name = env!("CARGO_PKG_NAME"),
     version = env!("CARGO_PKG_VERSION"),
-    about = "A tasks manager cli tool")
-]
+    about = env!("CARGO_PKG_DESCRIPTION")
+)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
