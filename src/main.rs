@@ -24,12 +24,14 @@ enum Commands {
     /// update task
     Update { index: usize, title: String },
     /// remove task
+    #[command(alias="rm")]
     Remove { index: usize },
     /// complete task
     Done { index: usize },
     /// start task
     Start { index: usize },
     /// list task
+    #[command(alias="ls")]
     List {
         #[command(subcommand)]
         command: Option<ListSubcommand>,
