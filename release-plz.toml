@@ -3,3 +3,37 @@ publish = true
 git_release_enable = true
 changelog_config = "cliff.toml"
 release_commits = "^(feat:|docs:|fix:|refactor:)"
+pr_branch_prefix = "release-plz-" # PR branch prefix
+pr_name = "Release {{ package }} v{{ version }}" # template for the PR name
+pr_labels = ["release"] # add the `release` label to the release Pull Request
+
+[changelog]
+trim = true
+protect_breaking_commits = true
+sort_commits = "newest"
+commit_preprocessors = [
+  # remove issue numbers from commits
+  { pattern = '\((\w+\s)?#([0-9]+)\)', replace = "" },
+]
+
+commit_parsers = [
+  { message = "^feat", group = "<!-- 0 -->🚀 Features" },
+  { message = "^fix", group = "<!-- 1 -->🐛 Bug Fixes" },
+  { message = "^doc", group = "<!-- 3 -->📚 Documentation" },
+  { message = "^perf", group = "<!-- 4 -->⚡ Performance" },
+  { message = "^refactor", group = "<!-- 2 -->🚜 Refactor" },
+  { message = "^style", group = "<!-- 5 -->🎨 Styling" },
+  { message = "^test", group = "<!-- 6 -->🧪 Testing" },
+  { message = "^chore\\(release\\): prepare for", skip = true },
+  { message = "^chore\\(deps.*\\)", skip = true },
+  { message = "^chore\\(pr\\)", skip = true },
+  { message = "^chore\\(pull\\)", skip = true },
+  { message = "^chore|^ci", group = "<!-- 7 -->⚙️ Miscellaneous Tasks" },
+  { body = ".*security", group = "<!-- 8 -->🛡️ Security" },
+  { message = "^revert", group = "<!-- 9 -->◀️ Revert" },
+  { message = ".*", group = "<!-- 10 -->💼 Other" },
+]
+
+link_parsers = [
+    { pattern = "RFC(\\d+)", text = "ietf-rfc$1", href = "https://datatracker.ietf.org/doc/html/rfc$1"}
+]
