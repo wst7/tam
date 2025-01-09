@@ -1,5 +1,5 @@
-use std::process;
 use clap::{Parser, Subcommand};
+use std::process;
 
 mod commands;
 mod file;
