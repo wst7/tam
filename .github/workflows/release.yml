@@ -28,4 +28,4 @@ jobs:
     - name: Release new version
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-      run: cargo release patch --execute
+      run: CI=true cargo release patch --execute
