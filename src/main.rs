@@ -24,14 +24,14 @@ enum Commands {
     /// update task
     Update { index: usize, title: String },
     /// remove task
-    #[command(alias="rm")]
-    Remove { index: usize },
+    #[command(alias = "rm")]
+    Remove { indexes: Vec<usize> },
     /// complete task
-    Done { index: usize },
+    Done { indexes: Vec<usize> },
     /// start task
-    Start { index: usize },
+    Start { indexes: Vec<usize> },
     /// list task
-    #[command(alias="ls")]
+    #[command(alias = "ls")]
     List {
         #[command(subcommand)]
         command: Option<ListSubcommand>,
@@ -52,9 +52,9 @@ fn main() {
     let result = match cli.command {
         Commands::Add { title } => commands::add(title),
         Commands::Update { index, title } => commands::update(index, title),
-        Commands::Remove { index } => commands::remove(index),
-        Commands::Done { index } => commands::done(index),
-        Commands::Start { index } => commands::start(index),
+        Commands::Remove { indexes } => commands::remove(&indexes),
+        Commands::Done { indexes } => commands::done(&indexes),
+        Commands::Start { indexes } => commands::start(&indexes),
         Commands::List { command } => match command.unwrap_or(ListSubcommand::All) {
             ListSubcommand::Done => commands::list_done(),
             ListSubcommand::InProgress => commands::list_in_progress(),

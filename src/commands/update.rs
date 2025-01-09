@@ -30,44 +30,51 @@ pub fn update(index: usize, title: String) -> anyhow::Result<bool> {
 }
 
 /// start task
-pub fn start(index: usize) -> anyhow::Result<bool> {
+pub fn start(indexes: &[usize]) -> anyhow::Result<bool> {
     let mut tasks = read_tasks()?;
-    let task = match tasks.get_mut(index - 1) {
-        Some(task) => task,
-        None => anyhow::bail!("not find task by index: {}", index),
-    };
+    for index in indexes {
+        let task = match tasks.get_mut(index - 1) {
+            Some(task) => task,
+            None => anyhow::bail!("not find task by index: {}", index),
+        };
 
-    task.set_status(crate::task::TaskStatus::InProgress);
-    let title = task.clone().title;
+        task.set_status(crate::task::TaskStatus::InProgress);
+        let title = task.clone().title;
+        print_success!("Task: {} is in progress", title);
+    }
     write_tasks(tasks)?;
-    print_success!("Task: {} is in progress", title);
+
     anyhow::Ok(true)
 }
 
 // complete task
-pub fn done(index: usize) -> anyhow::Result<bool> {
+pub fn done(indexes: &[usize]) -> anyhow::Result<bool> {
     let mut tasks = read_tasks()?;
-    let task = match tasks.get_mut(index - 1) {
-        Some(task) => task,
-        None => anyhow::bail!("not find task by index: {}", index),
-    };
-    let title = task.clone().title;
-    task.set_status(crate::task::TaskStatus::Done);
-    print_success!("Task: {} is done", title);
+    for index in indexes {
+        let task = match tasks.get_mut(index - 1) {
+            Some(task) => task,
+            None => anyhow::bail!("not find task by index: {}", index),
+        };
+        let title = task.clone().title;
+        task.set_status(crate::task::TaskStatus::Done);
+        print_success!("Task: {} is done", title);
+    }
     write_tasks(tasks)?;
     anyhow::Ok(true)
 }
 
-// remove task
-pub fn remove(index: usize) -> anyhow::Result<bool> {
+// remove tasks
+pub fn remove(indexes: &[usize]) -> anyhow::Result<bool> {
     let mut tasks = read_tasks()?;
-    let task = match tasks.get_mut(index - 1) {
-        Some(task) => task,
-        None => anyhow::bail!("not find task by index: {}", index),
-    };
-    task.set_status(TaskStatus::Delete);
-    let title = task.clone().title;
-    print_success!("Task: {} is remove successfully", title);
+    for index in indexes {
+        let task = match tasks.get_mut(*index - 1) {
+            Some(task) => task,
+            None => anyhow::bail!("not find task by index: {}", index),
+        };
+        let title = task.clone().title;
+        print_success!("Task: {} is remove successfully", title);
+        task.set_status(TaskStatus::Delete);
+    }
     write_tasks(tasks)?;
     anyhow::Ok(true)
 }
