@@ -1,7 +1,7 @@
 
 
 tag-name = "v{version}"
-sign-commit = false
-sign-tag = false
+sign-commit = true
+sign-tag = true
 push-remote = "origin"
 pre-release-hook = ["git", "cliff", "-o", "CHANGELOG.md", "--tag", "{{version}}" ]
