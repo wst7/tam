@@ -1,5 +1,5 @@
 
-[release]
+
 tag-name = "v{version}"
 sign-commit = false
 sign-tag = false
