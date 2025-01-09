@@ -19,10 +19,13 @@ jobs:
       uses: actions-rs/toolchain@v1
       with:
         toolchain: stable
+    
+    # binstall
+    - uses: brndnmtthws/rust-action@v1
 
     # 安装 cargo-release
     - name: Install cargo-release
-      run: cargo install cargo-release
+      run: cargo binstall cargo-release
 
     # 发布 crate
     - name: Release new version
