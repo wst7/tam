@@ -1,62 +1,21 @@
-use clap::{Parser, Subcommand};
+use clap::Parser;
+use cli::{Cli, Commands, ListSubcommand};
 use rustyline::{error::ReadlineError, DefaultEditor};
 use std::process;
 
+mod cli;
 mod commands;
 mod file;
 mod task;
 mod utils;
+mod ui;
 
-#[derive(Parser, Debug)]
-#[command(
-    name = env!("CARGO_PKG_NAME"),
-    version = env!("CARGO_PKG_VERSION"),
-    about = env!("CARGO_PKG_DESCRIPTION")
-)]
-struct Cli {
-    #[command(subcommand)]
-    command: Option<Commands>,
-
-    /// interactive mode
-    #[arg(short, long)]
-    interactive: bool,
-}
-
-#[derive(Subcommand, Debug)]
-enum Commands {
-    /// add taskØ
-    Add { title: String },
-    /// update task
-    Update { index: usize, title: String },
-    /// remove task
-    #[command(alias = "rm")]
-    Remove { indexes: Vec<usize> },
-    /// complete task
-    Done { indexes: Vec<usize> },
-    /// start task
-    Start { indexes: Vec<usize> },
-    /// list task
-    #[command(alias = "ls")]
-    List {
-        #[command(subcommand)]
-        command: Option<ListSubcommand>,
-    },
-}
-
-#[derive(Subcommand, Debug)]
-enum ListSubcommand {
-    All,
-    Done,
-    Todo,
-    #[command(name = "in-progress")]
-    InProgress,
-}
 
 fn main() {
-    let cli = Cli::parse();
-    if cli.interactive {
+    let args = Cli::parse();
+    if args.interactive {
         interactive_mode()
-    } else if let Some(command) = cli.command {
+    } else if let Some(command) = args.command {
         command_mode(command);
     }
 }
@@ -76,7 +35,7 @@ fn interactive_mode() {
                 }
                 let args = shlex::split(&format!("tam {input}")).unwrap_or_else(|| vec![]);
 
-                match Cli::try_parse_from(args) {
+                match cli::Cli::try_parse_from(args) {
                     Ok(cli) => {
                         println!("{:?}", cli);
                         if let Some(command) = cli.command {
