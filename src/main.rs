@@ -1,5 +1,6 @@
 use clap::Parser;
 use cli::{Cli, Commands, ListSubcommand};
+use cursive::Cursive;
 use rustyline::{error::ReadlineError, DefaultEditor};
 use std::process;
 
@@ -21,43 +22,8 @@ fn main() {
 }
 
 fn interactive_mode() {
-    let mut rl = DefaultEditor::new().unwrap();
-    loop {
-        let readline = rl.readline(">> ");
-        match readline {
-            Ok(line) => {
-                let _ = rl.add_history_entry(line.as_str());
-
-                let input = line.trim();
-                if input == "exit" {
-                    println!("exit.");
-                    break;
-                }
-                let args = shlex::split(&format!("tam {input}")).unwrap_or_else(|| vec![]);
-
-                match cli::Cli::try_parse_from(args) {
-                    Ok(cli) => {
-                        println!("{:?}", cli);
-                        if let Some(command) = cli.command {
-                            if let Err(err) = execute_command(command) {
-                                print_error!("{}", err);
-                            }
-                        }
-                    }
-                    Err(err) => {
-                        print_error!("Error: {}", err);
-                    }
-                }
-            }
-            Err(ReadlineError::Interrupted) => {
-                break;
-            },
-            Err(err) => {
-                print_error!("Error: {}", err);
-                continue;
-            }
-        }
-    }
+    let siv: Cursive = Cursive::default();
+    ui::render(siv)
 }
 
 fn command_mode(command: Commands) {
