@@ -18,12 +18,13 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// add taskØ
+    /// add task
     Add { title: String },
     /// update task
+    #[command(aliases = ["et", "edit", "up"])]
     Update { index: usize, title: String },
     /// remove task
-    #[command(alias = "rm")]
+    #[command(aliases = ["rm", "dl", "delete"])]
     Remove { indexes: Vec<usize> },
     /// complete task
     Done { indexes: Vec<usize> },
