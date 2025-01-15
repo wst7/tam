@@ -12,7 +12,8 @@ for the [task-tracker](https://roadmap.sh/projects/task-tracker) challenge from 
 - [x] Remove tasks
 - [x] Mark tasks as done or in progress
 - [x] List tasks by various statuses
-- [ ] Support multiple task processing
+- [x] Support multiple task processing
+- [x] Interactive cli mode
 
 ---
 
@@ -28,11 +29,12 @@ cargo install tam
 
 ## Usage
 
+### Command mode
 ```bash
 tam <COMMAND> [OPTIONS]
 ```
 
-### Commands
+#### Commands
 
 | Command   | Description          |
 |-----------|----------------------|
@@ -44,11 +46,17 @@ tam <COMMAND> [OPTIONS]
 | `list`    | List tasks           |
 | `help`    | Show help information |
 
-### Options
+#### Options
 | Option           | Description            |
 |------------------|------------------------|
 | `-h, --help`     | Print help information |
 | `-V, --version`  | Print version          |
+| `-i, --interactive`  | Interactive mode          |
+
+### Interactive mode
+```bash
+tam -i
+```
 
 ---
 
@@ -61,7 +69,11 @@ tam add "Finish Rust project"
 
 ### Update a Task
 ```bash
+tam edit task_id new_title
+
 tam update 1 "Complete CLI tool documentation"
+# or
+tam edit 1  "Complete CLI tool documentation"
 ```
 
 ### Mark a Task as Done
