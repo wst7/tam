@@ -1,10 +1,7 @@
 use std::fmt;
 
 use chrono::{DateTime, Utc};
-use cursive_table_view::TableViewItem;
 use serde::{Deserialize, Serialize};
-
-use crate::ui::BasicColumn;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Task {
@@ -55,26 +52,5 @@ impl Task {
     pub fn set_status(&mut self, status: TaskStatus) {
         self.status = status;
         self.updated = Utc::now();
-    }
-}
-
-impl TableViewItem<BasicColumn> for Task {
-    fn to_column(&self, column: BasicColumn) -> String {
-        match column {
-            BasicColumn::Title => self.title.clone(),
-            BasicColumn::Status => self.status.to_string(),
-            BasicColumn::Created => self.created.to_string(),
-            _ => "index".to_string()
-        }
-    }
-    fn cmp(&self, other: &Self, column: BasicColumn) -> std::cmp::Ordering
-        where
-            Self: Sized {
-        match column {
-            BasicColumn::Title => self.title.cmp(&other.title),
-            BasicColumn::Status => self.status.cmp(&other.status),
-            BasicColumn::Created => self.created.cmp(&other.created),
-            _ => self.title.cmp(&other.title),
-        }
     }
 }

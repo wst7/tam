@@ -1,6 +1,9 @@
 use clap::Parser;
 use cli::{Cli, Commands, ListSubcommand};
-use cursive::Cursive;
+use cursive::{
+    theme::{self, Theme},
+    Cursive,
+};
 use rustyline::{error::ReadlineError, DefaultEditor};
 use std::process;
 
@@ -8,9 +11,8 @@ mod cli;
 mod commands;
 mod file;
 mod task;
-mod utils;
 mod ui;
-
+mod utils;
 
 fn main() {
     let args = Cli::parse();
@@ -22,8 +24,9 @@ fn main() {
 }
 
 fn interactive_mode() {
-    let siv: Cursive = Cursive::default();
-    ui::render(siv)
+    let mut siv: Cursive = Cursive::default();
+    siv.load_toml(include_str!("../theme.toml")).unwrap();
+    ui::start(siv)
 }
 
 fn command_mode(command: Commands) {

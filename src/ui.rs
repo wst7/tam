@@ -1,19 +1,14 @@
-use cursive::view::{Nameable, Resizable};
-use cursive::{
-    views::{Button, FixedLayout, LinearLayout, SelectView, StackView},
-    Cursive, CursiveExt, Rect, View,
-};
+use cursive::{Cursive, CursiveExt};
+use kanban::{add_task_dialog, KanbanBoard};
 
-mod task_table;
-pub use task_table::*;
-
-pub fn render(mut siv: Cursive) {
+mod kanban;
+pub fn start(mut siv: Cursive) {
     siv.add_global_callback('q', |s| s.quit());
+    siv.add_global_callback('a', |s| add_task_dialog(s));
 
-    let main_table = task_table::render();
-    let base_layout =
-        LinearLayout::vertical().child(main_table.with_name("task-table").full_width());
+    let mut board = KanbanBoard::new();
+    siv.set_user_data(board.clone());
+    siv.add_layer(board.render());
 
-    siv.add_fullscreen_layer(base_layout);
     siv.run();
 }

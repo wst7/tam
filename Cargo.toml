@@ -15,7 +15,8 @@ anyhow = "1.0.95"
 chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.23", features = ["derive"] }
 colored = "2.2.0"
-cursive = "0.21.1"
+crossterm = "0.28.1"
+cursive = { version = "0.21.1", features = ["crossterm-backend", "toml"]}
 cursive_table_view = "0.15.0"
 dirs = "5.0.1"
 rustyline = "15.0.0"
