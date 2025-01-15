@@ -3,6 +3,7 @@ publish = true
 git_release_enable = false
 git_tag_enable = true
 changelog_config = "cliff.toml"
+release_commits = "^(feat:|docs:|fix:|refactor:)"
 pr_branch_prefix = "release-plz-" # PR branch prefix
 pr_name = "Release {{ package }} v{{ version }}" # template for the PR name
 pr_labels = ["release"] # add the `release` label to the release Pull Request
