@@ -1,10 +1,6 @@
 use clap::Parser;
 use cli::{Cli, Commands, ListSubcommand};
-use cursive::{
-    theme::{self, Theme},
-    Cursive,
-};
-use rustyline::{error::ReadlineError, DefaultEditor};
+use cursive::Cursive;
 use std::process;
 
 mod cli;

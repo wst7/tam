@@ -1,6 +1,5 @@
 use clap::{Parser, Subcommand};
 
-
 #[derive(Parser, Debug)]
 #[command(
     name = env!("CARGO_PKG_NAME"),

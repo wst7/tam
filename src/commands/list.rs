@@ -1,8 +1,10 @@
 use chrono::{DateTime, Utc};
 use tabled::{builder::Builder, settings::Style};
 
-use crate::{file::{get_all_tasks, get_done_tasks, get_in_progress_tasks, get_todo_tasks}, task::Task};
-
+use crate::{
+    file::{get_all_tasks, get_done_tasks, get_in_progress_tasks, get_todo_tasks},
+    task::Task,
+};
 
 pub fn list_done() -> anyhow::Result<bool> {
     let tasks = get_done_tasks()?;
