@@ -1,8 +1,14 @@
 # TAM - Tasks Manager CLI Tool
 
+![Crate](https://img.shields.io/crates/v/tam)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+
 `tam` is a lightweight and efficient CLI tool for managing tasks. Use it to create, update, track, and list your tasks directly from the terminal. 
 
 for the [task-tracker](https://roadmap.sh/projects/task-tracker) challenge from [roadmap.sh](https://roadmap.sh/).
+
+
+![Demo GIF](assets/demo.gif)
 
 ---
 
@@ -19,11 +25,15 @@ for the [task-tracker](https://roadmap.sh/projects/task-tracker) challenge from 
 
 ## Installation
 
+### Crates.io
 To install `tam` via [crates.io](https://crates.io):
 
 ```bash
 cargo install tam
 ```
+
+### GitHub
+To install `tam` from the [GitHub releases](https://github.com/wst7/tam/releases)
 
 ---
 
