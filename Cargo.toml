@@ -24,7 +24,7 @@ colored = "3.0.0"
 crossterm = "0.28.1"
 cursive = { version = "0.21.1", features = ["crossterm-backend", "toml"]}
 cursive_table_view = "0.15.0"
-dirs = "5.0.1"
+dirs = "6.0.0"
 rustyline = "15.0.0"
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.134"
