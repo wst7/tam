@@ -7,15 +7,17 @@ use std::path::PathBuf;
 use crate::task::{Task, TaskStatus};
 
 fn tasks_file_path() -> anyhow::Result<PathBuf> {
-    let home = dirs::home_dir()
-        .with_context(|| format!("fail to get home dir"))?
-        .join(".config/tasks.json");
+    let config_dir = dirs::config_dir().with_context(|| format!("fail to get config dir"))?;
+    if !config_dir.exists() {
+        fs::create_dir_all(&config_dir).with_context(|| format!("fail to create config dir"))?;
+    }
+    let file_path = config_dir.join("task.json");
 
-    if !home.exists() {
-        let mut file = File::create(&home)?;
+    if !file_path.exists() {
+        let mut file = File::create(&file_path)?;
         file.write(b"[]")?;
     }
-    Ok(home)
+    Ok(file_path)
 }
 
 fn read_tasks() -> anyhow::Result<Vec<Task>> {
