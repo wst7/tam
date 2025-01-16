@@ -11,7 +11,7 @@ fn tasks_file_path() -> anyhow::Result<PathBuf> {
     if !config_dir.exists() {
         fs::create_dir_all(&config_dir).with_context(|| format!("fail to create config dir"))?;
     }
-    let file_path = config_dir.join("task.json");
+    let file_path = config_dir.join("tam_tasks.json");
 
     if !file_path.exists() {
         let mut file = File::create(&file_path)?;
