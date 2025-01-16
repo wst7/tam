@@ -1,6 +1,6 @@
 [package]
 name = "tam"
-version = "0.1.13"
+version = "0.1.14"
 edition = "2021"
 authors = ["wst7 <wstreet7@outlook.com>"]
 description = "A tasks manager cli tool"
