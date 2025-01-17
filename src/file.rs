@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 use crate::task::{Task, TaskStatus};
 
-fn tasks_file_path() -> anyhow::Result<PathBuf> {
+pub fn tasks_file_path() -> anyhow::Result<PathBuf> {
     let config_dir = dirs::config_dir().with_context(|| format!("fail to get config dir"))?;
     if !config_dir.exists() {
         fs::create_dir_all(&config_dir).with_context(|| format!("fail to create config dir"))?;

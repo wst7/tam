@@ -1,35 +1,49 @@
 use clap::{Parser, Subcommand};
+use colored::Colorize;
 
 #[derive(Parser, Debug)]
 #[command(
     name = env!("CARGO_PKG_NAME"),
     version = env!("CARGO_PKG_VERSION"),
-    about = env!("CARGO_PKG_DESCRIPTION")
+    about = format!(
+        "{}\nVersion: {}",
+        env!("CARGO_PKG_DESCRIPTION"),
+        env!("CARGO_PKG_VERSION").green()
+    )
 )]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Option<Commands>,
 
-    /// interactive mode
+    /// Interactive mode
     #[arg(short, long)]
     pub interactive: bool,
+
+    /// Print task file
+    #[arg(short, long)]
+    pub file: bool,
 }
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// add task
+    /// Add a new task with a given title.
     Add { title: String },
-    /// update task
+
+    /// Update the title of an existing task by its index.
     #[command(aliases = ["et", "edit", "up"])]
     Update { index: usize, title: String },
-    /// remove task
+
+    /// Remove one or more tasks by their indexes.
     #[command(aliases = ["rm", "dl", "delete"])]
     Remove { indexes: Vec<usize> },
-    /// complete task
+
+    /// Mark one or more tasks as completed by their indexes.
     Done { indexes: Vec<usize> },
-    /// start task
+
+    /// Mark one or more tasks as started by their indexes.
     Start { indexes: Vec<usize> },
-    /// list task
+
+    /// List tasks, optionally with a subcommand to filter or sort the list.
     #[command(alias = "ls")]
     List {
         #[command(subcommand)]
