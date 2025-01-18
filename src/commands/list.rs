@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use tabled::{builder::Builder, settings::Style};
 
 use crate::{
-    file::{get_all_tasks, get_done_tasks, get_in_progress_tasks, get_todo_tasks},
+    query::{get_all_tasks, get_done_tasks, get_in_progress_tasks, get_todo_tasks},
     task::Task,
 };
 

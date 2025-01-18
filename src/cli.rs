@@ -18,10 +18,6 @@ pub struct Cli {
     /// Interactive mode
     #[arg(short, long)]
     pub interactive: bool,
-
-    /// Print task file
-    #[arg(short, long)]
-    pub file: bool,
 }
 
 #[derive(Subcommand, Debug)]
@@ -49,6 +45,8 @@ pub enum Commands {
         #[command(subcommand)]
         command: Option<ListSubcommand>,
     },
+    /// Show tam configuration
+    Config
 }
 
 #[derive(Subcommand, Debug)]

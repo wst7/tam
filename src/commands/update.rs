@@ -1,5 +1,5 @@
 use crate::{
-    file::{add_task, update_task, update_task_status},
+    query::{add_task, update_task, update_task_status},
     print_success,
     task::{Task, TaskStatus},
 };

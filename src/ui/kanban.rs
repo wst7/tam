@@ -1,4 +1,4 @@
-use crate::file::{add_task, get_all_tasks};
+use crate::query::{add_task, get_all_tasks};
 use crate::task::{Task, TaskStatus};
 use cursive::view::Nameable;
 use cursive::view::Resizable;

@@ -1,31 +1,25 @@
 use clap::Parser;
 use cli::{Cli, Commands, ListSubcommand};
 use cursive::Cursive;
-use file::tasks_file_path;
 use std::process;
 
 mod cli;
 mod commands;
-mod file;
+mod query;
 mod task;
 mod ui;
 mod utils;
+mod config;
+mod theme;
 
 fn main() {
+    let _  = config::init();
+
     let args = Cli::parse();
     if args.interactive {
         interactive_mode()
     } else if let Some(command) = args.command {
         command_mode(command);
-    } else if args.file {
-        let file_path = match tasks_file_path() {
-            Ok(path) => path,
-            Err(err) => {
-                print_error!("{}", err.to_string());
-                process::exit(1);
-            }
-        };
-        println!("Tasks stored in {:?} file", file_path);
     } else {
         // print help
         Cli::parse_from(&["tam", "--help"]); 
@@ -59,6 +53,7 @@ fn execute_command(command: Commands) -> anyhow::Result<bool> {
             ListSubcommand::Todo => commands::list_todo(),
             ListSubcommand::All => commands::list_all(),
         },
+        Commands::Config => commands::config(),
     };
     result
 }

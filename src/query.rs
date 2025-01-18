@@ -1,27 +1,13 @@
-use anyhow::{Context, Ok};
-use dirs;
-use std::fs::{self, File};
-use std::io::Write;
-use std::path::PathBuf;
+use anyhow::Ok;
+use std::fs::{self};
 
+use crate::config::get_tasks_file;
 use crate::task::{Task, TaskStatus};
 
-pub fn tasks_file_path() -> anyhow::Result<PathBuf> {
-    let config_dir = dirs::config_dir().with_context(|| format!("fail to get config dir"))?;
-    if !config_dir.exists() {
-        fs::create_dir_all(&config_dir).with_context(|| format!("fail to create config dir"))?;
-    }
-    let file_path = config_dir.join("tam_tasks.json");
 
-    if !file_path.exists() {
-        let mut file = File::create(&file_path)?;
-        file.write(b"[]")?;
-    }
-    Ok(file_path)
-}
 
 fn read_tasks() -> anyhow::Result<Vec<Task>> {
-    let tasks_path = tasks_file_path()?;
+    let tasks_path = get_tasks_file()?;
 
     let content = fs::read_to_string(tasks_path)?;
     let tasks: Vec<Task> = serde_json::from_str(&content)?;
@@ -29,7 +15,7 @@ fn read_tasks() -> anyhow::Result<Vec<Task>> {
 }
 
 fn write_tasks(tasks: Vec<Task>) -> anyhow::Result<bool> {
-    let tasks_path = tasks_file_path()?;
+    let tasks_path = get_tasks_file()?;
     let content = serde_json::to_string(&tasks)?;
     fs::write(tasks_path, content)?;
     Ok(true)
