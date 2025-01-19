@@ -7,7 +7,11 @@ description = "A tasks manager cli tool"
 repository = "https://github.com/wst7/tam"
 keywords = ["cli", "task", "todo", "manager"]
 categories = ["command-line-utilities"]
-license = "MIT OR Apache-2.0" 
+license = "MIT OR Apache-2.0"
+exclude = [
+    "tests/**/*",
+    "assets/**/*",
+]
 
 [package.metadata.wix]
 upgrade-guid = "D4E4B254-252F-4637-8575-7CE513863C8A"
