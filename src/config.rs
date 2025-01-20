@@ -5,15 +5,15 @@ use crate::utils::{config_dir, get_dir_in_config};
 use anyhow::{bail, Context};
 use serde::{Deserialize, Serialize};
 
-const CONFIG_FILE: &str = "tam.config.toml";
-const TAM_DIR: &str = "tam";
+pub const CONFIG_FILE: &str = "tam.config.toml";
+pub const TAM_DIR: &str = "tam";
 const DEFAULT_TASKS_FILE: &str = "tasks.json";
 const DEFAULT_TAM_THEME: &str = "theme.toml";
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct Config {
-    task_file: String,
-    theme_file: String,
+    pub task_file: String,
+    pub theme_file: String,
 }
 
 impl Default for Config {
