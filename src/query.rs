@@ -4,8 +4,6 @@ use std::fs::{self};
 use crate::config::get_tasks_file;
 use crate::task::{Task, TaskStatus};
 
-
-
 fn read_tasks() -> anyhow::Result<Vec<Task>> {
     let tasks_path = get_tasks_file()?;
 
@@ -61,6 +59,7 @@ where
     let tasks: Vec<(usize, Task)> = tasks
         .into_iter()
         .enumerate()
+        .map(|(index, task)| (index + 1, task))
         .filter(f)
         .filter(|(_, task)| task.status != TaskStatus::Delete)
         .collect();

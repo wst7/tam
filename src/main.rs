@@ -5,15 +5,15 @@ use std::process;
 
 mod cli;
 mod commands;
+mod config;
 mod query;
 mod task;
+mod theme;
 mod ui;
 mod utils;
-mod config;
-mod theme;
 
 fn main() {
-    let _  = config::init();
+    let _ = config::init();
 
     let args = Cli::parse();
     if args.interactive {
@@ -22,9 +22,8 @@ fn main() {
         command_mode(command);
     } else {
         // print help
-        Cli::parse_from(&["tam", "--help"]); 
+        Cli::parse_from(&["tam", "--help"]);
     }
-
 }
 
 fn interactive_mode() {

@@ -46,7 +46,7 @@ pub enum Commands {
         command: Option<ListSubcommand>,
     },
     /// Show tam configuration
-    Config
+    Config,
 }
 
 #[derive(Subcommand, Debug)]

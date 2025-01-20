@@ -35,7 +35,7 @@ fn print_table(list: &[(usize, Task)]) {
     builder.push_record(["Index", "Title", "Status", "Created"]);
     for (index, task) in list {
         builder.push_record([
-            (index + 1).to_string(),
+            (index).to_string(),
             task.title.clone(),
             task.status.to_string(),
             format_datetime(&task.created),

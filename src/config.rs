@@ -1,5 +1,5 @@
-use std::path::PathBuf;
 use std::io::Write;
+use std::path::PathBuf;
 
 use crate::utils::{config_dir, get_dir_in_config};
 use anyhow::{bail, Context};
@@ -80,7 +80,6 @@ pub fn get_tasks_file() -> anyhow::Result<PathBuf> {
     if !tasks_file.exists() {
         let mut file = std::fs::File::create(&tasks_file)?;
         file.write_all(b"[]")?;
-
     }
     Ok(tasks_file)
 }
@@ -89,7 +88,7 @@ pub fn get_theme_file() -> anyhow::Result<PathBuf> {
     let config = Config::load_or_default()?;
     let tam_dir = get_dir_in_config(TAM_DIR)?;
     let theme_file = tam_dir.join(config.theme_file);
-    if!theme_file.exists() {
+    if !theme_file.exists() {
         std::fs::File::create(&theme_file)?;
     }
     Ok(theme_file)

@@ -1,6 +1,6 @@
 use crate::{
-    query::{add_task, update_task, update_task_status},
     print_success,
+    query::{add_task, update_task, update_task_status},
     task::{Task, TaskStatus},
 };
 

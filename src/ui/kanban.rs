@@ -95,33 +95,38 @@ fn create_task_panel(
 pub fn add_task_dialog(siv: &mut Cursive) {
     siv.add_layer(
         Dialog::around(
-            LinearLayout::vertical()
-                .child(EditView::new().with_name("task_title").fixed_width(20))
-                .child(Button::new("Add", |s| {
-                    let title = match s
-                        .call_on_name("task_title", |view: &mut EditView| view.get_content())
-                    {
-                        Some(title) => title.to_string(),
-                        None => "".to_string(),
-                    };
-                    if title.is_empty() {
-                        s.add_layer(Dialog::info("task title is required!"));
-                        return;
-                    }
-                    let mut task = Task::default();
-                    task.set_title(title.clone());
-                    let _ = add_task(task);
-
-                    // 刷新界面
-                    s.pop_layer();
-                    if let Some(board) = s.user_data::<KanbanBoard>() {
-                        let board_view = board.render();
-                        s.add_layer(board_view);
-                    } else {
-                        s.add_layer(Dialog::info("Kanban board not found!"));
-                    }
-                })),
+            LinearLayout::vertical().child(EditView::new().with_name("task_title").fixed_width(40)),
         )
-        .title("Add Task"),
+        .title("Add Task")
+        .button("Add", |s| {
+            let title = match s.call_on_name("task_title", |view: &mut EditView| view.get_content())
+            {
+                Some(title) => title.to_string(),
+                None => "".to_string(),
+            };
+            if title.is_empty() {
+                s.add_layer(Dialog::info("Task title is required!"));
+                return;
+            }
+            let mut task = Task::default();
+            task.set_title(title.clone());
+            let _ = add_task(task);
+
+            rerender_board(s);
+        })
+        .button("Cancel", |s| {
+            s.pop_layer();
+        }),
     );
+}
+
+fn rerender_board(siv: &mut Cursive) {
+    // 刷新界面
+    siv.pop_layer();
+    if let Some(board) = siv.user_data::<KanbanBoard>() {
+        let board_view = board.render();
+        siv.add_layer(board_view);
+    } else {
+        siv.add_layer(Dialog::info("Kanban board not found!"));
+    }
 }
