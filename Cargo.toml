@@ -30,7 +30,7 @@ dirs = "6.0.0"
 serde = { version = "1.0.217", features = ["derive"] }
 serde_json = "1.0.138"
 tabled = "0.17.0"
-toml = "0.8.19"
+toml = "0.8.20"
 
 # The profile that 'cargo dist' will build with
 [profile.dist]
