@@ -21,7 +21,7 @@ eula = false
 
 
 [dependencies]
-anyhow = "1.0.95"
+anyhow = "1.0.96"
 chrono = { version = "0.4.39", features = ["serde"] }
 clap = { version = "4.5.30", features = ["derive"] }
 colored = "3.0.0"
