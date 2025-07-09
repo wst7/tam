@@ -1,0 +1,15 @@
+
+Config in file
+
+Project
+    id
+    name
+
+Task
+    id
+    name
+    project-id
+
+tam project add|list|use|del
+tam task add|list|del|edit|start|done
+tam config [key [value]]
