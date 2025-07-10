@@ -1,40 +1,21 @@
 name: Release
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
-      - "v*.*.*" # e.g. v0.1.0 会触发
+      - v[0-9]+.*
 
 jobs:
-  build-and-release:
-    name: Build and Publish
+  create-release:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Rust
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache cargo registry
-        uses: actions/cache@v3
+      - uses: taiki-e/create-gh-release-action@v1
         with:
-          path: |
-            ~/.cargo/registry
-            ~/.cargo/git
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - name: Build CLI binary
-        run: cargo build --release
-
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: target/release/tam
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish to crates.io
-        env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
-        run: cargo publish --locked
+          # (Optional) Path to changelog.
+          changelog: CHANGELOG.md
+          # (Required) GitHub token for creating GitHub Releases.
+          token: ${{ secrets.GITHUB_TOKEN }}
