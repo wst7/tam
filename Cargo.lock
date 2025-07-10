@@ -1696,7 +1696,7 @@ dependencies = [
 
 [[package]]
 name = "tam"
-version = "1.0.5"
+version = "1.0.6"
 dependencies = [
  "anyhow",
  "chrono",
