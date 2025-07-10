@@ -8,7 +8,7 @@ cargo-dist-version = "0.28.1-prerelease.2"
 # CI backends to support
 ci = "github"
 # The installers to generate for each app
-installers = ["shell", "powershell", "npm", "homebrew", "msi"]
+installers = ["shell", "powershell", "msi"]
 # Target platforms to build apps for (Rust target-triple syntax)
 targets = [
     "aarch64-apple-darwin",
@@ -24,9 +24,7 @@ windows-archive = ".tar.gz"
 # The archive format to use for non-windows builds (defaults .tar.xz)
 unix-archive = ".tar.gz"
 # A namespace to use when publishing this package to the npm registry
-npm-scope = "@wstreet7"
-# A GitHub repo to push Homebrew formulas to
-tap = "wst7/homebrew-tap"
+
 # Publish jobs to run in CI
 publish-jobs = ["homebrew", "npm", "./publish-crates"]
 # Which actions to run on pull requests
