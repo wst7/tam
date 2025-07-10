@@ -2,11 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5] - 2025-07-10
+
+### ⚙️ Miscellaneous Tasks
+
+- Modify release file
+- Modify release file
+
 ## [1.0.4] - 2025-07-10
 
 ### ⚙️ Miscellaneous Tasks
 
 - Modify release file
+- Release tam version 1.0.4
 
 ## [1.0.3] - 2025-07-10
 
