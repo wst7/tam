@@ -33,7 +33,7 @@ log4rs = "1.3.0"
 once_cell = "1.21.3"
 ratatui = "0.29.0"
 rusqlite = { version = "0.37.0", features = ["bundled"] }
-tui-input = "0.14.0"
+tui-input = "0.12.1"
 
 # The profile that 'cargo dist' will build with
 [profile.dist]
