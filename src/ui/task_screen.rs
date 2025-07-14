@@ -51,25 +51,27 @@ fn render_task_with_status(frame: &mut Frame, app: &mut App, area: Rect, status:
         .iter()
         .map(|t| ListItem::new(t.title.clone()))
         .collect::<Vec<_>>();
-    let list = List::new(tasks)
-        .block(
-            Block::bordered()
-                .style(Style::default().bg(app.theme.background))
-                .title(status.to_string())
-                .title_style(Style::default().fg(app.theme.title_foreground)),
-        )
-        .highlight_style(
+
+    let block = Block::bordered()
+        .style(
             Style::default()
-                .bg(app.theme.highlight_bg)
-                .fg(app.theme.highlight_fg),
-        );
+                .bg(app.theme.background)
+                .fg(app.theme.foreground),
+        )
+        .title(status.to_string())
+        .title_style(Style::default().fg(app.theme.title_foreground));
+    let list = List::new(tasks).block(block.clone()).highlight_style(
+        Style::default()
+            .bg(app.theme.highlight_bg)
+            .fg(app.theme.highlight_fg),
+    );
     if let Some(st) = app.selected_task_status {
         if st == status {
             let mut state = ListState::default();
             if let Some(selected) = app.selected_task {
                 state.select(Some(selected));
             }
-            let list = list.style(Style::default().fg(app.theme.foreground));
+            let list = list.block(block.border_style(Style::default().fg(app.theme.highlight_bd)));
             frame.render_stateful_widget(list, area, &mut state);
             return;
         }
@@ -79,24 +81,24 @@ fn render_task_with_status(frame: &mut Frame, app: &mut App, area: Rect, status:
 
 fn render_help_view(frame: &mut Frame, app: &mut App, area: Rect) {
     let key_map = vec![
-        ("q", "退出"),
-        ("Esc", "返回"),
-        ("↑↓←→", "选择"),
-        ("e", "编辑"),
-        ("a", "新增"),
-        ("d", "删除"),
-        ("s", "开始"),
-        ("c", "完成"),
-        ("t", "切换主题"),
+        ("q", "Quit"),
+        ("esc", "Back"),
+        ("↑↓←→", "Navigate"),
+        ("e", "Edit"),
+        ("a", "Add"),
+        ("d", "Delete"),
+        ("s", "Start"),
+        ("c", "Complete"),
+        ("t", "Toggle Theme"),
     ];
     let mut spans = vec![];
     for (key, help_text) in key_map {
         spans.push(Span::styled(
-            format!("{}", key),
+            format!("<{}>", key),
             Style::default().fg(app.theme.help_key),
         ));
         spans.push(Span::styled(
-            format!("<{}> ", help_text),
+            format!("{} ", help_text),
             Style::default().fg(app.theme.help_text),
         ));
     }

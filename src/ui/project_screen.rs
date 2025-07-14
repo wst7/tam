@@ -61,22 +61,22 @@ fn render_projects_view(frame: &mut Frame, app: &mut App, layout: Rect) {
 
 fn render_help_view(frame: &mut Frame, app: &mut App, layout: Rect) {
     let key_map = vec![
-        ("q", "退出"),
-        ("↑↓", "选择"),
-        ("Enter", "Tasks"),
-        ("e", "编辑"),
-        ("a", "新增"),
-        ("d", "删除"),
-        ("t", "切换主题"),
+        ("q", "Quit"),
+        ("↑↓", "Navigate"),
+        ("↵", "Enter"),
+        ("e", "Edit"),
+        ("a", "Add"),
+        ("d", "Delete"),
+        ("t", "Toggle Theme"),
     ];
     let mut spans = vec![];
     for (key, help_text) in key_map {
         spans.push(Span::styled(
-            format!("{}", key),
+            format!("<{}>", key),
             Style::default().fg(app.theme.help_key),
         ));
         spans.push(Span::styled(
-            format!("<{}> ", help_text),
+            format!("{} ", help_text),
             Style::default().fg(app.theme.help_text),
         ));
     }

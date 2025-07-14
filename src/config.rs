@@ -88,11 +88,14 @@ impl Config {
         std::fs::write(config_file, content)?;
         Ok(true)
     }
-
-    pub fn config_file_path() -> anyhow::Result<PathBuf> {
-        let config_dir = Self::config_dir()?;
-        let config_file = config_dir.join(CONFIG_FILE);
-        Ok(config_file)
+    pub fn set_theme(&mut self, theme: String) {
+        self.theme = theme;
+        match self.save() {
+            Ok(_) => (),
+            Err(err) => {
+                log::info!("set theme error: {}", err);
+            }
+        }
     }
 }
 

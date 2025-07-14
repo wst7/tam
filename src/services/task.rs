@@ -13,12 +13,15 @@ use crate::{
 pub fn add(title: String, p_id: Option<i32>) -> anyhow::Result<bool> {
     log::info!("add task: {} {:?}", title, p_id);
     let db = db::get_db()?;
-    let project = project::get_current_project()?;
+
     let project_id = match p_id {
         Some(id) => id,
         None => {
+            let project = project::get_current_project()?;
             if project.id.is_none() {
-                anyhow::bail!("No current project set. Use `tam project use <name>` to set a project.");
+                anyhow::bail!(
+                    "No current project set. Use `tam project use <name>` to set a project."
+                );
             }
             project.id.unwrap()
         }

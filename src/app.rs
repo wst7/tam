@@ -207,7 +207,7 @@ impl App {
                         KeyCode::Esc => {
                             self.current_screen = CurrentScreen::Project;
                             self.selected_task = None
-                        },
+                        }
                         KeyCode::Char('t') => self.change_theme(),
                         _ => {}
                     }
@@ -406,6 +406,8 @@ impl App {
                 self.theme = Theme::dark();
             }
         }
+        let mut c = config::get_config();
+        c.set_theme(self.theme.name.clone());
     }
 
     pub fn query_projects(&mut self) {
