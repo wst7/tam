@@ -2,11 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.12] - 2025-07-23
+
+### 🐛 Bug Fixes
+
+- Use up/down key switch tasks no response
+
+### ⚙️ Miscellaneous Tasks
+
+- Add release.sh file
+
 ## [1.0.11] - 2025-07-14
 
 ### 🐛 Bug Fixes
 
 - Fix some bugs
+
+### ⚙️ Miscellaneous Tasks
+
+- Release tam version 1.0.11
 
 ## [1.0.10] - 2025-07-10
 
