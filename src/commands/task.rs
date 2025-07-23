@@ -20,6 +20,7 @@ pub fn list() -> anyhow::Result<bool> {
     if tasks.is_empty() {
         print_info!("No tasks found. Use `tam task add` to add a task.");
     } else {
+        print_info!("Current project: {}", project.name);
         Task::print(&tasks);
     }
     Ok(true)
