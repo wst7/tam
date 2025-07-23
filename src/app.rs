@@ -117,6 +117,7 @@ impl App {
                         }
                         KeyCode::Enter => {
                             if self.selected_project.is_some() {
+                                self.selected_task_status = Some(TaskStatus::Todo);
                                 self.current_screen = CurrentScreen::Task;
                             }
                         }
@@ -262,7 +263,8 @@ impl App {
     }
 
     fn next_task(&mut self) {
-        let len = self.tasks.len();
+        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+        let len = tasks.len();
         if len == 0 {
             return;
         }
@@ -278,7 +280,8 @@ impl App {
     }
 
     fn prev_task(&mut self) {
-        let len = self.tasks.len();
+        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+        let len = tasks.len();
         if len == 0 {
             return;
         }

@@ -1,7 +1,8 @@
 # TAM - Tasks Manager CLI Tool
 
-![Crate](https://img.shields.io/crates/v/tam)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+[![Crate](https://img.shields.io/crates/v/tam.svg)](https://crates.io/crates/tam)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/wst7/tam/blob/main/LICENSE.md)
+[![Release](https://github.com/wst7/tam/actions/workflows/release.yml/badge.svg)](https://github.com/wst7/tam/actions/workflows/release.yml)
 
 A lightweight terminal-based project and task manager.
 

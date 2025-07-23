@@ -139,14 +139,14 @@ impl Task {
 
     pub fn print(list: &[Self]) {
         let mut builder = Builder::default();
-        builder.push_record(["ID", "Title", "Status", "Created", "Updated"]);
+        builder.push_record(["ID", "Title", "Status"]);
         for item in list {
             builder.push_record([
                 item.id.unwrap().to_string(),
                 item.title.clone(),
                 item.status.to_string(),
-                item.created.to_string(),
-                item.updated.to_string(),
+                // item.created.to_string(),
+                // item.updated.to_string(),
             ]);
         }
 
