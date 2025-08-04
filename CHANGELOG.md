@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.13] - 2025-08-04
+
+### 🚀 Features
+
+- Task list command show current project
+- Distributes npm and tap
+
 ## [1.0.12] - 2025-07-23
 
 ### 🐛 Bug Fixes
@@ -11,6 +18,7 @@ All notable changes to this project will be documented in this file.
 ### ⚙️ Miscellaneous Tasks
 
 - Add release.sh file
+- Release tam version 1.0.12
 
 ## [1.0.11] - 2025-07-14
 
