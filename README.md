@@ -25,8 +25,25 @@ for the [task-tracker](https://roadmap.sh/projects/task-tracker) challenge from 
 
 ## Installation
 
+### Shell
+```bash
+curl --proto '=https' --tlsv1.2 -LsSf https://github.com/wst7/tam/releases/download/latest/tam-installer.sh | sh
+```
+
+### Powershell
+```bash
+powershell -ExecutionPolicy Bypass -c "irm https://github.com/wst7/tam/releases/download/latest/tam-installer.ps1 | iex"
+```
+### Homebrew
+```bash
+brew install wst7/tap/tam
+```
+### Npm
+```bash
+npm install -g @wst7/tam
+```
 ### Crates.io
-To install `tam` via [crates.io](https://crates.io):
+To install `tam` via [crates.io](https://crates.io/crates/tam):
 
 ```bash
 cargo install tam
