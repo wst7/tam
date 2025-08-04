@@ -5,6 +5,7 @@ edition = "2021"
 authors = ["wst7 <wstreet7@outlook.com>"]
 description = "A tasks manager cli tool"
 repository = "https://github.com/wst7/tam"
+homepage = "https://github.com/wst7/tam"
 keywords = ["cli", "project", "task", "todo", "manager"]
 categories = ["command-line-utilities"]
 license = "MIT OR Apache-2.0"
