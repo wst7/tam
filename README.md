@@ -86,6 +86,33 @@ tam -i
 ```
 ---
 
+## AI Assistant Skill
+
+A usage skill is bundled in this repository to help AI assistants (Claude Code, Codex, OpenCode, Cursor, etc.) provide accurate `tam` command guidance.
+
+### Install via `npx skills` (Recommended)
+
+```bash
+# Install from GitHub
+npx skills add https://github.com/wst7/tam
+
+```
+
+### What's Included
+
+The `tam-usage` skill covers:
+
+- Installation methods (Shell, PowerShell, Homebrew, npm, cargo)
+- Complete CLI command reference with aliases
+- Project / Task management workflow
+- Data model and soft-delete conventions
+- Common pitfalls (e.g., forgetting `tam project use`)
+- Troubleshooting tips
+
+Once installed, your assistant will automatically load this skill when you ask questions about managing projects or tasks with `tam`.
+
+---
+
 ## Contributing
 
 Contributions are welcome! Please submit an issue or pull request on the [GitHub repository](https://github.com/wst7/tam).
