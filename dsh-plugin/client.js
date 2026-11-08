@@ -6,7 +6,7 @@
  * React comes from the frozen module table; everything else is plain JS.
  */
 window.__ModuleLoader__.load({
-  id: 'dsh-tam',
+  id: '@wst7/dsh-tam',
   factory: (require) => {
     const React = require('react');
     const h = React.createElement;

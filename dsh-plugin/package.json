@@ -1,5 +1,5 @@
 {
-  "name": "dsh-tam",
+  "name": "@wst7/dsh-tam",
   "version": "0.1.0",
   "description": "DSH plugin: native tam task tools (JSON CLI wrapper) for agent task management.",
   "license": "MIT OR Apache-2.0",

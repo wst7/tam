@@ -181,28 +181,28 @@ Four practical ways to deliver it:
 
 ### DSH plugin
 
-This repository ships [`dsh-plugin/`](dsh-plugin/README.md), an installable DeepSeek Harness bundle (`dsh-tam`) that exposes 14 native model-facing tools — `tam_status`, `tam_project_list/add`, `tam_task_list/show/create/update/claim/heartbeat/release/complete/next/events/delete`. It wraps the JSON CLI, so the model gets canonical task data without shelling out or parsing tables.
+This repository ships [`dsh-plugin/`](dsh-plugin/README.md), an installable DeepSeek Harness bundle (`@wst7/dsh-tam`) that exposes 14 native model-facing tools — `tam_status`, `tam_project_list/add`, `tam_task_list/show/create/update/claim/heartbeat/release/complete/next/events/delete`. It wraps the JSON CLI, so the model gets canonical task data without shelling out or parsing tables.
 
 **Install for users** (after the plugin is published to npm):
 
 ```bash
-dsh plugin --profile desktop add dsh-tam
+dsh plugin --profile desktop add @wst7/dsh-tam
 # pin a version
-dsh plugin --profile desktop add dsh-tam@0.1.0
+dsh plugin --profile desktop add @wst7/dsh-tam@0.1.0
 # restart DeepSeek Harness; the tools appear in the next session
 ```
 
 Or install a GitHub release tarball, or the local checkout:
 
 ```bash
-dsh plugin --profile desktop add ./dsh-tam-0.1.0.tgz
+dsh plugin --profile desktop add ./wst7-dsh-tam-0.1.0.tgz
 # or, from this repo:
 cd /path/to/tam && cargo build
 dsh plugin --profile desktop add ./dsh-plugin
 ```
 
 **tam CLI:** the plugin declares an optional `@wst7/tam` npm dependency, so once tam
-1.0.14+ is published, `dsh plugin add dsh-tam` also installs the CLI (cargo-dist's
+1.0.14+ is published, `dsh plugin add @wst7/dsh-tam` also installs the CLI (cargo-dist's
 launcher downloads the platform binary on first use). If the optional dependency is
 skipped (offline/mirror lag), install tam separately or point `config.command` at it.
 Smoke-test it:
@@ -215,7 +215,7 @@ Override the binary/project/agent in the profile's `cordis.patch.yml` if needed:
 
 ```yaml
 - id: tam-tools
-  name: dsh-tam
+  name: @wst7/dsh-tam
   config:
     command: "/absolute/path/to/tam"
     project: "tam"       # optional default project

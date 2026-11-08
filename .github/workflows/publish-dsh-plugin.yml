@@ -19,7 +19,7 @@ jobs:
         run: cargo build
       - name: Test plugin
         run: node --test dsh-plugin/test/*.test.mjs
-      - name: Publish dsh-tam
+      - name: Publish @wst7/dsh-tam
         working-directory: dsh-plugin
         run: npm publish --access public
         env:

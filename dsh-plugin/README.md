@@ -1,4 +1,4 @@
-# dsh-tam — DSH plugin for tam
+# @wst7/dsh-tam — DSH plugin for tam
 
 A DeepSeek Harness **bundle** that exposes `tam` as 14 native model-facing tools. It wraps
 the tam JSON CLI (`tam ... --json`, schema `tam.agent/v1`) and returns canonical task
@@ -29,9 +29,9 @@ back to a local/PATH `tam`.
 ### From npm (recommended)
 
 ```bash
-dsh plugin --profile desktop add dsh-tam
+dsh plugin --profile desktop add @wst7/dsh-tam
 # pin a version
-dsh plugin --profile desktop add dsh-tam@0.1.0
+dsh plugin --profile desktop add @wst7/dsh-tam@0.1.0
 ```
 
 Restart DeepSeek Harness after installing (a running app does not hot-add a new bundle).
@@ -44,16 +44,16 @@ users can set `command` to a preinstalled binary instead.
 Upgrade / remove:
 
 ```bash
-dsh plugin --profile desktop add dsh-tam@latest
-dsh plugin --profile desktop remove dsh-tam
+dsh plugin --profile desktop add @wst7/dsh-tam@latest
+dsh plugin --profile desktop remove @wst7/dsh-tam
 ```
 
 ### From a release tarball
 
 ```bash
-curl -L -o /tmp/dsh-tam-0.1.0.tgz \
-  https://github.com/wst7/tam/releases/download/dsh-plugin-v0.1.0/dsh-tam-0.1.0.tgz
-dsh plugin --profile desktop add /tmp/dsh-tam-0.1.0.tgz
+curl -L -o /tmp/wst7-dsh-tam-0.1.0.tgz \
+  https://github.com/wst7/tam/releases/download/dsh-plugin-v0.1.0/wst7-dsh-tam-0.1.0.tgz
+dsh plugin --profile desktop add /tmp/wst7-dsh-tam-0.1.0.tgz
 ```
 
 `dsh plugin add <url>` also accepts a tarball URL directly.
@@ -71,11 +71,11 @@ The Electron `desktop` profile is managed by the app, so `dsh --dump-config` ref
 it; check the profile manifest instead:
 
 ```bash
-grep -n 'dsh-tam' ~/.dsh/profiles/desktop/package.json
+grep -n '@wst7/dsh-tam' ~/.dsh/profiles/desktop/package.json
 ```
 
 For a non-Electron profile (e.g. `headless`), `dsh --profile <name> --dump-config` shows
-the `# == dsh-tam` layer.
+the `# == @wst7/dsh-tam` layer.
 
 ### Configure
 
@@ -85,7 +85,7 @@ no default project. Override in the profile's `cordis.patch.yml`:
 
 ```yaml
 - id: tam-tools
-  name: dsh-tam
+  name: @wst7/dsh-tam
   config:
     command: "/absolute/path/to/tam"
     project: "tam"       # optional default project

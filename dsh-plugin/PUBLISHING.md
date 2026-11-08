@@ -1,4 +1,4 @@
-# Publishing `dsh-tam`
+# Publishing `@wst7/dsh-tam`
 
 This package is a normal npm package with a DSH bundle manifest. It has an **optional
 dependency** on `@wst7/tam` (`>=1.0.14 <2.0.0`), so installing the plugin from npm also
@@ -6,12 +6,12 @@ installs the CLI when that tam version is available. The plugin still requires a
 with the agent JSON contract (`tam --json project list` returns `tam.agent/v1`).
 
 **Release tam first**, then the plugin. If the plugin is published before tam 1.0.14 is
-on npm, `dsh plugin add dsh-tam` still succeeds but pnpm skips the optional dependency;
+on npm, `dsh plugin add @wst7/dsh-tam` still succeeds but pnpm skips the optional dependency;
 users then need a separate tam install (or `command` config) until they reinstall.
 
 ## Versioning
 
-- `dsh-tam` follows semver: patch = fixes, minor = new tools/behavior, major = breaking
+- `@wst7/dsh-tam` follows semver: patch = fixes, minor = new tools/behavior, major = breaking
   tool/config changes.
 - The tool contract is the tam JSON contract `tam.agent/v1`. If tam introduces
   `tam.agent/v2`, publish a plugin major and support both or require the new tam.
@@ -41,9 +41,10 @@ npm config get registry
 npm publish --registry=https://registry.npmjs.org --access public
 ```
 
-`dsh-tam` was unclaimed on npm at the time of writing. If it becomes unavailable, publish
-under a scope (e.g. `@wst7/dsh-tam`) and update `package.json` plus the bundle row name;
-users then install `@wst7/dsh-tam`.
+`@wst7/dsh-tam` is published under the existing `@wst7` npm scope, so the
+`NPM_TOKEN` used for `@wst7/tam` can publish it too. If the package is renamed,
+update `package.json`, the bundle row in `cordis.patch.yml`, and the
+`__ModuleLoader__.load` id in `client.js` together.
 
 ## Release order
 
@@ -56,7 +57,7 @@ users then install `@wst7/dsh-tam`.
    ```
 3. Publish the plugin. A clean install should pull both packages:
    ```bash
-   dsh plugin --profile desktop add dsh-tam@0.1.1
+   dsh plugin --profile desktop add @wst7/dsh-tam@0.1.1
    grep -n '@wst7/tam' ~/.dsh/profiles/desktop/package.json
    ```
    The first tool call may download the platform binary via the launcher.
@@ -93,31 +94,31 @@ If the next tam release is not 1.0.14, update `optionalDependencies` in
 
    ```bash
    npm pack
-   sha256sum dsh-tam-0.1.1.tgz
-   gh release create dsh-plugin-v0.1.1 dsh-tam-0.1.1.tgz \
-     --title "dsh-tam 0.1.1" \
+   sha256sum wst7-dsh-tam-0.1.1.tgz
+   gh release create dsh-plugin-v0.1.1 wst7-dsh-tam-0.1.1.tgz \
+     --title "@wst7/dsh-tam 0.1.1" \
      --notes "Requires tam with tam.agent/v1."
    ```
 
    Users install it with:
 
    ```bash
-   dsh plugin --profile desktop add ./dsh-tam-0.1.1.tgz
+   dsh plugin --profile desktop add ./wst7-dsh-tam-0.1.1.tgz
    # or a URL
-   dsh plugin --profile desktop add https://github.com/wst7/tam/releases/download/dsh-plugin-v0.1.1/dsh-tam-0.1.1.tgz
+   dsh plugin --profile desktop add https://github.com/wst7/tam/releases/download/dsh-plugin-v0.1.1/wst7-dsh-tam-0.1.1.tgz
    ```
 
 5. Verify a clean consumer install:
 
    ```bash
-   dsh plugin --profile desktop add dsh-tam@0.1.1
+   dsh plugin --profile desktop add @wst7/dsh-tam@0.1.1
    # restart DeepSeek Harness, then confirm the tam_* tools appear
-   dsh plugin --profile desktop remove dsh-tam
+   dsh plugin --profile desktop remove @wst7/dsh-tam
    ```
 
 ## CI (optional)
 
-Publishing from CI needs an npm token with publish rights for `dsh-tam` and, for
+Publishing from CI needs an npm token with publish rights for `@wst7/dsh-tam` and, for
 provenance, `id-token: write`. Example workflow (trigger it manually or on a tag):
 
 ```yaml
@@ -151,7 +152,7 @@ pnpm workspace, so a plain `cd dsh-plugin && npm publish` is equivalent.
 ## What users need
 
 - A DeepSeek Harness version that supports bundles (`dsh plugin add`).
-- `dsh plugin add dsh-tam` installs the optional `@wst7/tam` dependency automatically
+- `dsh plugin add @wst7/dsh-tam` installs the optional `@wst7/tam` dependency automatically
   when the compatible version is on npm; the launcher downloads the platform binary on
   first use. If the optional dependency is skipped (offline/mirror lag), install tam
   manually or set `command` in the profile patch.
