@@ -2,5 +2,5 @@
 # Override `command` if `tam` is not on PATH or points at an older build.
 - insert:
     - id: tam-tools
-      name: @wst7/dsh-tam
+      name: "@wst7/dsh-tam"
       config: {}

@@ -118,8 +118,12 @@ If the next tam release is not 1.0.14, update `optionalDependencies` in
 
 ## CI (optional)
 
-Publishing from CI needs an npm token with publish rights for `@wst7/dsh-tam` and, for
-provenance, `id-token: write`. Example workflow (trigger it manually or on a tag):
+Publishing from CI needs an npm token that can **create** packages in the `@wst7`
+scope. A granular token restricted to existing packages authenticates but answers
+`404 ... is not in this registry` on the first publish of a new package; create a new
+granular token with package read/write access for the scope (or publish from a
+logged-in account). For provenance, add `id-token: write`. Example workflow
+(trigger it manually or on a tag):
 
 ```yaml
 name: publish-dsh-plugin

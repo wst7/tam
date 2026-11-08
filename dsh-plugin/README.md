@@ -26,7 +26,10 @@ back to a local/PATH `tam`.
 
 ## Install (users)
 
-### From npm (recommended)
+### From npm
+
+> npm publication is pending a token with create rights for the `@wst7` scope.
+> The GitHub Release tarball below is available now.
 
 ```bash
 dsh plugin --profile desktop add @wst7/dsh-tam
@@ -85,7 +88,7 @@ no default project. Override in the profile's `cordis.patch.yml`:
 
 ```yaml
 - id: tam-tools
-  name: @wst7/dsh-tam
+  name: "@wst7/dsh-tam"
   config:
     command: "/absolute/path/to/tam"
     project: "tam"       # optional default project

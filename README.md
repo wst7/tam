@@ -183,7 +183,8 @@ Four practical ways to deliver it:
 
 This repository ships [`dsh-plugin/`](dsh-plugin/README.md), an installable DeepSeek Harness bundle (`@wst7/dsh-tam`) that exposes 14 native model-facing tools — `tam_status`, `tam_project_list/add`, `tam_task_list/show/create/update/claim/heartbeat/release/complete/next/events/delete`. It wraps the JSON CLI, so the model gets canonical task data without shelling out or parsing tables.
 
-**Install for users** (after the plugin is published to npm):
+**Install for users** (GitHub Release tarball is available now; the npm package
+is pending a token with create rights for the `@wst7` scope):
 
 ```bash
 dsh plugin --profile desktop add @wst7/dsh-tam
@@ -215,7 +216,7 @@ Override the binary/project/agent in the profile's `cordis.patch.yml` if needed:
 
 ```yaml
 - id: tam-tools
-  name: @wst7/dsh-tam
+  name: "@wst7/dsh-tam"
   config:
     command: "/absolute/path/to/tam"
     project: "tam"       # optional default project
