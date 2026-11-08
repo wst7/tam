@@ -1,0 +1,27 @@
+=== S2 red (unit): U4/U5 reference parse_db_datetime before it exists Sun Nov  8 15:58:47 CST 2026 ===
+    |
+158 |         let parsed = parse_db_datetime("2026-11-08 07:14:54").expect("valid SQLite timestamp");
+    |                      ^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find function `parse_db_datetime` in this scope
+   --> src/services/task.rs:168:17
+    |
+168 |         assert!(parse_db_datetime("not-a-timestamp").is_err());
+    |                 ^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find function `parse_db_datetime` in this scope
+   --> src/services/task.rs:169:17
+    |
+169 |         assert!(parse_db_datetime("2026-11-08T07:14:54").is_err());
+    |                 ^^^^^^^^^^^^^^^^^ not found in this scope
+
+error[E0425]: cannot find function `parse_db_datetime` in this scope
+   --> src/services/task.rs:170:17
+    |
+170 |         assert!(parse_db_datetime("").is_err());
+    |                 ^^^^^^^^^^^^^^^^^ not found in this scope
+
+For more information about this error, try `rustc --explain E0425`.
+warning: `tam` (bin "tam" test) generated 2 warnings
+error: could not compile `tam` (bin "tam" test) due to 4 previous errors; 2 warnings emitted
+TEST_EXIT=101

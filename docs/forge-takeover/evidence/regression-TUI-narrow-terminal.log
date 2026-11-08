@@ -1,0 +1,39 @@
+=== TUI tip rendering on a standard 80x24 pty 2026-11-08 16:39:50 ===
+Repro (fresh temp HOME, no real data touched):
+  H=$(mktemp -d); HOME=$H ./target/debug/tam project add alpha; HOME=$H ./target/debug/tam project use alpha
+  HOME=$H ./target/debug/tam task add t1; HOME=$H ./target/debug/tam task add t2
+  HOME=$H expect -c 'set stty_init "rows 24 columns 80"; spawn ./target/debug/tam -i; ... Down,d,Enter ...'
+Then reconstruct the rendered frame with a minimal VT emulator (/tmp/vtscreen.py, 80x24).
+
+--- reconstructed tip frame at 80x24 ---
+┌Projects views────────────────────────────────────────────────────────────────┐
+│alpha                                                                         │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                   ┌提示──────────────────────────────────┐                   │
+│                   │删除项目失败：project 'alpha' has 2 ac│                   │
+│                   └──────────────────────────────────────┘                   │
+│                                                 Enter 关闭                   │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+┌Help──────────────────────────────────────────────────────────────────────────┐
+│    <q>Quit <↑↓>Navigate <↵>Enter <e>Edit <a>Add <d>Delete <t>Toggle Theme    │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
+
+OBSERVATION: message is clipped at the popup border; visible text ends mid-word
+  ('... has 2 ac'). On a 120-column pty the same message renders in full
+  (see regression-S5-M-tui.log). Cause: ui/components.rs::render_tips renders
+  into centered_rect(50,18) with a non-wrapping Paragraph; CJK prefixes consume
+  2 cells/char, so long S9/G3 error tips exceed a 50%-width popup on 80-col terminals.
+Severity: P2 (display only; DB/config behaviour correct; count digit '2' still visible).

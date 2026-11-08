@@ -1,0 +1,41 @@
+=== Gate B fixes RED phase: new tests before implementation Sun Nov  8 17:44:42 CST 2026 ===
+--- db migration unit tests (expect version 2 / v1->v2 / key reuse) ---
+test db::test::migrates_in_memory_without_backup ... FAILED
+test db::test::empty_legacy_db_migration_needs_no_backup ... ok
+test db::test::migrates_v1_to_v2_index_without_new_backup ... FAILED
+test db::test::migration_is_idempotent ... FAILED
+test db::test::migrates_legacy_schema_and_creates_backup ... FAILED
+thread 'db::test::migrates_in_memory_without_backup' (10472564) panicked at src/db.rs:324:9:
+assertion `left == right` failed
+thread 'db::test::migrates_v1_to_v2_index_without_new_backup' (10472566) panicked at src/db.rs:389:9:
+thread 'db::test::migration_is_idempotent' (10472567) panicked at src/db.rs:301:9:
+assertion `left == right` failed
+thread 'db::test::migrates_legacy_schema_and_creates_backup' (10472565) panicked at src/db.rs:220:9:
+assertion `left == right` failed: fresh/legacy databases migrate to schema v2
+test result: FAILED. 1 passed; 4 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.02s
+DB_TEST_EXIT=101
+
+--- agent integration tests (D1-D5 / P3) ---
+test d5_broken_config_json_uses_error_envelope ... FAILED
+test d4_mcp_update_can_clear_tags ... FAILED
+test d1_idempotency_key_reusable_after_soft_delete ... FAILED
+test d3_update_todo_clears_lease_and_next_returns_task ... FAILED
+test d2_update_done_respects_lease_and_emits_completed_event ... FAILED
+test p3_project_view_timestamps_are_populated ... FAILED
+test p3_task_delete_json_writes_event ... FAILED
+test task_crud_views_and_events ... FAILED
+test p3_by_id_meta_project_is_populated ... ok
+thread 'd5_broken_config_json_uses_error_envelope' (10473138) panicked at tests/agent.rs:96:9:
+thread 'd4_mcp_update_can_clear_tags' (10473137) panicked at tests/agent.rs:1267:5:
+thread 'd1_idempotency_key_reusable_after_soft_delete' (10473134) panicked at tests/agent.rs:1150:18:
+thread 'd3_update_todo_clears_lease_and_next_returns_task' (10473136) panicked at tests/agent.rs:1236:5:
+thread 'd2_update_done_respects_lease_and_emits_completed_event' (10473135) panicked at tests/agent.rs:1195:5:
+thread 'p3_project_view_timestamps_are_populated' (10473230) panicked at tests/agent.rs:1322:5:
+thread 'p3_task_delete_json_writes_event' (10473236) panicked at tests/agent.rs:1377:19:
+thread 'task_crud_views_and_events' (10473254) panicked at tests/agent.rs:273:5:
+test result: FAILED. 16 passed; 8 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.13s
+AGENT_TEST_EXIT=101
+
+--- real sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

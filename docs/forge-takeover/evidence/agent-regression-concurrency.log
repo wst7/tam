@@ -1,0 +1,76 @@
+=== QA independent concurrency / lease regression ===
+PASS: seed project exit0
+PASS: add contended-1 exit0
+PASS: C1.1 exactly one winner/one conflict
+PASS: C1.2 single owner in DB
+PASS: C1.3 revision created+claim=2
+PASS: C1.4 exactly one claimed event
+PASS: C1.5 winner envelope owner matches DB
+PASS: C1.6 loser error code conflict
+PASS: add contended-2 exit0
+PASS: C2.1 exactly one winner/one conflict
+PASS: C2.2 single owner in DB
+PASS: C2.3 revision created+claim=2
+PASS: C2.4 exactly one claimed event
+PASS: C2.5 winner envelope owner matches DB
+PASS: C2.6 loser error code conflict
+PASS: add contended-3 exit0
+PASS: C3.1 exactly one winner/one conflict
+PASS: C3.2 single owner in DB
+PASS: C3.3 revision created+claim=2
+PASS: C3.4 exactly one claimed event
+PASS: C3.5 winner envelope owner matches DB
+PASS: C3.6 loser error code conflict
+PASS: add contended-4 exit0
+PASS: C4.1 exactly one winner/one conflict
+PASS: C4.2 single owner in DB
+PASS: C4.3 revision created+claim=2
+PASS: C4.4 exactly one claimed event
+PASS: C4.5 winner envelope owner matches DB
+PASS: C4.6 loser error code conflict
+PASS: add contended-5 exit0
+PASS: C5.1 exactly one winner/one conflict
+PASS: C5.2 single owner in DB
+PASS: C5.3 revision created+claim=2
+PASS: C5.4 exactly one claimed event
+PASS: C5.5 winner envelope owner matches DB
+PASS: C5.6 loser error code conflict
+PASS: add lease-expiry exit0
+PASS: E1 short claim exit0
+PASS: E2 lease_expired false right after claim
+PASS: E3 claim after expiry exit0
+PASS: E4 expired lease reclaimed by others
+PASS: add heartbeat exit0
+PASS: H1 claim exit0
+PASS: H2 heartbeat exit0
+PASS: H3 heartbeat extends expiry
+PASS: H4 valid renewed lease blocks other agent
+PASS: H5 non-holder heartbeat conflict
+PASS: H6 claim after renewed expiry exit0
+PASS: H7 renewed lease eventually expires
+PASS: add release exit0
+PASS: R1 claim exit0
+PASS: R2 release exit0
+PASS: R3 release clears lease and returns todo
+PASS: R4 reclaim exit0
+PASS: add force exit0
+PASS: F1 claim a exit0
+PASS: F2 force claim b exit0
+PASS: F3 force preempts owner
+PASS: F4 force recorded in event metadata
+PASS: add done-rules exit0
+PASS: D1 claim exit0
+PASS: D2 other agent cannot complete active lease
+PASS: D3 human done exit0
+PASS: D4 done clears lease
+PASS: D5 second done is conflict
+PASS: D6 done cannot be claimed
+PASS: add idem-seed exit0
+PASS: K1 concurrent same key both exit0
+PASS: K2 concurrent same key returns same id
+PASS: K3 exactly one row for the key
+CONCURRENCY_RESULT: PASS=70 FAIL=0
+CONC_SCRIPT_EXIT=0
+--- real hashes after concurrency test:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

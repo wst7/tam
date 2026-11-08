@@ -1,0 +1,134 @@
+=== Gate 6 交接快照 · final git status / repository facts ===
+captured_at: 2026-11-08 16:46:03 CST
+
+--- HEAD ---
+HEAD=d395841288bbf86960a931924ff628c5b264d066
+HEAD_SHORT=d395841
+BRANCH=main
+d395841 feat: add tam-usage skill for AI assistants
+
+--- git status --short ---
+ M AGENTS.md
+ M README.md
+ M skills/tam-usage/SKILL.md
+ M src/app.rs
+ M src/cli.rs
+ M src/commands.rs
+ M src/commands/project.rs
+ M src/commands/task.rs
+ M src/config.rs
+ M src/main.rs
+ M src/services.rs
+ M src/services/project.rs
+ M src/services/task.rs
+ M src/sql.rs
+ M src/ui.rs
+ M src/utils.rs
+?? docs/
+?? tests/
+
+--- git diff --shortstat ---
+ 16 files changed, 527 insertions(+), 245 deletions(-)
+
+--- git diff --stat ---
+ AGENTS.md                 |   2 +-
+ README.md                 |   2 +-
+ skills/tam-usage/SKILL.md |   6 +-
+ src/app.rs                | 125 +++++++++++++++++++++---------
+ src/cli.rs                |  55 +++++++++++---
+ src/commands.rs           |   2 +-
+ src/commands/project.rs   | 100 +++++++++++++-----------
+ src/commands/task.rs      |  24 +++---
+ src/config.rs             |  95 ++++++++++++-----------
+ src/main.rs               |   7 +-
+ src/services.rs           |   2 +-
+ src/services/project.rs   | 130 +++++++++++++++++++++++++++----
+ src/services/task.rs      | 189 +++++++++++++++++++++++++++++-----------------
+ src/sql.rs                |  24 +++++-
+ src/ui.rs                 |   4 +-
+ src/utils.rs              |   5 +-
+ 16 files changed, 527 insertions(+), 245 deletions(-)
+
+--- src numstat 汇总 ---
+src: +522 -240 (files=13)
+
+--- 行数（wc -l 实拍） ---
+     250 docs/forge-takeover/00-discovery.md
+     296 docs/forge-takeover/01-asbuilt.md
+     185 docs/forge-takeover/02-gap.md
+     221 docs/forge-takeover/03-plan.md
+     170 docs/forge-takeover/04-implementation.md
+     171 docs/forge-takeover/05-regression.md
+     256 docs/forge-takeover/06-handover.md
+     731 tests/cli.rs
+     124 README.md
+      83 AGENTS.md
+     119 skills/tam-usage/SKILL.md
+    2606 total
+
+--- evidence 文件数 ---
+evidence_files=64
+final_changes_diff=    1324 lines /    48888 bytes
+
+--- 交付物索引存在性检查（test -f） ---
+OK   docs/forge-takeover/06-handover.md
+OK   docs/forge-takeover/evidence/final-changes.diff
+OK   docs/forge-takeover/evidence/final-git-status.log
+OK   docs/forge-takeover/evidence/build.log
+OK   docs/forge-takeover/evidence/test.log
+OK   docs/forge-takeover/evidence/fmt.log
+OK   docs/forge-takeover/evidence/clippy.log
+OK   docs/forge-takeover/evidence/versions.txt
+OK   docs/forge-takeover/evidence/baseline-smoke.log
+OK   docs/forge-takeover/evidence/iteration-00-sha256-before.txt
+OK   docs/forge-takeover/evidence/iteration-final-sha256-after.txt
+OK   docs/forge-takeover/evidence/iteration-gate-build.log
+OK   docs/forge-takeover/evidence/iteration-gate-test.log
+OK   docs/forge-takeover/evidence/iteration-gate-test-temphome.log
+OK   docs/forge-takeover/evidence/iteration-gate-clippy.log
+OK   docs/forge-takeover/evidence/iteration-gate-schema.log
+OK   docs/forge-takeover/evidence/iteration-gate-smoke.log
+OK   docs/forge-takeover/evidence/regression-gates-summary.log
+OK   docs/forge-takeover/evidence/regression-build.log
+OK   docs/forge-takeover/evidence/regression-test-bare.log
+OK   docs/forge-takeover/evidence/regression-test-temphome.log
+OK   docs/forge-takeover/evidence/regression-fmt.log
+OK   docs/forge-takeover/evidence/regression-clippy-count.log
+OK   docs/forge-takeover/evidence/regression-schema.log
+OK   docs/forge-takeover/evidence/regression-docs-hygiene.log
+OK   docs/forge-takeover/evidence/regression-final-integrity.log
+OK   docs/forge-takeover/evidence/regression-smoke-G1-G10.log
+OK   docs/forge-takeover/evidence/regression-smoke-extra.log
+OK   docs/forge-takeover/evidence/regression-S5-M-tui.log
+OK   docs/forge-takeover/evidence/regression-M1.log
+OK   docs/forge-takeover/evidence/regression-TUI-narrow-terminal.log
+OK   src/app.rs
+OK   src/cli.rs
+OK   src/commands.rs
+OK   src/commands/project.rs
+OK   src/commands/task.rs
+OK   src/config.rs
+OK   src/main.rs
+OK   src/services.rs
+OK   src/services/project.rs
+OK   src/services/task.rs
+OK   src/sql.rs
+OK   src/ui.rs
+OK   src/utils.rs
+OK   tests/cli.rs
+OK   README.md
+OK   AGENTS.md
+OK   skills/tam-usage/SKILL.md
+missing_count=0
+
+--- 用户数据只读核对（真实 HOME，未写入） ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+baseline:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+current_project = "pastoid"
+
+--- 工具链 ---
+rustc 1.94.1 (e408947bf 2026-03-25)
+cargo 1.94.1 (29ea6fb6a 2026-03-24)

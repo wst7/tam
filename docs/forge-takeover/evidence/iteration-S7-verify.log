@@ -1,0 +1,28 @@
+=== S7 red: documentation drift before edit Sun Nov  8 16:09:01 CST 2026 ===
+--- README version ---
+66:Version: 1.0.10
+--- SKILL required behaviors (expect missing) ---
+SKILL_BEHAVIORS_MISSING
+--- AGENTS test section ---
+## Test
+
+Tests are **inline** inside `src/` files (e.g. `src/config.rs`, `src/db.rs`). There is no `tests/` directory — it is excluded in `Cargo.toml`.
+
+```bash
+
+=== S7 green: documentation grep after edit Sun Nov  8 16:09:13 CST 2026 ===
+--- README version (1.0.13 present, 1.0.10 absent) ---
+66:Version: 1.0.13
+README_OK
+--- SKILL three behaviors ---
+14:- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly. Re-adding a deleted project's name **restores** that project (`project add` reports `restored`); an active duplicate still fails with `already exists`.
+53:| `tam task list [--status <todo\|in-progress\|done>]` | List tasks in the current project, optionally filtered by status | `tam t l` |
+--- AGENTS test section ---
+## Test
+
+Unit tests are **inline** inside `src/` files (e.g. `src/config.rs`); integration tests live in `tests/cli.rs` and inject a temporary `HOME`, so the real `~/.tam` is never touched (`tests/` is only excluded from packaging in `Cargo.toml`).
+
+```bash
+14:- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly. Re-adding a deleted project's name **restores** that project (`project add` reports `restored`); an active duplicate still fails with `already exists`.
+44:| `tam project del <name>` | Delete a project (soft delete); refused while it has active task(s), reporting the count | `tam p d` |
+53:| `tam task list [--status <todo\|in-progress\|done>]` | List tasks in the current project, optionally filtered by status | `tam t l` |

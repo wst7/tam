@@ -1,0 +1,25 @@
+=== FINAL GATE schema & docs (after S9) Sun Nov  8 16:22:05 CST 2026 ===
+--- DDL diff (must be empty) ---
+SCHEMA_UNTOUCHED
+--- DDL byte compare vs HEAD ---
+DDL blocks HEAD=2 working=2
+DDL_IDENTICAL
+--- README version ---
+66:Version: 1.0.13
+README_OK
+--- SKILL behaviors ---
+14:- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly. Re-adding a deleted project's name **restores** that project (`project add` reports `restored`); an active duplicate still fails with `already exists`.
+44:| `tam project del <name>` | Delete a project (soft delete); refused while it has active task(s), reporting the count | `tam p d` |
+53:| `tam task list [--status <todo\|in-progress\|done>]` | List tasks in the current project, optionally filtered by status | `tam t l` |
+--- AGENTS test section ---
+## Test
+
+Unit tests are **inline** inside `src/` files (e.g. `src/config.rs`); integration tests live in `tests/cli.rs` and inject a temporary `HOME`, so the real `~/.tam` is never touched (`tests/` is only excluded from packaging in `Cargo.toml`).
+
+```bash
+--- hardcoded home / set_var / DELETE FROM ---
+NO_HARDCODED_HOME
+NO_PROCESS_ENV_MUTATION
+NO_PHYSICAL_DELETE
+--- Cargo.toml/Cargo.lock unchanged ---
+(empty = unchanged)

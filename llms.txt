@@ -1,0 +1,221 @@
+# tam — agent usage guide (single-file brief)
+
+`tam` is a lightweight project/task manager with a machine-first interface for AI agents.
+This file is the self-contained brief: project context rules, JSON contract, lease workflow,
+MCP setup, and pitfalls. Full contract: `docs/agent-protocol.md`.
+
+Schema: `tam.agent/v1` · CLI version: `tam -V` · Detailed agent playbook: `skills/tam-agent/SKILL.md`
+
+## 1. Choose an interface
+
+| Interface | Use when |
+|---|---|
+| JSON CLI | Shell/one-shot: `tam ... --json` |
+| MCP stdio | MCP clients (Claude Code, Codex, etc.): run `tam mcp` |
+
+Both use the same task/lease semantics. Never parse the human table output; use `--json`.
+
+```bash
+tam -V
+tam project list --json
+```
+
+## 2. Project context — read this first
+
+Resolution order:
+
+```text
+--project  >  TAM_PROJECT  >  config current_project
+```
+
+**If more than one project exists, always pass the project explicitly. Never assume
+`current_project` is yours: it is one global config shared by every process.**
+
+| Command type | Project required? | Rule |
+|---|---|---|
+| `task list`, `task add`, `status`, `task next` | **Yes** | Pass `--project NAME` (CLI) or `"project":"NAME"` (MCP), or set `TAM_PROJECT` |
+| `task show/update/claim/heartbeat/release/done/del/events` | No (task id is global) | **Also pass the project** to enable cross-project protection (`not_found`, exit 3) |
+| `project list`, `project add` | No | Use `project list --json` to discover names |
+| `tam project use` | — | Human convenience only; agents should not rely on it |
+
+No project context → `missing_project` (exit 1). Project-scoped commands never silently pick
+a random project.
+
+Recommended:
+
+```bash
+# One agent per project: process-scoped, no global mutation
+TAM_PROJECT=tam tam task next --agent agent-a --claim --json
+
+# One agent across projects: be explicit on every project-scoped call
+tam task list --project tam --status todo --json
+tam task claim 12 --project tam --agent agent-a --json
+tam task done 12 --project tam --agent agent-a --json
+
+# MCP: put project in every tools/call
+# {"name":"tam_task_next","arguments":{"project":"tam","agent":"agent-a","claim":true}}
+```
+
+## 3. JSON envelope and exit codes
+
+Every success prints exactly one JSON line to stdout:
+
+```json
+{"ok":true,"schema":"tam.agent/v1","command":"task.claim",
+ "data":{"task":{"id":12,"project":"tam","status":"in-progress",
+   "assigned_agent":"agent-a","lease_expires_at":"2026-11-08T10:15:00Z",
+   "revision":2,"priority":2,"tags":["bug"]}},
+ "meta":{"project":"tam","agent":"agent-a"}}
+```
+
+Failures print one JSON line to **stderr**; stdout is empty:
+
+```json
+{"ok":false,"schema":"tam.agent/v1","command":"task.claim",
+ "error":{"code":"conflict",
+   "message":"task 12 is leased by agent-b until 2026-11-08T10:00:00Z",
+   "details":{"task_id":12,"assigned_agent":"agent-b"}}}
+```
+
+| Exit | Meaning | Typical code |
+|---:|---|---|
+| 0 | success | — |
+| 1 | invalid request / missing context / internal | `invalid`, `missing_project`, `missing_agent`, `internal` |
+| 2 | CLI usage error (bad flag/enum/non-numeric id; no envelope) | — |
+| 3 | not found, including cross-project id under explicit project | `not_found` |
+| 4 | lease / duplicate / conflict | `conflict` |
+
+`meta.project` is the resolved project (may be null for project-level commands).
+`revision` increases on every effective write; use it to detect concurrent changes.
+
+## 4. Task view
+
+```json
+{"id":12,"project_id":2,"project":"tam","title":"Fix login","description":"…",
+ "status":"todo","priority":2,"tags":["bug","backend"],
+ "assigned_agent":null,"lease_expires_at":null,"lease_expired":false,
+ "revision":1,"created":"2026-11-08T09:00:00Z","updated":"2026-11-08T09:00:00Z"}
+```
+
+- `status`: `todo | in-progress | done`
+- `priority`: 1 (highest) .. 5 (lowest), default 3
+- `lease_expired` is false when no one holds a lease
+- `description` is stored in the existing `content` column
+
+## 5. Minimal agent loop
+
+```bash
+# 1. See what is available
+tam status --project tam --json
+# {counts:{todo,in_progress,done},leased,unassigned,next:[TaskView]}
+
+# 2. Atomically claim the next task (or use claim <id>)
+tam task next --project tam --agent agent-a --claim --lease 900 --json
+# data.task == null when nothing is claimable
+
+# 3. Read details + audit history
+tam task show 12 --project tam --json
+
+# 4. Work; record progress and renew the lease for long jobs
+tam task update 12 --project tam --description "reproduced; fix in progress" --json
+tam task heartbeat 12 --project tam --agent agent-a --lease 900 --json
+
+# 5. Finish (or hand back / abandon)
+tam task done 12 --project tam --agent agent-a --json
+tam task release 12 --project tam --agent agent-a --json   # back to todo
+tam task del 12 --project tam --json                       # soft delete
+```
+
+Do **not** change status directly to claim work. `claim` is the atomic lease operation and
+records an event. Only the lease holder (or a human caller without `--agent`) may update a
+leased task; another agent gets `conflict` (exit 4).
+
+## 6. Command reference
+
+```bash
+# Projects
+tam project list --json
+tam project current --json
+tam project add NAME --json
+
+# Tasks
+tam task add TITLE --project P [--description TEXT] [--priority 1..5] \
+    [--tag TAG]... [--idempotency-key KEY] --json
+tam task list --project P [--status todo|in-progress|done] \
+    [--assigned me|unassigned|AGENT] [--priority N] [--tag TAG]... \
+    [--search TEXT] [--limit N] --json
+tam task show ID --project P --json
+tam task update ID --project P [--title T] [--description D] \
+    [--status todo|in-progress|done] [--priority N] [--tags a,b] --json
+tam task claim ID --project P --agent A [--lease 900] [--force] --json
+tam task heartbeat ID --project P --agent A [--lease 900] --json
+tam task release ID --project P --agent A [--force] --json
+tam task done ID --project P --agent A --json
+tam task next --project P --agent A [--claim] [--lease 900] --json
+tam task events ID --project P --json
+tam task del ID --project P --json
+```
+
+Notes:
+- `--json`, `--project`, `--agent` are global and may appear before or after the subcommand.
+- Without `--agent` you are a human caller; claim/heartbeat/next --claim require an agent.
+- `--status` values: `todo`, `in-progress`, `done`.
+- Filters: `--tag` is repeatable and all tags must match; `--search` matches title/description
+  case-insensitively; `--limit` defaults to 100, clamped to 1..1000, with `truncated` in the reply.
+- `project use/edit/del` and `task edit/start` do not support `--json`; use `--project`,
+  `task update`, `task del`, or `task claim` instead.
+
+## 7. Idempotency and events
+
+```bash
+# First attempt
+tam task add "Fix login" --project tam --idempotency-key retry-1 --json
+# Retry with the same key returns the same task:
+# {"deduplicated":true,"task":{"id":12,...}}
+```
+
+`task_events` records `created`, `updated`, `claimed`, `heartbeat`, `released`, `completed`,
+`deleted` with actor, from/to status, and metadata. Read it with `task events` or `task show`.
+
+## 8. MCP server
+
+```bash
+tam mcp
+```
+
+- stdio, newline-delimited JSON-RPC 2.0, protocol `2024-11-05`
+- stdout is protocol-only; logs go to `~/.tam/logs/tam.log`
+- Tools: `tam_status`, `tam_project_list`, `tam_task_list`, `tam_task_get`,
+  `tam_task_create`, `tam_task_update`, `tam_task_claim`, `tam_task_heartbeat`,
+  `tam_task_release`, `tam_task_complete`, `tam_task_next`, `tam_task_events`
+- Business errors are `result.isError=true` with the same error JSON; protocol errors use
+  JSON-RPC codes (`-32700`, `-32600`, `-32601`, `-32602`)
+
+Client config:
+
+```json
+{ "mcpServers": { "tam": { "command": "tam", "args": ["mcp"] } } }
+```
+
+Single-project agent can set `"env":{"TAM_PROJECT":"tam"}`; multi-project agents must pass
+`"project"` in each tool call.
+
+## 9. Common pitfalls
+
+1. **Omitting the project in a multi-project setup** — use `--project`/`"project"` or
+   `TAM_PROJECT`; do not rely on the global `current_project`.
+2. **Relying on `tam project use`** — it mutates one global config shared by all agents.
+3. **Writing status directly instead of `claim`** — loses atomicity and lease events.
+4. **Forgetting heartbeat for long jobs** — the lease expires and another agent may claim.
+5. **Using a stale `revision` assumption** — re-read before retrying; the task may have changed.
+6. **Parsing human output** — always pass `--json`; human tables are not a contract.
+7. **Using a by-id command without a project in a multi-project context** — it works by
+   global id, but you lose cross-project protection.
+
+## 10. Where to read more
+
+- `docs/agent-protocol.md` — full contract, migration, MCP, acceptance criteria
+- `skills/tam-agent/SKILL.md` — agent playbook
+- `docs/agent-handover.md` — runbook, rollback, limitations
+- `docs/agent-regression.md` — independent verification
+- `dsh-plugin/README.md` — native DSH tool bundle (14 tools) wrapping this JSON CLI

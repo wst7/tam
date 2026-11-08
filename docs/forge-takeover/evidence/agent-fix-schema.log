@@ -1,0 +1,21 @@
+=== Gate B fixes: schema & constraints Sun Nov  8 17:51:10 CST 2026 ===
+HEAD base DDL blocks: 2; working: 3; additive: 1
+BASE_DDL_UNCHANGED
+ADDED_BLOCK: CREATE TABLE IF NOT EXISTS task_events (
+ADDITIVE_ONLY_OK
+
+--- destructive SQL (expect none) ---
+NO_DESTRUCTIVE_SQL
+--- DROP INDEX is the only DROP (v2 idempotency index) ---
+src/sql.rs:89:pub const DROP_TASK_IDEMPOTENCY_INDEX_SQL: &str = "DROP INDEX IF EXISTS idx_task_idempotency;";
+
+--- Cargo.toml/lock unchanged ---
+NO_CARGO_TOML_CHANGES
+
+--- real ~/.tam sha256 final ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+--- diff vs iteration-00 baseline ---
+SHA256_IDENTICAL_TO_BASELINE
+--- current_project ---
+current_project = "pastoid"

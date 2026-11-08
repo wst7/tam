@@ -1,0 +1,245 @@
+=== Gate B fixes: cargo fmt (last formatting pass) Sun Nov  8 17:48:12 CST 2026 ===
+FMT_RUN_EXIT=0
+FMT_CHECK_EXIT=0
+
+--- fmt-only diff (pre-format snapshot vs working tree) ---
+diff -ru /tmp/forge-tam/snapshots/agent-fix-prefmt/src/db.rs src/db.rs
+--- /tmp/forge-tam/snapshots/agent-fix-prefmt/src/db.rs	2026-11-08 17:45:38
++++ src/db.rs	2026-11-08 17:48:12
+@@ -377,8 +377,10 @@
+             conn.execute_batch(statement).unwrap();
+         }
+         conn.execute_batch(CREATE_TASK_EVENTS_TABLE_SQL).unwrap();
+-        conn.execute_batch(CREATE_TASK_EVENTS_TASK_INDEX_SQL).unwrap();
+-        conn.execute_batch(CREATE_TASK_PROJECT_STATUS_INDEX_SQL).unwrap();
++        conn.execute_batch(CREATE_TASK_EVENTS_TASK_INDEX_SQL)
++            .unwrap();
++        conn.execute_batch(CREATE_TASK_PROJECT_STATUS_INDEX_SQL)
++            .unwrap();
+         conn.execute_batch(CREATE_TASK_ASSIGNEE_INDEX_SQL).unwrap();
+         // The original v1 index did not exclude soft-deleted rows.
+         conn.execute_batch(
+@@ -387,8 +389,11 @@
+         .unwrap();
+         conn.execute("INSERT INTO project (name) VALUES ('legacy-v1')", ())
+             .unwrap();
+-        conn.execute("INSERT INTO task (title, project_id) VALUES ('v1 task', 1)", ())
+-            .unwrap();
++        conn.execute(
++            "INSERT INTO task (title, project_id) VALUES ('v1 task', 1)",
++            (),
++        )
++        .unwrap();
+         conn.pragma_update(None, "user_version", 1_i64).unwrap();
+         conn
+     }
+diff -ru /tmp/forge-tam/snapshots/agent-fix-prefmt/src/services/task.rs src/services/task.rs
+--- /tmp/forge-tam/snapshots/agent-fix-prefmt/src/services/task.rs	2026-11-08 17:46:21
++++ src/services/task.rs	2026-11-08 17:48:12
+@@ -8,11 +8,10 @@
+     model::{Task, TaskEvent, TaskStatus},
+     services::project,
+     sql::{
+-        INSERT_TASK_EVENT_SQL, INSERT_TASK_FULL_SQL, SELECT_ALL_TASKS_SQL,
+-        SELECT_NEXT_TASK_SQL, SELECT_TASK_BY_IDEMPOTENCY_SQL, SELECT_TASK_EVENTS_SQL,
+-        SELECT_TASK_INCLUDING_DELETED_SQL, SELECT_TASK_SQL, UPDATE_TASK_CLAIM_SQL,
+-        UPDATE_TASK_COMPLETE_SQL, UPDATE_TASK_FIELDS_SQL, UPDATE_TASK_HEARTBEAT_SQL,
+-        UPDATE_TASK_RELEASE_SQL, UPDATE_TASK_SOFT_DELETE_SQL,
++        INSERT_TASK_EVENT_SQL, INSERT_TASK_FULL_SQL, SELECT_ALL_TASKS_SQL, SELECT_NEXT_TASK_SQL,
++        SELECT_TASK_BY_IDEMPOTENCY_SQL, SELECT_TASK_EVENTS_SQL, SELECT_TASK_INCLUDING_DELETED_SQL,
++        SELECT_TASK_SQL, UPDATE_TASK_CLAIM_SQL, UPDATE_TASK_COMPLETE_SQL, UPDATE_TASK_FIELDS_SQL,
++        UPDATE_TASK_HEARTBEAT_SQL, UPDATE_TASK_RELEASE_SQL, UPDATE_TASK_SOFT_DELETE_SQL,
+     },
+ };
+ 
+diff -ru /tmp/forge-tam/snapshots/agent-fix-prefmt/tests/agent.rs tests/agent.rs
+--- /tmp/forge-tam/snapshots/agent-fix-prefmt/tests/agent.rs	2026-11-08 17:47:26
++++ tests/agent.rs	2026-11-08 17:48:12
+@@ -1137,7 +1137,13 @@
+     let first = assert_ok(&run_tam(
+         &home,
+         &[
+-            "task", "add", "keyed", "--project", "alpha", "--idempotency-key", "reuse-1",
++            "task",
++            "add",
++            "keyed",
++            "--project",
++            "alpha",
++            "--idempotency-key",
++            "reuse-1",
+             "--json",
+         ],
+     ));
+@@ -1150,7 +1156,13 @@
+     let second = assert_ok(&run_tam(
+         &home,
+         &[
+-            "task", "add", "keyed again", "--project", "alpha", "--idempotency-key", "reuse-1",
++            "task",
++            "add",
++            "keyed again",
++            "--project",
++            "alpha",
++            "--idempotency-key",
++            "reuse-1",
+             "--json",
+         ],
+     ));
+@@ -1165,7 +1177,13 @@
+     let third = assert_ok(&run_tam(
+         &home,
+         &[
+-            "task", "add", "keyed again", "--project", "alpha", "--idempotency-key", "reuse-1",
++            "task",
++            "add",
++            "keyed again",
++            "--project",
++            "alpha",
++            "--idempotency-key",
++            "reuse-1",
+             "--json",
+         ],
+     ));
+@@ -1180,16 +1198,34 @@
+     add_task(&home, "alpha", "guarded update");
+     assert_ok(&run_tam(
+         &home,
+-        &["task", "claim", "1", "--project", "alpha", "--agent", "agent-a", "--json",
+-          "--lease", "600"],
++        &[
++            "task",
++            "claim",
++            "1",
++            "--project",
++            "alpha",
++            "--agent",
++            "agent-a",
++            "--json",
++            "--lease",
++            "600",
++        ],
+     ));
+ 
+     // Another agent cannot complete via update either.
+     let conflict = run_tam(
+         &home,
+         &[
+-            "task", "update", "1", "--project", "alpha", "--status", "done", "--agent",
+-            "agent-b", "--json",
++            "task",
++            "update",
++            "1",
++            "--project",
++            "alpha",
++            "--status",
++            "done",
++            "--agent",
++            "agent-b",
++            "--json",
+         ],
+     );
+     assert_error(&conflict, 4, "conflict");
+@@ -1197,14 +1233,25 @@
+     let shown = assert_ok(&run_tam(&home, &["task", "show", "1", "--json"]));
+     assert_eq!(shown["data"]["task"]["status"], "in-progress");
+     assert_eq!(shown["data"]["task"]["assigned_agent"], "agent-a");
+-    assert_eq!(shown["data"]["task"]["revision"], 2, "conflict must not write");
++    assert_eq!(
++        shown["data"]["task"]["revision"], 2,
++        "conflict must not write"
++    );
+ 
+     // The holder (or a human) can complete; the event must be `completed`.
+     let done = assert_ok(&run_tam(
+         &home,
+         &[
+-            "task", "update", "1", "--project", "alpha", "--status", "done", "--agent",
+-            "agent-a", "--json",
++            "task",
++            "update",
++            "1",
++            "--project",
++            "alpha",
++            "--status",
++            "done",
++            "--agent",
++            "agent-a",
++            "--json",
+         ],
+     ));
+     assert_eq!(done["data"]["task"]["status"], "done");
+@@ -1225,12 +1272,30 @@
+     add_task(&home, "alpha", "todo transition");
+     assert_ok(&run_tam(
+         &home,
+-        &["task", "claim", "1", "--project", "alpha", "--agent", "agent-a", "--json"],
++        &[
++            "task",
++            "claim",
++            "1",
++            "--project",
++            "alpha",
++            "--agent",
++            "agent-a",
++            "--json",
++        ],
+     ));
+ 
+     let updated = assert_ok(&run_tam(
+         &home,
+-        &["task", "update", "1", "--project", "alpha", "--status", "todo", "--json"],
++        &[
++            "task",
++            "update",
++            "1",
++            "--project",
++            "alpha",
++            "--status",
++            "todo",
++            "--json",
++        ],
+     ));
+     assert_eq!(updated["data"]["task"]["status"], "todo");
+     assert_eq!(updated["data"]["task"]["assigned_agent"], Value::Null);
+@@ -1241,7 +1306,10 @@
+         &home,
+         &["task", "next", "--project", "alpha", "--json"],
+     ));
+-    assert_eq!(next["data"]["task"]["id"], 1, "todo task must be claimable again");
++    assert_eq!(
++        next["data"]["task"]["id"], 1,
++        "todo task must be claimable again"
++    );
+ }
+ 
+ #[test]
+@@ -1250,7 +1318,16 @@
+     create_project(&home, "alpha");
+     let created = assert_ok(&run_tam(
+         &home,
+-        &["task", "add", "tagged", "--project", "alpha", "--tag", "x", "--json"],
++        &[
++            "task",
++            "add",
++            "tagged",
++            "--project",
++            "alpha",
++            "--tag",
++            "x",
++            "--json",
++        ],
+     ));
+     let id = created["data"]["task"]["id"].as_i64().unwrap();
+ 
+@@ -1330,7 +1407,10 @@
+     assert!(list["data"][0]["created"].as_str().is_some());
+     assert!(list["data"][0]["updated"].as_str().is_some());
+ 
+-    assert_eq!(run_tam(&home, &["project", "use", "alpha"]).status.code(), Some(0));
++    assert_eq!(
++        run_tam(&home, &["project", "use", "alpha"]).status.code(),
++        Some(0)
++    );
+     let current = assert_ok(&run_tam(&home, &["project", "current", "--json"]));
+     assert!(
+         current["data"]["project"]["created"].as_str().is_some(),

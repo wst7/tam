@@ -1,0 +1,60 @@
+=== static TUI checks 2026-11-08 16:30:37 ===
+--- 1) service-result unwrap() in src/app.rs (expect 0)
+unwrap_grep_exit=1 (1 = zero hits, expected)
+--- 1b) all unwrap occurrences incl unwrap_or/unwrap_or_else (audit)
+266:        let status = self.selected_task_status.unwrap_or(TaskStatus::Todo);
+284:        let status = self.selected_task_status.unwrap_or(TaskStatus::Todo);
+302:        let next = self.selected_task_status.unwrap_or(TaskStatus::Todo).next();
+308:        let prev = self.selected_task_status.unwrap_or(TaskStatus::Todo).prev();
+
+--- 2) direct indexing of projects/tasks vectors (expect 0)
+index_grep_exit=1 (1 = zero hits, expected)
+--- 2b) get() boundary-safe access
+475:            if let Some(project) = self.projects.get(selected).cloned() {
+489:                return tasks.get(selected).cloned();
+
+--- 3) config.current_project sync sites and their guards
+331:                        if config.current_project.as_deref() == Some(old_name.as_str()) {
+332:                            config.current_project = Some(new_name.clone());
+384:                if config.current_project.as_deref() == Some(project.name.as_str()) {
+385:                    config.current_project = None;
+--- 3b) guard context (3 lines around each sync)
+329-                        // is the current one.
+330-                        let mut config = config::get_config();
+331:                        if config.current_project.as_deref() == Some(old_name.as_str()) {
+332-                            config.current_project = Some(new_name.clone());
+333-                            if let Err(err) = config.save() {
+334-                                self.tip_message = Some(format!(
+--
+382-                // must not abort the TUI, just inform the user.
+383-                let mut config = config::get_config();
+384:                if config.current_project.as_deref() == Some(project.name.as_str()) {
+385-                    config.current_project = None;
+386-                    if let Err(err) = config.save() {
+387-                        self.tip_message = Some(format!(
+
+--- 4) service errors routed to tip_message (match/if let Err)
+132:                                self.tip_message = Some(String::from("请先选择项目"));
+140:                                self.tip_message = Some(String::from("请先选择项目"));
+195:                                self.tip_message = Some(String::from("请先选择任务"));
+205:                                self.tip_message = Some(String::from("请先选择任务"));
+318:                self.tip_message = Some(format!("新增项目失败：{}", err));
+334:                                self.tip_message = Some(format!(
+341:                    Err(err) => self.tip_message = Some(format!("重命名项目失败：{}", err)),
+355:                    self.tip_message = Some(format!("新增任务失败：{}", err));
+358:                self.tip_message = Some(String::from("请先选择项目"));
+367:                        self.tip_message = Some(format!("修改任务失败：{}", err));
+387:                        self.tip_message = Some(format!(
+397:            Err(err) => self.tip_message = Some(format!("删除项目失败：{}", err)),
+405:                    self.tip_message = Some(format!("任务开始失败：{}", err));
+409:            self.tip_message = Some(String::from("请先选择任务"));
+417:                    self.tip_message = Some(format!("任务完成失败：{}", err));
+421:            self.tip_message = Some(String::from("请先选择任务"));
+433:                    Err(err) => self.tip_message = Some(format!("删除任务失败：{}", err)),
+437:            self.tip_message = Some(String::from("请先选择任务"));
+460:            Err(err) => self.tip_message = Some(format!("加载项目失败：{}", err)),
+468:                    Err(err) => self.tip_message = Some(format!("加载任务失败：{}", err)),
+481:        self.tip_message = Some(String::from("请先选择项目"));
+
+--- 5) any panic!/expect/unreachable in app.rs
+panic_grep_exit=1 (1 = zero hits, expected)

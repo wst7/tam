@@ -1,0 +1,83 @@
+=== S3 red: G1/G2 tests before implementation Sun Nov  8 16:01:40 CST 2026 ===
+error: unexpected argument 'rename_' found
+
+Usage: cargo test [OPTIONS] [TESTNAME] [-- [ARGS]...]
+
+For more information, try '--help'.
+TEST_EXIT=1
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+
+=== S3 red (rerun: cargo test accepts only one filter) Sun Nov  8 16:01:52 CST 2026 ===
+   |         ^^^^^^
+   |
+   = note: `Theme` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: `tam` (bin "tam") generated 4 warnings (run `cargo fix --bin "tam" -p tam` to apply 1 suggestion)
+warning: function `add_task` is never used
+   --> tests/cli.rs:163:4
+    |
+163 | fn add_task(home: &TempHome, title: &str) {
+    |    ^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `tam` (test "cli") generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.11s
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+
+running 11 tests
+test binary_writes_only_under_injected_home ... ok
+test project_not_found_message ... ok
+test reject_blank_project_name ... ok
+test errors_use_stderr ... ok
+test rename_failure_keeps_current_project ... FAILED
+test reject_blank_task_title ... ok
+test non_numeric_task_id_usage_error ... ok
+test rename_success_updates_current_project ... ok
+test task_not_found_message ... ok
+test rename_to_soft_deleted_name_errors ... FAILED
+test project_list_updated_column ... FAILED
+
+failures:
+
+---- rename_failure_keeps_current_project stdout ----
+
+thread 'rename_failure_keeps_current_project' (10314629) panicked at tests/cli.rs:358:5:
+stderr does not contain "already exists"
+stdout:
+SUCCESS Current project updated to 'beta'.
+
+stderr:
+ERROR failed to update project 'alpha': UNIQUE constraint failed: project.name
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- rename_to_soft_deleted_name_errors stdout ----
+
+thread 'rename_to_soft_deleted_name_errors' (10314660) panicked at tests/cli.rs:405:5:
+stderr does not contain "deleted project"
+stdout:
+
+stderr:
+ERROR failed to update project 'beta': UNIQUE constraint failed: project.name
+
+
+---- project_list_updated_column stdout ----
+
+thread 'project_list_updated_column' (10314625) panicked at tests/cli.rs:336:5:
+assertion `left != right` failed: Updated must differ from Created after a rename; row=["alpha-renamed", "2026-11-08 08:01:54", "2026-11-08 08:01:54"]
+  left: "2026-11-08 08:01:54"
+ right: "2026-11-08 08:01:54"
+
+
+failures:
+    project_list_updated_column
+    rename_failure_keeps_current_project
+    rename_to_soft_deleted_name_errors
+
+test result: FAILED. 8 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.38s
+
+error: test failed, to rerun pass `--test cli`
+TEST_EXIT=101

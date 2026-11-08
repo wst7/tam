@@ -1,0 +1,28 @@
+=== Gate B fixes: migration on real DB copy (v0 -> v2) Sun Nov  8 17:50:33 CST 2026 ===
+--- pre-migration ---
+user_version = 0
+rows: project = 5 task = 37
+--- run tam (migrate) ---
+run_exit=0
+task.list ok= True count= 15
+--- post-migration assertions ---
+user_version = 2 OK; index = CREATE UNIQUE INDEX idx_task_idempotency ON task(project_id, idempotency_key) WHERE idempotency_key IS NOT NULL AND idempotency_key <> '' AND is_deleted = 0
+rows after: project = 5 task = 37
+task_events = 1
+indexes = ['idx_task_assignee', 'idx_task_events_task', 'idx_task_idempotency', 'idx_task_project_status']
+post_assert_exit=0
+--- backup (must be pre-migration v0 shape) ---
+-rw-r--r--@ 1 wstreet7  staff  20480 Nov  8 17:50 /var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.ZeS8f76gHL/.tam/tam.db3.bak.v1
+backup user_version = 0 | has priority column = False
+--- D1 behavior on migrated DB: key survives soft delete ---
+create1 id= 38
+del_exit=0
+reuse ok= True deduplicated= False id= 39
+--- second run idempotent ---
+second_exit=0
+--- real ~/.tam sha256 before/after ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+REAL_USER_DATA_UNTOUCHED

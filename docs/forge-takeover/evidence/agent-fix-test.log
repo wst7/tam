@@ -1,0 +1,49 @@
+=== Gate B fixes: cargo test bare + serial (final) Sun Nov  8 17:49:40 CST 2026 ===
+running 14 tests
+test config::test::test_default_config_paths ... ok
+test services::project::test::project_name_normalization_trims_and_rejects_blank ... ok
+--
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/agent.rs (target/debug/deps/agent-68fc88686487566b)
+--
+running 24 tests
+test d5_broken_config_json_uses_error_envelope ... ok
+test concurrent_claim_has_exactly_one_winner ... ok
+--
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.95s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+--
+running 23 tests
+test binary_writes_only_under_injected_home ... ok
+test delete_missing_project_not_found ... ok
+--
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+TEST_EXIT=0
+
+=== serial --test-threads=1 ===
+running 24 tests
+test concurrent_claim_has_exactly_one_winner ... ok
+test context_from_env_and_explicit_flag ... ok
+--
+test result: ok. 24 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.86s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+--
+running 23 tests
+test add_active_duplicate_already_exists ... ok
+test add_restores_soft_deleted_project ... ok
+--
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.25s
+
+SERIAL_EXIT=0
+
+--- real ~/.tam sha256 before ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+--- after ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+USER DATA UNTOUCHED

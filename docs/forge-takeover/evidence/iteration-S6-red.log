@@ -1,0 +1,40 @@
+=== S6 red: G9 tests before implementation Sun Nov  8 16:07:11 CST 2026 ===
+stdout:
+
+stderr:
+error: unexpected argument '--status' found
+
+Usage: tam task list
+
+For more information, try '--help'.
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- task_list_status_filter stdout ----
+
+thread 'task_list_status_filter' (10323606) panicked at tests/cli.rs:562:5:
+assertion `left == right` failed: unexpected exit code
+stdout:
+
+stderr:
+error: unexpected argument '--status' found
+
+Usage: tam task list
+
+For more information, try '--help'.
+
+  left: Some(2)
+ right: Some(0)
+
+
+failures:
+    invalid_status_value_usage_error
+    task_list_status_filter
+
+test result: FAILED. 18 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.45s
+
+error: test failed, to rerun pass `--test cli`
+TEST_EXIT=101
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

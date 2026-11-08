@@ -1,4 +1,3 @@
-
 #[macro_export]
 macro_rules! print_success {
     ($msg:expr) => {{
@@ -15,11 +14,11 @@ macro_rules! print_success {
 macro_rules! print_error {
     ($msg:expr) => {{
       use colored::Colorize;
-      println!("{} {}", "ERROR".on_red().bold(), $msg);
+      eprintln!("{} {}", "ERROR".on_red().bold(), $msg);
     }};
     ($fmt:expr, $($arg:tt)*) => {{
       use colored::Colorize;
-      println!("{} {}", "ERROR".on_red().bold(), format!($fmt, $($arg)*));
+      eprintln!("{} {}", "ERROR".on_red().bold(), format!($fmt, $($arg)*));
     }};
 }
 

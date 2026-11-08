@@ -1,0 +1,50 @@
+=== S4 red: G3/G4 tests before implementation Sun Nov  8 16:03:32 CST 2026 ===
+
+---- delete_refuses_project_with_active_tasks stdout ----
+
+thread 'delete_refuses_project_with_active_tasks' (10317131) panicked at tests/cli.rs:431:5:
+assertion `left == right` failed: unexpected exit code
+stdout:
+SUCCESS Current project 'alpha' removed successfully.
+
+stderr:
+
+  left: Some(0)
+ right: Some(1)
+
+---- delete_allowed_when_only_soft_deleted_tasks stdout ----
+
+thread 'delete_allowed_when_only_soft_deleted_tasks' (10317128) panicked at tests/cli.rs:485:5:
+stdout does not contain "deleted successfully"
+stdout:
+SUCCESS Current project 'alpha' removed successfully.
+
+stderr:
+
+
+---- add_restores_soft_deleted_project stdout ----
+
+thread 'add_restores_soft_deleted_project' (10317126) panicked at tests/cli.rs:507:5:
+assertion `left == right` failed: unexpected exit code
+stdout:
+
+stderr:
+ERROR project 'beta' already exists
+
+  left: Some(1)
+ right: Some(0)
+
+
+failures:
+    add_restores_soft_deleted_project
+    delete_allowed_when_only_soft_deleted_tasks
+    delete_current_project_clears_config
+    delete_refuses_project_with_active_tasks
+
+test result: FAILED. 13 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.40s
+
+error: test failed, to rerun pass `--test cli`
+TEST_EXIT=101
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

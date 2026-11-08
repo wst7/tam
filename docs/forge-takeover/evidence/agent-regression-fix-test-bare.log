@@ -1,0 +1,136 @@
+=== cargo test (bare, default parallel) 2026-11-08 17:59:22 ===
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+warning: unused import: `Color`
+ --> src/ui/project_screen.rs:3:13
+  |
+3 |     style::{Color, Style, Stylize},
+  |             ^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+   --> src/model.rs:116:12
+    |
+107 | impl TaskStatus {
+    | --------------- methods in this implementation
+...
+116 |     pub fn is_done(&self) -> bool {
+    |            ^^^^^^^
+...
+119 |     pub fn is_todo(&self) -> bool {
+    |            ^^^^^^^
+...
+122 |     pub fn is_in_progress(&self) -> bool {
+    |            ^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `set_title` is never used
+   --> src/model.rs:189:12
+    |
+188 | impl Task {
+    | --------- method in this implementation
+189 |     pub fn set_title(&mut self, title: String) {
+    |            ^^^^^^^^^
+
+warning: fields `tip_bg` and `tip_fg` are never read
+  --> src/theme.rs:14:9
+   |
+ 4 | pub struct Theme {
+   |            ----- fields in this struct
+...
+14 |     pub tip_bg: Color,
+   |         ^^^^^^
+15 |     pub tip_fg: Color,
+   |         ^^^^^^
+   |
+   = note: `Theme` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: `tam` (bin "tam" test) generated 4 warnings (run `cargo fix --bin "tam" -p tam --tests` to apply 1 suggestion)
+warning: `tam` (bin "tam") generated 4 warnings (4 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.08s
+     Running unittests src/main.rs (target/debug/deps/tam-1ff1ff064e11f82a)
+
+running 14 tests
+test config::test::test_default_config_paths ... ok
+test services::project::test::project_name_normalization_trims_and_rejects_blank ... ok
+test services::task::test::lease_bounds_are_validated ... ok
+test config::test::test_config_toml_round_trip ... ok
+test config::test::test_config_deserialize_explicit_paths ... ok
+test services::task::test::tags_are_normalized_and_deduplicated ... ok
+test services::task::test::sqlite_timestamp_parsed_as_utc ... ok
+test services::task::test::sqlite_timestamp_invalid_is_err ... ok
+test services::task::test::task_title_normalization_trims_and_rejects_blank ... ok
+test db::test::migrates_in_memory_without_backup ... ok
+test db::test::empty_legacy_db_migration_needs_no_backup ... ok
+test db::test::migrates_v1_to_v2_index_without_new_backup ... ok
+test db::test::migration_is_idempotent ... ok
+test db::test::migrates_legacy_schema_and_creates_backup ... ok
+
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/agent.rs (target/debug/deps/agent-68fc88686487566b)
+
+running 25 tests
+test d5_broken_config_json_uses_error_envelope ... ok
+test concurrent_claim_has_exactly_one_winner ... ok
+test context_from_env_and_explicit_flag ... ok
+test d4_mcp_update_can_clear_tags ... ok
+test d1_idempotency_key_reusable_after_soft_delete ... ok
+test d3_update_todo_clears_lease_and_next_returns_task ... ok
+test done_conflicts_only_for_agents_holding_other_leases ... ok
+test d2_update_done_respects_lease_and_emits_completed_event ... ok
+test human_output_is_not_json ... ok
+test agent_b_cannot_update_task_leased_by_agent_a ... ok
+test mcp_handshake_and_tools ... ok
+test idempotency_key_is_project_scoped ... ok
+test mcp_unknown_tool_is_iserror_and_missing_params_are_protocol_errors ... ok
+test json_envelopes_and_exit_codes ... ok
+test heartbeat_and_release_lifecycle ... ok
+test migrates_copy_of_real_database ... ok
+test p3_project_view_timestamps_are_populated ... ok
+test filters_and_next_ordering ... ok
+test p3_task_delete_json_writes_event ... ok
+test task_update_requires_a_field ... ok
+test project_isolation_for_explicit_project ... ok
+test status_summary_counts_and_next ... ok
+test p3_by_id_meta_project_is_populated ... ok
+test task_crud_views_and_events ... ok
+test lease_expiry_allows_new_owner ... ok
+
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.97s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+
+running 23 tests
+test binary_writes_only_under_injected_home ... ok
+test delete_missing_project_not_found ... ok
+test add_active_duplicate_already_exists ... ok
+test errors_use_stderr ... ok
+test delete_current_project_clears_config ... ok
+test delete_allowed_when_only_soft_deleted_tasks ... ok
+test delete_refuses_project_with_active_tasks ... ok
+test non_numeric_task_id_usage_error ... ok
+test project_not_found_message ... ok
+test reject_blank_project_name ... ok
+test invalid_status_value_usage_error ... ok
+test project_edit_blank_name_rejected ... ok
+test reject_blank_task_title ... ok
+test project_names_trimmed_consistently ... ok
+test rename_success_updates_current_project ... ok
+test rename_failure_keeps_current_project ... ok
+test rename_to_soft_deleted_name_errors ... ok
+test task_edit_blank_title_rejected ... ok
+test task_not_found_message ... ok
+test task_list_without_status_unchanged ... ok
+test task_list_status_filter ... ok
+test add_restores_soft_deleted_project ... ok
+test project_list_updated_column ... ok
+
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+TEST_EXIT=0
+=== hashes after ===
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

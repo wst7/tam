@@ -1,0 +1,435 @@
+=== QA independent JSON CLI regression (agent-protocol v1) ===
+PASS: A1 project.add: exit 0
+PASS: A1 project.add: stderr empty
+PASS: A1 project.add: stdout single line
+PASS: A1 project.add: envelope ok/schema
+PASS: A1 project.add: envelope has data+meta
+PASS: A2 project.add id>0
+PASS: A3 project.add restored=false
+PASS: A4 project.add meta.project=alpha
+PASS: A5 duplicate project.add: exit 4
+PASS: A5 duplicate project.add: stdout empty
+PASS: A5 duplicate project.add: stderr single line
+PASS: A5 duplicate project.add: error envelope
+PASS: A6 duplicate error has message
+PASS: A7 project.list: exit 0
+PASS: A7 project.list: stderr empty
+PASS: A7 project.list: stdout single line
+PASS: A7 project.list: envelope ok/schema
+PASS: A7 project.list: envelope has data+meta
+PASS: A8 project.list is array len1
+PASS: A9 project.list item has id/name/created/updated
+PASS: A10 project.list timestamps non-null
+PASS: A11 timestamps RFC3339 Z
+PASS: A12 project.current(no current): exit 0
+PASS: A12 project.current(no current): stderr empty
+PASS: A12 project.current(no current): stdout single line
+PASS: A12 project.current(no current): envelope ok/schema
+PASS: A12 project.current(no current): envelope has data+meta
+PASS: A13 project.current null
+PASS: A14 human project.use exit0
+PASS: A15 current after use: exit 0
+PASS: A15 current after use: stderr empty
+PASS: A15 current after use: stdout single line
+PASS: A15 current after use: envelope ok/schema
+PASS: A15 current after use: envelope has data+meta
+PASS: A16 current is alpha
+PASS: B1 --json placement ['--json', 'project', 'list']: exit 0
+PASS: B1 --json placement ['--json', 'project', 'list']: stderr empty
+PASS: B1 --json placement ['--json', 'project', 'list']: stdout single line
+PASS: B1 --json placement ['--json', 'project', 'list']: envelope ok/schema
+PASS: B1 --json placement ['--json', 'project', 'list']: envelope has data+meta
+PASS: B2 placement ['--json', 'project', 'list'] command
+PASS: B1 --json placement ['project', '--json', 'list']: exit 0
+PASS: B1 --json placement ['project', '--json', 'list']: stderr empty
+PASS: B1 --json placement ['project', '--json', 'list']: stdout single line
+PASS: B1 --json placement ['project', '--json', 'list']: envelope ok/schema
+PASS: B1 --json placement ['project', '--json', 'list']: envelope has data+meta
+PASS: B2 placement ['project', '--json', 'list'] command
+PASS: B1 --json placement ['project', 'list', '--json']: exit 0
+PASS: B1 --json placement ['project', 'list', '--json']: stderr empty
+PASS: B1 --json placement ['project', 'list', '--json']: stdout single line
+PASS: B1 --json placement ['project', 'list', '--json']: envelope ok/schema
+PASS: B1 --json placement ['project', 'list', '--json']: envelope has data+meta
+PASS: B2 placement ['project', 'list', '--json'] command
+PASS: C1 task.add full: exit 0
+PASS: C1 task.add full: stderr empty
+PASS: C1 task.add full: stdout single line
+PASS: C1 task.add full: envelope ok/schema
+PASS: C1 task.add full: envelope has data+meta
+PASS: C2 task.add title
+PASS: C3 task.add description
+PASS: C4 task.add priority
+PASS: C5 task.add tags normalized
+PASS: C6 task.add status todo
+PASS: C7 task.add revision 1
+PASS: C8 task.add assigned null
+PASS: C9 task.add lease_expired true when unassigned
+PASS: C10 task.add deduplicated false
+PASS: C11 task.add meta.project+agent
+PASS: C12 task.add project_id matches
+PASS: C13 task.add no project: exit 1
+PASS: C13 task.add no project: stdout empty
+PASS: C13 task.add no project: stderr single line
+PASS: C13 task.add no project: error envelope
+PASS: C14 status no project: exit 1
+PASS: C14 status no project: stdout empty
+PASS: C14 status no project: stderr single line
+PASS: C14 status no project: error envelope
+PASS: C15 claim no agent: exit 1
+PASS: C15 claim no agent: stdout empty
+PASS: C15 claim no agent: stderr single line
+PASS: C15 claim no agent: error envelope
+PASS: C16 blank title: exit 1
+PASS: C16 blank title: stdout empty
+PASS: C16 blank title: stderr single line
+PASS: C16 blank title: error envelope
+PASS: C17 priority 0: exit 1
+PASS: C17 priority 0: stdout empty
+PASS: C17 priority 0: stderr single line
+PASS: C17 priority 0: error envelope
+PASS: C18 priority 6: exit 1
+PASS: C18 priority 6: stdout empty
+PASS: C18 priority 6: stderr single line
+PASS: C18 priority 6: error envelope
+PASS: C19 unknown project: exit 3
+PASS: C19 unknown project: stdout empty
+PASS: C19 unknown project: stderr single line
+PASS: C19 unknown project: error envelope
+PASS: C20 task not found: exit 3
+PASS: C20 task not found: stdout empty
+PASS: C20 task not found: stderr single line
+PASS: C20 task not found: error envelope
+PASS: C21 clap non-numeric id exit2
+PASS: C22 clap error has no envelope
+PASS: C23 task.show: exit 0
+PASS: C23 task.show: stderr empty
+PASS: C23 task.show: stdout single line
+PASS: C23 task.show: envelope ok/schema
+PASS: C23 task.show: envelope has data+meta
+PASS: C24 show task+events
+PASS: C25 show created event first
+PASS: C26 task.show no --project: exit 0
+PASS: C26 task.show no --project: stderr empty
+PASS: C26 task.show no --project: stdout single line
+PASS: C26 task.show no --project: envelope ok/schema
+PASS: C26 task.show no --project: envelope has data+meta
+PASS: C27 by-id meta.project is null (observation)
+PASS: C28 task.events: exit 0
+PASS: C28 task.events: stderr empty
+PASS: C28 task.events: stdout single line
+PASS: C28 task.events: envelope ok/schema
+PASS: C28 task.events: envelope has data+meta
+PASS: C29 events list
+PASS: D1 env context: exit 0
+PASS: D1 env context: stderr empty
+PASS: D1 env context: stdout single line
+PASS: D1 env context: envelope ok/schema
+PASS: D1 env context: envelope has data+meta
+PASS: D2 TAM_PROJECT used
+PASS: D3 TAM_AGENT used in meta
+PASS: D4 flag over env: exit 0
+PASS: D4 flag over env: stderr empty
+PASS: D4 flag over env: stdout single line
+PASS: D4 flag over env: envelope ok/schema
+PASS: D4 flag over env: envelope has data+meta
+PASS: D5 --project wins over TAM_PROJECT
+PASS: D6 agent flag: exit 0
+PASS: D6 agent flag: stderr empty
+PASS: D6 agent flag: stdout single line
+PASS: D6 agent flag: envelope ok/schema
+PASS: D6 agent flag: envelope has data+meta
+PASS: D7 --agent wins over TAM_AGENT
+PASS: D8 config fallback: exit 0
+PASS: D8 config fallback: stderr empty
+PASS: D8 config fallback: stdout single line
+PASS: D8 config fallback: envelope ok/schema
+PASS: D8 config fallback: envelope has data+meta
+PASS: D9 config fallback project alpha
+PASS: E1 update: exit 0
+PASS: E1 update: stderr empty
+PASS: E1 update: stdout single line
+PASS: E1 update: envelope ok/schema
+PASS: E1 update: envelope has data+meta
+PASS: E2 update title
+PASS: E3 update description
+PASS: E4 update priority
+PASS: E5 update tags
+PASS: E6 update revision increments
+PASS: E7 clear tags: exit 0
+PASS: E7 clear tags: stderr empty
+PASS: E7 clear tags: stdout single line
+PASS: E7 clear tags: envelope ok/schema
+PASS: E7 clear tags: envelope has data+meta
+PASS: E8 tags cleared
+PASS: E9 update no fields: exit 1
+PASS: E9 update no fields: stdout empty
+PASS: E9 update no fields: stderr single line
+PASS: E9 update no fields: error envelope
+PASS: E10 update bad priority: exit 1
+PASS: E10 update bad priority: stdout empty
+PASS: E10 update bad priority: stderr single line
+PASS: E10 update bad priority: error envelope
+PASS: E11 update blank title: exit 1
+PASS: E11 update blank title: stdout empty
+PASS: E11 update blank title: stderr single line
+PASS: E11 update blank title: error envelope
+PASS: F0 create low-task: exit 0
+PASS: F0 create low-task: stderr empty
+PASS: F0 create low-task: stdout single line
+PASS: F0 create low-task: envelope ok/schema
+PASS: F0 create low-task: envelope has data+meta
+PASS: F0 create high-task: exit 0
+PASS: F0 create high-task: stderr empty
+PASS: F0 create high-task: stdout single line
+PASS: F0 create high-task: envelope ok/schema
+PASS: F0 create high-task: envelope has data+meta
+PASS: F0 create mid-task: exit 0
+PASS: F0 create mid-task: stderr empty
+PASS: F0 create mid-task: stdout single line
+PASS: F0 create mid-task: envelope ok/schema
+PASS: F0 create mid-task: envelope has data+meta
+PASS: F1 priority filter: exit 0
+PASS: F1 priority filter: stderr empty
+PASS: F1 priority filter: stdout single line
+PASS: F1 priority filter: envelope ok/schema
+PASS: F1 priority filter: envelope has data+meta
+PASS: F2 priority filter count
+PASS: F3 tag filter case: exit 0
+PASS: F3 tag filter case: stderr empty
+PASS: F3 tag filter case: stdout single line
+PASS: F3 tag filter case: envelope ok/schema
+PASS: F3 tag filter case: envelope has data+meta
+PASS: F4 tag filter count
+PASS: F5 tag AND: exit 0
+PASS: F5 tag AND: stderr empty
+PASS: F5 tag AND: stdout single line
+PASS: F5 tag AND: envelope ok/schema
+PASS: F5 tag AND: envelope has data+meta
+PASS: F6 tag all-match count
+PASS: F7 search case: exit 0
+PASS: F7 search case: stderr empty
+PASS: F7 search case: stdout single line
+PASS: F7 search case: envelope ok/schema
+PASS: F7 search case: envelope has data+meta
+PASS: F8 search matches title+description
+PASS: F9 limit: exit 0
+PASS: F9 limit: stderr empty
+PASS: F9 limit: stdout single line
+PASS: F9 limit: envelope ok/schema
+PASS: F9 limit: envelope has data+meta
+PASS: F10 limit count/truncated
+PASS: F11 status filter empty: exit 0
+PASS: F11 status filter empty: stderr empty
+PASS: F11 status filter empty: stdout single line
+PASS: F11 status filter empty: envelope ok/schema
+PASS: F11 status filter empty: envelope has data+meta
+PASS: F12 status filter empty
+PASS: F13 filter bad priority: exit 1
+PASS: F13 filter bad priority: stdout empty
+PASS: F13 filter bad priority: stderr single line
+PASS: F13 filter bad priority: error envelope
+PASS: F14 assigned me: exit 0
+PASS: F14 assigned me: stderr empty
+PASS: F14 assigned me: stdout single line
+PASS: F14 assigned me: envelope ok/schema
+PASS: F14 assigned me: envelope has data+meta
+PASS: F15 assigned me count
+PASS: F16 unassigned: exit 0
+PASS: F16 unassigned: stderr empty
+PASS: F16 unassigned: stdout single line
+PASS: F16 unassigned: envelope ok/schema
+PASS: F16 unassigned: envelope has data+meta
+PASS: F17 unassigned count 2
+PASS: F18 combined: exit 0
+PASS: F18 combined: stderr empty
+PASS: F18 combined: stdout single line
+PASS: F18 combined: envelope ok/schema
+PASS: F18 combined: envelope has data+meta
+PASS: F19 combined count 1
+PASS: F20 assigned me without agent: exit 1
+PASS: F20 assigned me without agent: stdout empty
+PASS: F20 assigned me without agent: stderr single line
+PASS: F20 assigned me without agent: error envelope
+PASS: G1 create: exit 0
+PASS: G1 create: stderr empty
+PASS: G1 create: stdout single line
+PASS: G1 create: envelope ok/schema
+PASS: G1 create: envelope has data+meta
+PASS: G2 claim: exit 0
+PASS: G2 claim: stderr empty
+PASS: G2 claim: stdout single line
+PASS: G2 claim: envelope ok/schema
+PASS: G2 claim: envelope has data+meta
+PASS: G3 claim status in-progress
+PASS: G4 claim assigned/lease_expired
+PASS: G5 claim revision 2
+PASS: G6 other claim conflict: exit 4
+PASS: G6 other claim conflict: stdout empty
+PASS: G6 other claim conflict: stderr single line
+PASS: G6 other claim conflict: error envelope
+PASS: G7 other heartbeat conflict: exit 4
+PASS: G7 other heartbeat conflict: stdout empty
+PASS: G7 other heartbeat conflict: stderr single line
+PASS: G7 other heartbeat conflict: error envelope
+PASS: G8 heartbeat holder: exit 0
+PASS: G8 heartbeat holder: stderr empty
+PASS: G8 heartbeat holder: stdout single line
+PASS: G8 heartbeat holder: envelope ok/schema
+PASS: G8 heartbeat holder: envelope has data+meta
+PASS: G9 heartbeat revision 3
+PASS: G10 other release conflict: exit 4
+PASS: G10 other release conflict: stdout empty
+PASS: G10 other release conflict: stderr single line
+PASS: G10 other release conflict: error envelope
+PASS: G11 release holder: exit 0
+PASS: G11 release holder: stderr empty
+PASS: G11 release holder: stdout single line
+PASS: G11 release holder: envelope ok/schema
+PASS: G11 release holder: envelope has data+meta
+PASS: G12 release clears lease+todo
+PASS: G13 reclaim after release: exit 0
+PASS: G13 reclaim after release: stderr empty
+PASS: G13 reclaim after release: stdout single line
+PASS: G13 reclaim after release: envelope ok/schema
+PASS: G13 reclaim after release: envelope has data+meta
+PASS: G14 reclaim owner b
+PASS: G15 other agent done conflict: exit 4
+PASS: G15 other agent done conflict: stdout empty
+PASS: G15 other agent done conflict: stderr single line
+PASS: G15 other agent done conflict: error envelope
+PASS: G16 human done allowed: exit 0
+PASS: G16 human done allowed: stderr empty
+PASS: G16 human done allowed: stdout single line
+PASS: G16 human done allowed: envelope ok/schema
+PASS: G16 human done allowed: envelope has data+meta
+PASS: G17 done clears lease
+PASS: G18 done twice conflict: exit 4
+PASS: G18 done twice conflict: stdout empty
+PASS: G18 done twice conflict: stderr single line
+PASS: G18 done twice conflict: error envelope
+PASS: G19 claim done conflict: exit 4
+PASS: G19 claim done conflict: stdout empty
+PASS: G19 claim done conflict: stderr single line
+PASS: G19 claim done conflict: error envelope
+PASS: G20 next none: exit 0
+PASS: G20 next none: stderr empty
+PASS: G20 next none: stdout single line
+PASS: G20 next none: envelope ok/schema
+PASS: G20 next none: envelope has data+meta
+PASS: G21 next null
+PASS: G22 events lifecycle: exit 0
+PASS: G22 events lifecycle: stderr empty
+PASS: G22 events lifecycle: stdout single line
+PASS: G22 events lifecycle: envelope ok/schema
+PASS: G22 events lifecycle: envelope has data+meta
+PASS: G23 event order
+PASS: G24 event actors
+PASS: G25 claimed metadata
+PASS: H1 beta task: exit 0
+PASS: H1 beta task: stderr empty
+PASS: H1 beta task: stdout single line
+PASS: H1 beta task: envelope ok/schema
+PASS: H1 beta task: envelope has data+meta
+PASS: H2 global id works: exit 0
+PASS: H2 global id works: stderr empty
+PASS: H2 global id works: stdout single line
+PASS: H2 global id works: envelope ok/schema
+PASS: H2 global id works: envelope has data+meta
+PASS: H3 cross-project show: exit 3
+PASS: H3 cross-project show: stdout empty
+PASS: H3 cross-project show: stderr single line
+PASS: H3 cross-project show: error envelope
+PASS: H3 cross-project claim: exit 3
+PASS: H3 cross-project claim: stdout empty
+PASS: H3 cross-project claim: stderr single line
+PASS: H3 cross-project claim: error envelope
+PASS: H3 cross-project update: exit 3
+PASS: H3 cross-project update: stdout empty
+PASS: H3 cross-project update: stderr single line
+PASS: H3 cross-project update: error envelope
+PASS: H3 cross-project done: exit 3
+PASS: H3 cross-project done: stdout empty
+PASS: H3 cross-project done: stderr single line
+PASS: H3 cross-project done: error envelope
+PASS: H3 cross-project heartbeat: exit 3
+PASS: H3 cross-project heartbeat: stdout empty
+PASS: H3 cross-project heartbeat: stderr single line
+PASS: H3 cross-project heartbeat: error envelope
+PASS: H3 cross-project release: exit 3
+PASS: H3 cross-project release: stdout empty
+PASS: H3 cross-project release: stderr single line
+PASS: H3 cross-project release: error envelope
+PASS: H3 cross-project events: exit 3
+PASS: H3 cross-project events: stdout empty
+PASS: H3 cross-project events: stderr single line
+PASS: H3 cross-project events: error envelope
+PASS: I1 restore project: exit 0
+PASS: I1 restore project: stderr empty
+PASS: I1 restore project: stdout single line
+PASS: I1 restore project: envelope ok/schema
+PASS: I1 restore project: envelope has data+meta
+PASS: I2 restored true
+PASS: I3 JSON unsupported use: exit 1
+PASS: I3 JSON unsupported use: stdout empty
+PASS: I3 JSON unsupported use: stderr single line
+PASS: I3 JSON unsupported use: error envelope
+PASS: I3 JSON unsupported edit: exit 1
+PASS: I3 JSON unsupported edit: stdout empty
+PASS: I3 JSON unsupported edit: stderr single line
+PASS: I3 JSON unsupported edit: error envelope
+PASS: I3 JSON unsupported del: exit 1
+PASS: I3 JSON unsupported del: stdout empty
+PASS: I3 JSON unsupported del: stderr single line
+PASS: I3 JSON unsupported del: error envelope
+PASS: I3 JSON unsupported task del: exit 1
+PASS: I3 JSON unsupported task del: stdout empty
+PASS: I3 JSON unsupported task del: stderr single line
+PASS: I3 JSON unsupported task del: error envelope
+PASS: I3 JSON unsupported config: exit 1
+PASS: I3 JSON unsupported config: stdout empty
+PASS: I3 JSON unsupported config: stderr single line
+PASS: I3 JSON unsupported config: error envelope
+JSON_CLI_RESULT: PASS=391 FAIL=0
+=== ADDITIONAL JSON exit-code checks 2026-11-08 17:36:31 ===
+PASS: J0 seed add exit0 (=0)
+PASS: J1 invalid enum status clap exit2 (=2)
+PASS: J2 clap error stdout empty (=)
+PASS: J3 clap error has no envelope (=no)
+PASS: J4 unknown command exit2 (=2)
+PASS: J5 unknown command no envelope (=no)
+PASS: J6 invalid lease exit1 (=1)
+PASS: J7 invalid lease envelope code (=invalid)
+PASS: J8 empty agent -> missing_agent exit1 (=1)
+PASS: J9 empty agent code (=missing_agent)
+PASS: J10 duplicate flag clap exit2 (=2)
+PASS: J11 id 0 clap exit2 (=2)
+PASS: J12 id -1 clap exit2 (=2)
+ADDITIONAL_JSON_RESULT: PASS=13 FAIL=0
+=== SUPPLEMENTARY JSON checks: idempotency / status / limits / env ===
+PASS: S1 add keyed: exit0
+PASS: S1 add keyed: stderr empty
+PASS: S2 first deduplicated false
+PASS: S3 add keyed again: exit0
+PASS: S3 add keyed again: stderr empty
+PASS: S4 same id
+PASS: S5 second deduplicated true
+PASS: S6 other project key: exit0
+PASS: S6 other project key: stderr empty
+PASS: S7 different project independent
+PASS: S8 status: exit0
+PASS: S8 status: stderr empty
+PASS: S9 status project/counts/leased/unassigned/next
+PASS: S10 list default: exit0
+PASS: S10 list default: stderr empty
+PASS: S11 default limit 100 / not truncated
+PASS: S12 blank env normalized: exit0
+PASS: S12 blank env normalized: stderr empty
+PASS: S13 explicit flag used with blank env
+PASS: S14 human status exit0
+PASS: S15 human status no JSON
+SUPPLEMENTARY_RESULT: PASS=21 FAIL=0
+SUPP_EXIT=0
+--- real hashes:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

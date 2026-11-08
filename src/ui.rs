@@ -1,9 +1,9 @@
+mod components;
 mod project_screen;
 mod task_screen;
-mod components;
 
-use ratatui::Frame;
 use crate::app::{App, CurrentScreen};
+use ratatui::Frame;
 
 pub fn draw(frame: &mut Frame, app: &mut App) {
     match app.current_screen {

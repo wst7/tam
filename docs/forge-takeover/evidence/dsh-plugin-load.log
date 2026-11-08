@@ -1,0 +1,9 @@
+EXIT 1
+--- STDOUT ---
+
+
+--- STDERR ---
+[tam-tools] loaded
+[tam-tools] registered 14
+dsh: MISSING_CREDENTIAL: llm-deepseek: no API key for provider route "deepseek-official"; store DEEPSEEK_API_KEY through the credentials service (the web Models page writes it), or export DEEPSEEK_API_KEY in the launching environment
+

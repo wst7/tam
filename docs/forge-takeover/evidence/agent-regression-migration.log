@@ -1,0 +1,46 @@
+=== QA independent migration regression (real DB copied to temp HOME) ===
+PASS: M0 real ~/.tam/tam.db3 exists
+PASS: M1 copy is schema v0
+PASS: M2 copy has 8 legacy task columns
+PASS: M3 row counts (5 projects/37 tasks)
+PASS: M4 backup absent before migration
+PASS: M5 migration run exit0
+PASS: M6 migrated task list usable
+PASS: M7 migrated task count matches pre-migration active count
+PASS: M8 user_version bumped to 1
+PASS: M9 column priority
+PASS: M9 column tags
+PASS: M9 column assigned_agent
+PASS: M9 column lease_expires_at
+PASS: M9 column revision
+PASS: M9 column idempotency_key
+PASS: M10 exactly 6 new columns
+PASS: M11 task_events table
+PASS: M12 index idx_task_project_status
+PASS: M12 index idx_task_assignee
+PASS: M12 index idx_task_idempotency
+PASS: M12 index idx_task_events_task
+PASS: M13 row counts unchanged
+PASS: M14 legacy defaults priority=3/revision=1/tags=''/no lease
+PASS: M15 old project pastoid readable
+PASS: M16 old task titles readable
+PASS: M17 backup file created
+PASS: M18 backup is pre-migration v0
+PASS: M19 backup has 8 legacy columns
+PASS: M20 backup row counts unchanged
+PASS: M21 backup is a logical pre-migration snapshot (all rows identical)
+PASS: M22 journal_mode=wal
+PASS: M24 second run exit0
+PASS: M25 version still 1
+PASS: M26 backup unchanged on second run
+PASS: M27 events table unchanged on second run
+PASS: M28 rows still unchanged
+PASS: M29 no destructive DDL for old columns
+PASS: M30 empty DB first run exit0
+PASS: M31 empty DB migrated to v1
+PASS: M32 empty DB creates no backup
+MIGRATION_RESULT: PASS=40 FAIL=0
+MIG_SCRIPT_EXIT=0
+--- real data hashes after migration test:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

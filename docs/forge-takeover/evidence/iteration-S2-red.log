@@ -1,0 +1,85 @@
+=== S2 red: new integration tests before implementation Sun Nov  8 15:58:37 CST 2026 ===
+
+failures:
+
+---- project_not_found_message stdout ----
+
+thread 'project_not_found_message' (10310478) panicked at tests/cli.rs:195:5:
+expected empty stdout, got:
+ERROR failed to query project nope: Query returned no rows
+
+stderr:
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- reject_blank_project_name stdout ----
+
+thread 'reject_blank_project_name' (10310479) panicked at tests/cli.rs:262:9:
+assertion `left == right` failed: unexpected exit code
+stdout:
+SUCCESS Project '' added successfully.
+INFO Use `tam project use ` to switch to this project.
+
+stderr:
+
+  left: Some(0)
+ right: Some(1)
+
+---- errors_use_stderr stdout ----
+
+thread 'errors_use_stderr' (10310476) panicked at tests/cli.rs:238:5:
+expected empty stdout, got:
+ERROR failed to query project nope: Query returned no rows
+
+stderr:
+
+
+---- task_not_found_message stdout ----
+
+thread 'task_not_found_message' (10310481) panicked at tests/cli.rs:180:5:
+expected empty stdout, got:
+ERROR Query returned no rows
+
+stderr:
+
+
+---- non_numeric_task_id_usage_error stdout ----
+
+thread 'non_numeric_task_id_usage_error' (10310477) panicked at tests/cli.rs:221:9:
+assertion `left == right` failed: unexpected exit code
+stdout:
+ERROR Query returned no rows
+
+stderr:
+
+  left: Some(1)
+ right: Some(2)
+
+---- reject_blank_task_title stdout ----
+
+thread 'reject_blank_task_title' (10310480) panicked at tests/cli.rs:280:9:
+assertion `left == right` failed: unexpected exit code
+stdout:
+SUCCESS Task '' added successfully.
+
+stderr:
+
+  left: Some(0)
+ right: Some(1)
+
+
+failures:
+    errors_use_stderr
+    non_numeric_task_id_usage_error
+    project_not_found_message
+    reject_blank_project_name
+    reject_blank_task_title
+    task_not_found_message
+
+test result: FAILED. 1 passed; 6 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.26s
+
+error: test failed, to rerun pass `--test cli`
+TEST_EXIT=101
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

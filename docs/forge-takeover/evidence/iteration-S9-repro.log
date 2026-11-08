@@ -1,0 +1,58 @@
+=== S9 reproduction of Lead-found issues (isolated HOME) Sun Nov  8 16:17:29 CST 2026 ===
+TMPHOME=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.RdNJgODk9z
+--- B1: project edit a "" ---
+SUCCESS Project 'a' added successfully.
+INFO Use `tam project use a` to switch to this project.
+SUCCESS Project 'a' switched successfully.
+SUCCESS Project 'a' updated to '' successfully.
+B1_edit_exit=0
+--- B1 state ---
+╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│         │ 2026-11-08 08:17:29 │ 2026-11-08 08:17:29 │
+╰─────────┴─────────────────────┴─────────────────────╯
+current_project = ""
+INFO Current project: 
+B1_current_exit=0
+
+--- B2: task edit 1 "   " ---
+SUCCESS Task '1' updated successfully.
+B2_edit_exit=0
+INFO Current project: p2
+╭────┬───────┬─────────╮
+│ ID │ Title │ Status  │
+├────┼───────┼─────────┤
+│ 1  │       │ ⏳ Todo │
+╰────┴───────┴─────────╯
+
+--- B4: project edit p2 p2 (same name) ---
+INFO Project name is the same, no changes made.
+B4_edit_exit=0
+
+=== B3 reproduction: whitespace inconsistency (isolated HOME) Sun Nov  8 16:17:40 CST 2026 ===
+--- B3.1 add " alpha " then use " alpha " ---
+SUCCESS Project 'alpha' added successfully.
+INFO Use `tam project use alpha` to switch to this project.
+add_exit=0
+╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│ alpha   │ 2026-11-08 08:17:40 │ 2026-11-08 08:17:40 │
+╰─────────┴─────────────────────┴─────────────────────╯
+ERROR project ' alpha ' not found
+use_exit=1
+--- B3.2 edit alpha " beta " writes padded current ---
+SUCCESS Project 'alpha' switched successfully.
+SUCCESS Project 'alpha' updated to ' beta ' successfully.
+edit_exit=0
+current_project = " beta "
+ERROR project ' beta ' not found
+current_exit=1
+--- B3.3 del " beta " (current=beta) leaves dangling current ---
+SUCCESS Project 'beta' switched successfully.
+SUCCESS Project ' beta ' deleted successfully.
+del_exit=0
+current_project = "beta"
+ERROR project 'beta' not found
+current_after_del_exit=1

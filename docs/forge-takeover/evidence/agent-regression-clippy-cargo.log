@@ -1,0 +1,47 @@
+=== clippy categories: baseline(00, 17) vs gate-5(15) vs agent(current) ===
+current warning count = 12
+--- current headlines:
+warning: unused import: `Color`
+warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+warning: method `set_title` is never used
+warning: fields `tip_bg` and `tip_fg` are never read
+warning: you seem to be trying to use `match` for an equality check. Consider using `if`
+warning: you seem to be trying to use `match` for an equality check. Consider using `if`
+warning: useless conversion to the same type: `std::string::String`
+warning: useless conversion to the same type: `std::string::String`
+warning: useless conversion to the same type: `std::string::String`
+warning: useless use of `format!`
+warning: useless use of `format!`
+warning: direct implementation of `ToString`
+--- new categories vs baseline:
+(none above = no new category)
+
+=== Cargo.toml / Cargo.lock unchanged ===
+changed_count=0
+
+=== diff stat / new files ===
+ 18 files changed, 2321 insertions(+), 334 deletions(-)
+ M AGENTS.md
+ M README.md
+ M skills/tam-usage/SKILL.md
+ M src/app.rs
+ M src/cli.rs
+ M src/commands.rs
+ M src/commands/project.rs
+ M src/commands/task.rs
+ M src/config.rs
+ M src/db.rs
+ M src/main.rs
+ M src/model.rs
+ M src/services.rs
+ M src/services/project.rs
+ M src/services/task.rs
+ M src/sql.rs
+ M src/ui.rs
+ M src/utils.rs
+?? docs/
+?? skills/tam-agent/
+?? src/agent.rs
+?? src/commands/agent.rs
+?? src/mcp.rs
+?? tests/

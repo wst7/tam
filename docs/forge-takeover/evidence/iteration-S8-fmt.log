@@ -1,0 +1,254 @@
+=== S8 fmt: cargo fmt (run once, last step) Sun Nov  8 16:09:54 CST 2026 ===
+FMT_RUN_EXIT=0
+
+--- cargo fmt --check ---
+FMT_CHECK_EXIT=0
+
+--- files changed by fmt only (diff pre-fmt snapshot -> working tree) ---
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/cli.rs src/cli.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/cli.rs	2026-11-08 16:07:29
++++ src/cli.rs	2026-11-08 16:09:54
+@@ -44,7 +44,7 @@
+ #[derive(Subcommand, Debug)]
+ pub enum ProjectSubcommand {
+     /// Add a new project
+-    #[command(name = "add",  visible_alias = "a")]
++    #[command(name = "add", visible_alias = "a")]
+     Add { name: String },
+     /// List all projects
+     #[command(name = "list", visible_alias = "l")]
+@@ -135,7 +135,7 @@
+ impl TaskSubcommand {
+     pub fn execute_command(command: Option<Self>) -> anyhow::Result<bool> {
+         match command.unwrap_or(Self::List { status: None }) {
+-            TaskSubcommand::Add{title} => task::add(title),
++            TaskSubcommand::Add { title } => task::add(title),
+             TaskSubcommand::List { status } => task::list(status),
+             TaskSubcommand::Edit { id, title } => task::edit(id, title),
+             TaskSubcommand::Delete { id } => task::delete(id),
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/commands/project.rs src/commands/project.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/commands/project.rs	2026-11-08 16:04:02
++++ src/commands/project.rs	2026-11-08 16:09:54
+@@ -1,9 +1,8 @@
+ use crate::config::get_config;
+ use crate::model::Project;
+-use crate::{print_info, print_success};
+ use crate::services::project;
++use crate::{print_info, print_success};
+ 
+-
+ pub fn add(name: String) -> anyhow::Result<bool> {
+     let (project, restored) = project::add(name)?;
+     if restored {
+@@ -11,7 +10,10 @@
+     } else {
+         print_success!("Project '{}' added successfully.", project.name);
+     }
+-    print_info!("Use `tam project use {}` to switch to this project.", project.name);
++    print_info!(
++        "Use `tam project use {}` to switch to this project.",
++        project.name
++    );
+     Ok(true)
+ }
+ 
+@@ -31,7 +33,7 @@
+     match config.save() {
+         Ok(_) => {
+             print_success!("Project '{}' switched successfully.", project.name);
+-        },
++        }
+         Err(e) => {
+             eprintln!("Failed to change current project: {}", e);
+             std::process::exit(1);
+@@ -69,7 +71,6 @@
+     print_success!("Project '{}' deleted successfully.", name);
+     Ok(true)
+ }
+-
+ 
+ pub fn edit(name: String, new_name: String) -> anyhow::Result<bool> {
+     if name == new_name {
+@@ -99,4 +100,4 @@
+ 
+     print_success!("Project '{}' updated to '{}' successfully.", name, new_name);
+     Ok(true)
+-}
+\ No newline at end of file
++}
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/commands.rs src/commands.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/commands.rs	2026-11-08 15:09:34
++++ src/commands.rs	2026-11-08 16:09:54
+@@ -1,3 +1,3 @@
+ pub mod config;
+ pub mod project;
+-pub mod task;
+\ No newline at end of file
++pub mod task;
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/main.rs src/main.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/main.rs	2026-11-08 15:09:34
++++ src/main.rs	2026-11-08 16:09:54
+@@ -3,20 +3,23 @@
+ use db::init_db;
+ use std::process;
+ 
+-use crate::{app::App, cli::{ProjectSubcommand, TaskSubcommand}};
++use crate::{
++    app::App,
++    cli::{ProjectSubcommand, TaskSubcommand},
++};
+ 
+ mod app;
+ mod cli;
+ mod commands;
+ mod config;
+ mod db;
++mod logs;
+ mod model;
+ mod services;
+ mod sql;
+ mod theme;
+ mod ui;
+ mod utils;
+-mod logs;
+ 
+ fn main() {
+     logs::init_logging();
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/services/project.rs src/services/project.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/services/project.rs	2026-11-08 16:03:51
++++ src/services/project.rs	2026-11-08 16:09:54
+@@ -1,6 +1,6 @@
+ use crate::sql::{
+     COUNT_ACTIVE_TASKS_SQL, CREATE_PROJECT_SQL, DELETE_PROJECT_SQL, RESTORE_PROJECT_SQL,
+-    SELECT_PROJECTS_SQL, SELECT_PROJECT_SQL, SELECT_PROJECT_INCLUDING_DELETED_SQL,
++    SELECT_PROJECTS_SQL, SELECT_PROJECT_INCLUDING_DELETED_SQL, SELECT_PROJECT_SQL,
+     UPDATE_PROJECT_SQL,
+ };
+ use crate::{db::get_db, model::Project};
+@@ -119,13 +119,10 @@
+     // Refuse to delete a project that still has active tasks: they would
+     // become orphaned because the FK is not enforced (Q1).
+     let conn = get_db()?;
+-    let active_tasks: i64 = conn.query_row(COUNT_ACTIVE_TASKS_SQL, (project_id,), |row| row.get(0))?;
++    let active_tasks: i64 =
++        conn.query_row(COUNT_ACTIVE_TASKS_SQL, (project_id,), |row| row.get(0))?;
+     if active_tasks > 0 {
+-        anyhow::bail!(
+-            "project '{}' has {} active task(s)",
+-            name,
+-            active_tasks
+-        );
++        anyhow::bail!("project '{}' has {} active task(s)", name, active_tasks);
+     }
+ 
+     let mut stmt = conn.prepare(DELETE_PROJECT_SQL)?;
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/services.rs src/services.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/services.rs	2026-11-08 15:09:34
++++ src/services.rs	2026-11-08 16:09:54
+@@ -1,2 +1,2 @@
+ pub mod project;
+-pub mod task;
+\ No newline at end of file
++pub mod task;
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/sql.rs src/sql.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/sql.rs	2026-11-08 16:07:29
++++ src/sql.rs	2026-11-08 16:09:54
+@@ -17,7 +17,6 @@
+ END;
+ "#;
+ 
+-
+ pub const CREATE_TASK_TABLE_SQL: &str = r#"
+ CREATE TABLE IF NOT EXISTS task (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+@@ -58,7 +57,6 @@
+ SELECT is_deleted FROM project WHERE name = ?;
+ "#;
+ 
+-
+ pub const DELETE_PROJECT_SQL: &str = r#"
+ UPDATE project SET is_deleted = 1 WHERE name = ?;
+ "#;
+@@ -80,7 +78,6 @@
+ pub const CREATE_TASK_SQL: &str = r#"
+ INSERT INTO task (title, project_id) VALUES (?, ?);
+ "#;
+-
+ 
+ pub const SELECT_ALL_TASKS_SQL: &str = r#"
+ SELECT id, title, status, created, updated FROM task WHERE project_id = ? AND is_deleted = 0
+@@ -107,4 +104,4 @@
+ 
+ pub const DELETE_TASK_SQL: &str = r#"
+ UPDATE task SET is_deleted = 1 WHERE id = ?;
+-"#;
+\ No newline at end of file
++"#;
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/ui.rs src/ui.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/ui.rs	2026-11-08 15:09:34
++++ src/ui.rs	2026-11-08 16:09:54
+@@ -1,9 +1,9 @@
++mod components;
+ mod project_screen;
+ mod task_screen;
+-mod components;
+ 
+-use ratatui::Frame;
+ use crate::app::{App, CurrentScreen};
++use ratatui::Frame;
+ 
+ pub fn draw(frame: &mut Frame, app: &mut App) {
+     match app.current_screen {
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/src/utils.rs src/utils.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/src/utils.rs	2026-11-08 15:59:35
++++ src/utils.rs	2026-11-08 16:09:54
+@@ -1,4 +1,3 @@
+-
+ #[macro_export]
+ macro_rules! print_success {
+     ($msg:expr) => {{
+diff -ru /tmp/forge-tam/snapshots/pre-fmt/tests/cli.rs tests/cli.rs
+--- /tmp/forge-tam/snapshots/pre-fmt/tests/cli.rs	2026-11-08 16:06:58
++++ tests/cli.rs	2026-11-08 16:09:54
+@@ -570,12 +570,20 @@
+     let output = run_tam(&home, &["task", "list", "--status", "todo"]);
+     assert_code(&output, 0);
+     assert_stdout_contains(&output, "task-todo");
+-    assert!(!stdout(&output).contains("task-done"), "{}", stdout(&output));
++    assert!(
++        !stdout(&output).contains("task-done"),
++        "{}",
++        stdout(&output)
++    );
+ 
+     let output = run_tam(&home, &["task", "list", "--status", "in-progress"]);
+     assert_code(&output, 0);
+     assert_stdout_contains(&output, "task-progress");
+-    assert!(!stdout(&output).contains("task-todo"), "{}", stdout(&output));
++    assert!(
++        !stdout(&output).contains("task-todo"),
++        "{}",
++        stdout(&output)
++    );
+ }
+ 
+ #[test]
+
+--- git diff --stat after fmt ---
+ AGENTS.md                 |   2 +-
+ README.md                 |   2 +-
+ skills/tam-usage/SKILL.md |   6 +-
+ src/app.rs                | 125 +++++++++++++++++++++++----------
+ src/cli.rs                |  55 ++++++++++++---
+ src/commands.rs           |   2 +-
+ src/commands/project.rs   |  90 +++++++++++++-----------
+ src/commands/task.rs      |  24 ++++---
+ src/config.rs             |  92 ++++++++++++------------
+ src/main.rs               |   7 +-
+ src/services.rs           |   2 +-
+ src/services/project.rs   | 101 ++++++++++++++++++++++-----
+ src/services/task.rs      | 174 ++++++++++++++++++++++++++++------------------
+ src/sql.rs                |  24 ++++++-
+ src/ui.rs                 |   4 +-
+ src/utils.rs              |   5 +-
+ 16 files changed, 470 insertions(+), 245 deletions(-)

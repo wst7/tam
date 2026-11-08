@@ -1,0 +1,30 @@
+=== M1 independent: config save failure on rename (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.OlZK27Cmz3) 2026-11-08 16:30:26 ===
+--- add alpha: exit=0 stdout=<SUCCESS Project 'alpha' added successfully.
+INFO Use `tam project use alpha` to switch to this project.> stderr=<>
+--- use alpha: exit=0 stdout=<SUCCESS Project 'alpha' switched successfully.> stderr=<>
+--- chmod 400 /var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.OlZK27Cmz3/.tam/tam.config.toml
+-r--------@ 1 wstreet7  staff  334 Nov  8 16:30 /var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.OlZK27Cmz3/.tam/tam.config.toml
+--- dir perms (must stay writable): drwxr-xr-x@ 5 wstreet7  staff  160 Nov  8 16:30 /var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.OlZK27Cmz3/.tam
+--- logs dir writable: yes
+--- project edit alpha beta: exit=1
+--- stdout: <>
+--- stderr: <ERROR project 'alpha' was renamed to 'beta' in the database, but updating the config failed: Permission denied (os error 13); run `tam project use beta` to update the current project>
+PASS: M1.1 edit exit (=1)
+PASS: M1.2 stdout empty
+PASS: M1.3 stderr contains recovery command 'tam project use beta'
+PASS: M1.4 DB renamed to beta (=beta)
+--- config content while read-only:
+db_file = "/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.OlZK27Cmz3/.tam/tam.db3"
+current_project = "alpha"
+logfile_path = "/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.OlZK27Cmz3/.tam/logs/tam.log"
+logfile_pattern = "/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.OlZK27Cmz3/.tam/logs/tam.{}.log"
+theme = "dark"
+PASS: M1.5 config still current_project=alpha
+--- project current after failed config save: exit=1 stdout=<> stderr=<ERROR project 'alpha' not found>
+PASS: M1.6 project current exit=1 (=1)
+--- chmod 600 /var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.OlZK27Cmz3/.tam/tam.config.toml
+--- project use beta after repair: exit=0 stdout=<SUCCESS Project 'beta' switched successfully.> stderr=<>
+PASS: M1.7 use beta exits 0 (=0)
+PASS: M1.8 current is beta
+PASS: M1.9 config repaired
+M1_RESULT: PASS=9 FAIL=0

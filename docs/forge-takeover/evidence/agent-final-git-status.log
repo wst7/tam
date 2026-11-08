@@ -1,0 +1,114 @@
+=== Gate C agent-first 交接快照 · git status / repository facts ===
+captured_at: 2026-11-08 18:08:20 CST
+
+--- HEAD ---
+HEAD=d395841288bbf86960a931924ff628c5b264d066
+HEAD_SHORT=d395841
+BRANCH=main
+d395841 feat: add tam-usage skill for AI assistants
+
+--- git status --short ---
+ M AGENTS.md
+ M README.md
+ M skills/tam-usage/SKILL.md
+ M src/app.rs
+ M src/cli.rs
+ M src/commands.rs
+ M src/commands/project.rs
+ M src/commands/task.rs
+ M src/config.rs
+ M src/db.rs
+ M src/main.rs
+ M src/model.rs
+ M src/services.rs
+ M src/services/project.rs
+ M src/services/task.rs
+ M src/sql.rs
+ M src/ui.rs
+ M src/utils.rs
+?? docs/
+?? skills/tam-agent/
+?? src/agent.rs
+?? src/commands/agent.rs
+?? src/mcp.rs
+?? tests/
+
+--- git diff --shortstat ---
+ 18 files changed, 2540 insertions(+), 342 deletions(-)
+
+--- git diff --stat ---
+ AGENTS.md                 |   12 +-
+ README.md                 |   49 ++-
+ skills/tam-usage/SKILL.md |    6 +-
+ src/app.rs                |  125 ++++--
+ src/cli.rs                |  218 +++++++++-
+ src/commands.rs           |    3 +-
+ src/commands/project.rs   |  100 +++--
+ src/commands/task.rs      |  270 +++++++++++-
+ src/config.rs             |  101 +++--
+ src/db.rs                 |  416 +++++++++++++++++-
+ src/main.rs               |  116 ++++-
+ src/model.rs              |   54 +++
+ src/services.rs           |    2 +-
+ src/services/project.rs   |  161 ++++++-
+ src/services/task.rs      | 1061 ++++++++++++++++++++++++++++++++++++++++-----
+ src/sql.rs                |  179 +++++++-
+ src/ui.rs                 |    4 +-
+ src/utils.rs              |    5 +-
+ 18 files changed, 2540 insertions(+), 342 deletions(-)
+
+--- src numstat 汇总 ---
+src: +2482 -333 (files=15)
+
+--- 各文档/模块行数（wc -l 实拍） ---
+     235 docs/agent-protocol.md
+     188 docs/agent-implementation.md
+     252 docs/agent-regression.md
+     238 docs/agent-handover.md
+     114 skills/tam-agent/SKILL.md
+     171 README.md
+      85 AGENTS.md
+    1614 tests/agent.rs
+     731 tests/cli.rs
+     333 src/agent.rs
+     516 src/mcp.rs
+     441 src/commands/agent.rs
+     439 src/db.rs
+    1000 src/services/task.rs
+     236 src/sql.rs
+     211 src/model.rs
+     295 src/cli.rs
+     137 src/main.rs
+    7236 total
+
+--- 测试计数（cargo test -- --list） ---
+     Running unittests src/main.rs (target/debug/deps/tam-1ff1ff064e11f82a)
+14 tests, 0 benchmarks
+     Running tests/agent.rs (target/debug/deps/agent-68fc88686487566b)
+25 tests, 0 benchmarks
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+23 tests, 0 benchmarks
+
+--- 真实用户数据（只读）与基线对比 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+baseline:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+compare:
+USER_DATA_UNTOUCHED
+current_project: current_project = "pastoid"
+real_db_user_version=0
+real_db_size=20480 bytes
+
+--- 证据目录 ---
+evidence_files=121
+agent_evidence_files=57
+agent_final_changes_diff=    3564 lines /   126484 bytes
+
+--- 文档相对链接存在性检查（test -e，基准 docs/） ---
+link_missing_count=0
+
+--- 工具链 ---
+rustc 1.94.1 (e408947bf 2026-03-25)
+cargo 1.94.1 (29ea6fb6a 2026-03-24)

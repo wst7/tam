@@ -1,0 +1,58 @@
+=== S6 green: no-arg `task list` byte-diff vs pre-change baseline Sun Nov  8 16:08:27 CST 2026 ===
+--- diff -u before after (empty = unchanged) ---
+NO_ARG_OUTPUT_UNCHANGED
+--- filter --status done ---
+INFO Current project: demo
+╭────┬─────────────┬─────────╮
+│ ID │ Title       │ Status  │
+├────┼─────────────┼─────────┤
+│ 3  │ task-3 done │ ✅ Done │
+╰────┴─────────────┴─────────╯
+filter_exit=0
+--- filter --status in-progress ---
+│ ID │ Title           │ Status         │
+├────┼─────────────────┼────────────────┤
+│ 2  │ task-2 progress │ 🚧 In Progress │
+╰────┴─────────────────┴────────────────╯
+--- invalid --status wip ---
+invalid_exit=2
+
+=== S6 full isolated-HOME cargo test (goal: 20 integration + 5 unit green) Sun Nov  8 16:08:41 CST 2026 ===
+running 5 tests
+test services::task::test::sqlite_timestamp_invalid_is_err ... ok
+test config::test::test_default_config_paths ... ok
+test services::task::test::sqlite_timestamp_parsed_as_utc ... ok
+test config::test::test_config_toml_round_trip ... ok
+test config::test::test_config_deserialize_explicit_paths ... ok
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 20 tests
+test binary_writes_only_under_injected_home ... ok
+test delete_missing_project_not_found ... ok
+test add_active_duplicate_already_exists ... ok
+test errors_use_stderr ... ok
+test delete_current_project_clears_config ... ok
+test project_not_found_message ... ok
+test delete_allowed_when_only_soft_deleted_tasks ... ok
+test delete_refuses_project_with_active_tasks ... ok
+test non_numeric_task_id_usage_error ... ok
+test reject_blank_project_name ... ok
+test invalid_status_value_usage_error ... ok
+test reject_blank_task_title ... ok
+test rename_success_updates_current_project ... ok
+test rename_to_soft_deleted_name_errors ... ok
+test rename_failure_keeps_current_project ... ok
+test task_not_found_message ... ok
+test task_list_status_filter ... ok
+test task_list_without_status_unchanged ... ok
+test project_list_updated_column ... ok
+test add_restores_soft_deleted_project ... ok
+test result: ok. 20 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.40s
+TEST_EXIT=0
+
+--- targeted task_list_ ---
+test task_list_without_status_unchanged ... ok
+test task_list_status_filter ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 18 filtered out; finished in 0.32s
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

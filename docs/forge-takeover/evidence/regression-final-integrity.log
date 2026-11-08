@@ -1,0 +1,71 @@
+=== FINAL integrity check (qa Gate 5) 2026-11-08 16:38:37 ===
+--- real user data vs iteration-00 baseline
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+USER_DATA_UNTOUCHED
+
+--- mtimes of user data (unchanged since before this gate)
+Nov  8 15:14:42 2026 /Users/wstreet7/.tam/tam.config.toml
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/tam.db3
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/logs/tam.log
+
+--- repo state: QA wrote no source changes (same 13 src + 3 docs modified as at gate start)
+ M AGENTS.md
+ M README.md
+ M skills/tam-usage/SKILL.md
+ M src/app.rs
+ M src/cli.rs
+ M src/commands.rs
+ M src/commands/project.rs
+ M src/commands/task.rs
+ M src/config.rs
+ M src/main.rs
+ M src/services.rs
+ M src/services/project.rs
+ M src/services/task.rs
+ M src/sql.rs
+ M src/ui.rs
+ M src/utils.rs
+?? docs/
+?? tests/
+ 16 files changed, 527 insertions(+), 245 deletions(-)
+
+--- files QA is allowed to add (docs/evidence + 05) vs pre-existing
+05-regression.md not written yet
+docs/forge-takeover/evidence/regression-04claims-crosscheck.log
+docs/forge-takeover/evidence/regression-04claims.log
+docs/forge-takeover/evidence/regression-M1.log
+docs/forge-takeover/evidence/regression-S5-M-tui.log
+docs/forge-takeover/evidence/regression-build.log
+docs/forge-takeover/evidence/regression-clippy-all-targets.log
+docs/forge-takeover/evidence/regression-clippy-count.log
+docs/forge-takeover/evidence/regression-clippy.log
+docs/forge-takeover/evidence/regression-docs-hygiene.log
+docs/forge-takeover/evidence/regression-final-integrity.log
+docs/forge-takeover/evidence/regression-fmt.log
+docs/forge-takeover/evidence/regression-gates-summary.log
+docs/forge-takeover/evidence/regression-schema.log
+docs/forge-takeover/evidence/regression-sha-before.log
+docs/forge-takeover/evidence/regression-smoke-G1-G10.log
+docs/forge-takeover/evidence/regression-static-tui.log
+docs/forge-takeover/evidence/regression-test-bare.log
+docs/forge-takeover/evidence/regression-test-quality.log
+docs/forge-takeover/evidence/regression-test-single-thread.log
+docs/forge-takeover/evidence/regression-test-temphome.log
+
+--- docs 00-04 mtimes (must predate this gate's evidence logs)
+Nov  8 15:29:51 2026 docs/forge-takeover/00-discovery.md
+Nov  8 15:29:12 2026 docs/forge-takeover/01-asbuilt.md
+Nov  8 15:37:07 2026 docs/forge-takeover/02-gap.md
+Nov  8 15:50:48 2026 docs/forge-takeover/03-plan.md
+Nov  8 16:23:53 2026 docs/forge-takeover/04-implementation.md
+
+--- no tam process should still be running with a temp HOME
+no tam process running
+
+--- smoke/tui/m1 assertion tallies from evidence
+SMOKE_RESULT: PASS=47 FAIL=0
+S9_SMOKE_RESULT: PASS=10 FAIL=0
+M1_RESULT: PASS=9 FAIL=0
+TUI_SCENARIOS_RESULT: PASS=31 FAIL=0
+SMOKE_RESULT: PASS=129 FAIL=0

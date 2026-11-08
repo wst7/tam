@@ -1,0 +1,71 @@
+=== FINAL GATE CLI smoke 8 scenarios (isolated HOME, after S9) Sun Nov  8 16:22:20 CST 2026 ===
+=== CLI smoke 8 scenarios Sun Nov  8 16:22:20 CST 2026 ===
+PASS[S1-add] exit=0
+PASS[S1-edit] exit=0
+PASS[S1-use] exit=0
+PASS[S1-list] exit=0
+PASS[S1-list-p1b] contains: p1b
+PASS[S1-created-updated-independent] created=2026-11-08 08:22:21 updated=2026-11-08 08:22:22
+PASS[S2-use] exit=0
+PASS[S2-edit-conflict] exit=1
+PASS[S2-stderr] contains: already exists
+PASS[S2-current] exit=0
+PASS[S2-current-still-p1] contains: p1
+PASS[S3-del-guard] exit=1
+PASS[S3-stderr] contains: project 'p1' has 2 active task(s)
+PASS[S3-tasks] exit=0
+PASS[S3-task1-alive] contains: task one
+PASS[S3-task2-alive] contains: task two
+PASS[S4-del] exit=0
+PASS[S4-readd] exit=0
+PASS[S4-restored-message] contains: restored
+PASS[S4-list] exit=0
+PASS[S4-list-p2] contains: p2
+PASS[S5-task-999] exit=1
+PASS[S5-stderr] contains: task 999 not found
+PASS[S5-task-abc] exit=2
+PASS[S5-project-nope] exit=1
+PASS[S5-project-stderr] contains: project 'nope' not found
+PASS[S5-no-raw-sql] does not contain: Query returned no rows
+PASS[S6-blank-project] exit=1
+PASS[S6-blank-project-stderr] stderr non-empty
+PASS[S6-spaces-project] exit=1
+PASS[S6-empty-list] exit=0
+PASS[S6-no-rows] contains: No projects found
+PASS[S6-blank-task] exit=1
+PASS[S6-blank-task-stderr] contains: cannot be empty
+PASS[S6-task-list] exit=0
+PASS[S6-no-task-rows] contains: No tasks found
+PASS[S7-filter-done] exit=0
+PASS[S7-done-present] contains: task-done
+PASS[S7-done-filtered] does not contain: task-todo
+PASS[S7-list-all] exit=0
+PASS[S7-all-todo] contains: task-todo
+PASS[S7-all-progress] contains: task-progress
+PASS[S7-all-done] contains: task-done
+PASS[S7-invalid-status] exit=2
+PASS[S8-del-current] exit=0
+PASS[S8-current-unset] exit=1
+PASS[S8-message] contains: No current project set
+
+SMOKE_RESULT: PASS=47 FAIL=0
+SMOKE_EXIT=0
+
+=== S9 regression smoke (B1/B2/B3) ===
+PASS[S9-B1-blank-edit-exit] 1
+PASS[S9-B1-stderr] 1
+PASS[S9-B1-config-unchanged] 1
+PASS[S9-B2-blank-title-exit] 1
+PASS[S9-B2-stderr] 1
+PASS[S9-B3-padded-use] 0
+PASS[S9-B3-padded-edit] 0
+PASS[S9-B3-canonical-config] 1
+PASS[S9-B3-padded-del] 0
+PASS[S9-B3-current-cleared] 1
+S9_SMOKE_RESULT: PASS=10 FAIL=0
+
+--- real ~/.tam sha256 before/after smoke ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

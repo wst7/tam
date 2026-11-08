@@ -1,0 +1,57 @@
+=== Gate B2 D1 focused re-verification (migration v0->v2 / v1->v2 + key reuse) ===
+PASS: D1.0 real ~/.tam/tam.db3 exists
+--- D1.1: real DB copy v0 -> v2, backup v0 shape, idempotent ---
+PASS: v0 pre: user_version=0
+PASS: v0 pre: 8 task columns
+PASS: v0 pre: 5 projects / 37 tasks
+PASS: v0 pre: no backup
+PASS: v0->v2 command exit0
+PASS: v0->v2 old data readable
+PASS: v0->v2 user_version=2
+PASS: v0->v2 14 task columns
+PASS: v0->v2 task_events table
+PASS: v0->v2 4 indexes
+PASS: v0->v2 idempotency predicate excludes soft-deleted
+PASS: v0->v2 row counts unchanged
+PASS: v0->v2 backup exists
+PASS: backup user_version=0
+PASS: backup v0 shape (8 cols, no priority)
+PASS: backup rows 5/37
+PASS: v0->v2 second run exit0
+PASS: second run still v2
+PASS: second run backup unchanged
+PASS: second run rows unchanged
+--- D1.2: constructed v1 DB -> v2, no new backup ---
+PASS: v1 constructed: user_version=1
+PASS: v1 constructed: old idempotency index has no is_deleted predicate
+PASS: v1 constructed: no backup yet
+PASS: v1->v2 command exit0
+PASS: v1->v2 user_version=2
+PASS: v1->v2 idempotency index replaced
+PASS: v1->v2 does NOT create a new backup
+PASS: v1->v2 rows unchanged
+PASS: v1->v2 second run exit0
+PASS: v1->v2 idempotent
+--- D1.3: soft-deleted idempotency key is reusable ---
+PASS: D1 seed project exit0
+PASS: D1 first add exit0
+PASS: D1 first add deduplicated=false
+PASS: D1 task del --json exit0
+PASS: D1 task del returns deleted task
+PASS: D1 task del meta.project
+PASS: D1 soft-deleted row is_deleted=1
+PASS: D1 deleted event written
+PASS: D1 list exit0
+PASS: D1 deleted task not listed
+PASS: D1 re-add same key exit0
+PASS: D1 re-add succeeds with a new id
+PASS: D1 re-add deduplicated=false
+PASS: D1 retry after re-add exit0
+PASS: D1 retry deduplicates to new id
+PASS: D1 two rows share the key (one soft-deleted)
+PASS: D1 exactly one active row for key
+D1_FIX_RESULT: PASS=48 FAIL=0
+D1_SCRIPT_EXIT=0
+--- real hashes after D1:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

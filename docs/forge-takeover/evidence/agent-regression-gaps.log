@@ -1,0 +1,147 @@
+=== QA adversarial probes of suspected gaps ===
+PASS: G0 create exit0
+--- GAP-1: JSON unsupported human commands
+PASS: GAP1 project.use exit 1/invalid
+OBSERVE project.use: code=invalid exit=1
+PASS: GAP1 project.edit exit 1/invalid
+OBSERVE project.edit: code=invalid exit=1
+PASS: GAP1 project.del exit 1/invalid
+OBSERVE project.del: code=invalid exit=1
+PASS: GAP1 task.del exit 1/invalid
+OBSERVE task.del: code=invalid exit=1
+PASS: GAP1 task.edit exit 1/invalid
+OBSERVE task.edit: code=invalid exit=1
+PASS: GAP1 task.start exit 1/invalid
+OBSERVE task.start: code=invalid exit=1
+--- GAP-2: task update --status todo while leased
+PASS: GAP2 claim exit0
+PASS: GAP2 update todo exit0
+OBSERVE after update todo: status=todo assigned_agent=agent-a lease_expires_at=2026-11-08T09:44:24Z lease_expired=False
+PASS: GAP2.1 status is todo
+PASS: GAP2.2 stale lease retained (bug candidate)
+PASS: GAP2 next exit0
+OBSERVE next after todo+lease: task=None
+PASS: GAP2.3 leased todo is skipped by next (semantics gap)
+PASS: GAP2 release force exit0
+PASS: GAP2 next after release exit0
+PASS: GAP2.4 next sees task after release
+--- GAP-3: project add --json project view fields
+PASS: GAP3 add beta exit0
+OBSERVE project.add project keys=['id', 'name']
+PASS: GAP3.1 project.add returns id+name
+PASS: GAP3.2 project.add has no created/updated (doc ambiguity)
+--- GAP-4: meta.project for by-id operations without --project
+PASS: GAP4 show exit0
+OBSERVE show meta={'agent': None, 'project': None}
+PASS: GAP4 show meta.project null (doc ambiguity)
+PASS: GAP4 update exit0
+OBSERVE update meta={'agent': None, 'project': None}
+PASS: GAP4 update meta.project null (doc ambiguity)
+PASS: GAP4 events exit0
+OBSERVE events meta={'agent': None, 'project': None}
+PASS: GAP4 events meta.project null (doc ambiguity)
+PASS: GAP4 show scoped exit0
+PASS: GAP4b scoped show fills meta.project
+--- GAP-5: lease_expired for unassigned task
+PASS: GAP5 add exit0
+OBSERVE unassigned lease_expired=True lease_expires_at=None
+PASS: GAP5 unassigned lease_expired=true (documented in SKILL)
+--- GAP-6: CLI tags clear vs MCP tags clear
+PASS: GAP6 add exit0
+PASS: GAP6 cli clear exit0
+PASS: GAP6.1 CLI empty --tags clears
+--- EXTRA-1: idempotency key reuse after task soft-delete
+PASS: X1 add keyed exit0
+PASS: X1.1 human soft delete ok
+OBSERVE re-add with key after soft delete: exit=1 stderr={"command":"task.add","error":{"code":"internal","message":"failed to create task: Error code 2067: A UNIQUE constraint failed"},"ok":false,"schema":"tam.agent/v1"}
+PASS: X1.2 key reuse after delete is an internal error (bug candidate)
+--- EXTRA-2: update --status done clears lease
+PASS: X2 claim exit0
+PASS: X2 update done exit0
+PASS: X2.1 update done clears lease
+PASS: X3 add exit0
+PASS: X3.1 lease 4 exit 1/invalid
+PASS: X3.2 lease 86401 exit 1/invalid
+PASS: X3.3 lease 5 ok exit0
+--- EXTRA-4: next ordering and skips
+PASS: X4 add1 exit0
+PASS: X4 add2 exit0
+PASS: X4 add3 exit0
+PASS: X4 next1 exit0
+PASS: X4.1 same priority -> oldest created first
+PASS: X4 claim first exit0
+PASS: X4 next2 exit0
+PASS: X4.2 valid lease skipped
+PASS: X4 done second exit0
+PASS: X4 next3 exit0
+PASS: X4.3 done skipped
+PASS: X4.4 next --claim needs agent exit 1/missing_agent
+--- EXTRA-5: limit bounds
+PASS: X5.1 limit 0 exit0
+OBSERVE limit 0 -> data.limit=1 count=1
+PASS: X5.2 limit 0 clamped to 1
+PASS: X5.3 limit 1001 exit0
+OBSERVE limit 1001 -> data.limit=1000
+PASS: X5.4 limit 1001 clamped to 1000
+--- EXTRA-6: broken config in JSON mode
+OBSERVE broken config: exit=1 stdout= stderr=Failed to load config: TOML parse error at line 1, column 6
+  |
+1 | this is not toml
+  |      ^
+key with no value, expected `=`
+PASS: X6.1 exit code 1
+PASS: X6.2 JSON mode emits non-JSON stderr on config load failure (bug candidate)
+--- EXTRA-7: tag normalization persistence
+PASS: X7 add tags exit0
+PASS: X7.1 tags lowercase/dedup/trim
+PASS: X7 show exit0
+GAPS_RESULT: PASS=63 FAIL=0
+GAPS_SCRIPT_EXIT=0
+--- real hashes after gap probes:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+=== EXTRA adversarial: update --status done lease bypass 2026-11-08 17:36:43 ===
+before: 1|agent-a|2
+{"command":"task.update","data":{"task":{"assigned_agent":null,"created":"2026-11-08T09:36:43Z","description":"","id":1,"lease_expired":true,"lease_expires_at":null,"priority":3,"project":"alpha","project_id":1,"revision":3,"status":"done","tags":[],"title":"bypass","updated":"2026-11-08T09:36:43Z"}},"meta":{"agent":"agent-b","project":"alpha"},"ok":true,"schema":"tam.agent/v1"}
+update --status done by agent-b (not lease holder) exit=0
+after: 2|NULL|3
+events:
+created|human||0
+claimed|agent-a|0|1
+updated|agent-b|1|2
+PASS: B1 agent-b can complete agent-a's leased task via update --status done (bypass)
+PASS: B2 DB status done / lease cleared (=2|NULL|3)
+PASS: B3 no completed event; updated used instead (=created>claimed>updated)
+OBSERVE: done-conflict guard (protocol 4.2) is bypassable via task update --status done; P2 consistency gap.
+=== EXTRA adversarial: concurrent task next --claim, 3 rounds 2026-11-08 17:36:55 ===
+Expectation: exactly one task assigned; loser may return {task:null} (exit0) or conflict (exit4);
+             never double-assign; never two tasks assigned.
+round 1: exits=(0,0) assigned_rows|owners=1|1
+  aa_out={"command":"task.next","data":{"task":{"assigned_agent":"aa","created":"2026-11-08T09:36:55Z","description":"","id":1,"lease_expired":false,"lease_expires_at":"2026-11-08T09:51:55Z","priority":3,"project":"alpha","project_id":1,"revision":2,"status":"in-progress","tags":[],"title":"next-race-1","updated":"2026-11-08T09:36:55Z"}},"meta":{"agent":"aa","project":"alpha"},"ok":true,"schema":"tam.agent/v1"}
+  aa_err=
+  bb_out={"command":"task.next","data":{"task":null},"meta":{"agent":"bb","project":"alpha"},"ok":true,"schema":"tam.agent/v1"}
+  bb_err=
+PASS: C1.1 exactly one assigned row/owner
+PASS: C1.2 exit 0 allowed
+PASS: C1.2 exit 0 allowed
+PASS: C1.4 at most one success carries a task
+round 2: exits=(0,0) assigned_rows|owners=1|1
+  aa_out={"command":"task.next","data":{"task":null},"meta":{"agent":"aa","project":"alpha"},"ok":true,"schema":"tam.agent/v1"}
+  aa_err=
+  bb_out={"command":"task.next","data":{"task":{"assigned_agent":"bb","created":"2026-11-08T09:36:55Z","description":"","id":2,"lease_expired":false,"lease_expires_at":"2026-11-08T09:51:55Z","priority":3,"project":"alpha","project_id":1,"revision":2,"status":"in-progress","tags":[],"title":"next-race-2","updated":"2026-11-08T09:36:55Z"}},"meta":{"agent":"bb","project":"alpha"},"ok":true,"schema":"tam.agent/v1"}
+  bb_err=
+PASS: C2.1 exactly one assigned row/owner
+PASS: C2.2 exit 0 allowed
+PASS: C2.2 exit 0 allowed
+PASS: C2.4 at most one success carries a task
+round 3: exits=(0,0) assigned_rows|owners=1|1
+  aa_out={"command":"task.next","data":{"task":null},"meta":{"agent":"aa","project":"alpha"},"ok":true,"schema":"tam.agent/v1"}
+  aa_err=
+  bb_out={"command":"task.next","data":{"task":{"assigned_agent":"bb","created":"2026-11-08T09:36:55Z","description":"","id":3,"lease_expired":false,"lease_expires_at":"2026-11-08T09:51:55Z","priority":3,"project":"alpha","project_id":1,"revision":2,"status":"in-progress","tags":[],"title":"next-race-3","updated":"2026-11-08T09:36:55Z"}},"meta":{"agent":"bb","project":"alpha"},"ok":true,"schema":"tam.agent/v1"}
+  bb_err=
+PASS: C3.1 exactly one assigned row/owner
+PASS: C3.2 exit 0 allowed
+PASS: C3.2 exit 0 allowed
+PASS: C3.4 at most one success carries a task
+OBSERVE: one owner per round; loser returns {task:null}/exit0 or conflict/exit4 depending on race; no double-claim.
+EXTRA_GAP_RESULT: PASS=12 FAIL=0

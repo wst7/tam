@@ -1,0 +1,9 @@
+=== Sun Nov  8 15:50:03 CST 2026 Step 0 baseline ===
+HEAD=d395841288bbf86960a931924ff628c5b264d066
+?? docs/
+--- git diff --stat ---
+TMPHOME=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.LsYSOGzdoD
+temphome_test_exit=1
+temphome_test_exit=101
+
+NOTE: 首次隔离 HOME 跑 cargo test 因 rustup 找不到默认 toolchain 失败（未进入测试）；改用 RUSTUP_HOME/CARGO_HOME 指向真实工具链后得到红基线：4 passed, 1 failed, exit 101；临时 HOME 下生成 .tam/tam.config.toml；真实 ~/.tam 两文件 sha256 前后不变。

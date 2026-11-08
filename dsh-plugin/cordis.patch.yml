@@ -1,0 +1,6 @@
+# Layer applied when this bundle is installed into a DSH profile.
+# Override `command` if `tam` is not on PATH or points at an older build.
+- insert:
+    - id: tam-tools
+      name: dsh-tam
+      config: {}

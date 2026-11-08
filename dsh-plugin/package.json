@@ -1,0 +1,61 @@
+{
+  "name": "dsh-tam",
+  "version": "0.1.0",
+  "description": "DSH plugin: native tam task tools (JSON CLI wrapper) for agent task management.",
+  "license": "MIT OR Apache-2.0",
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "lib/*.js",
+    "cordis.patch.yml",
+    "README.md",
+    "PUBLISHING.md"
+  ],
+  "optionalDependencies": {
+    "@wst7/tam": ">=1.0.14 <2.0.0"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "keywords": [
+    "dsh",
+    "deepseek-harness",
+    "plugin",
+    "task-manager",
+    "agent",
+    "tam"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wst7/tam.git",
+    "directory": "dsh-plugin"
+  },
+  "homepage": "https://github.com/wst7/tam/tree/main/dsh-plugin",
+  "bugs": {
+    "url": "https://github.com/wst7/tam/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-runtime",
+        "@deepseek-ai/dsh-client-ui-sidebar"
+      ]
+    }
+  }
+}

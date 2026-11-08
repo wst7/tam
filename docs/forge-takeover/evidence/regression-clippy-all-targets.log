@@ -1,0 +1,7 @@
+=== cargo clippy --all-targets (informational) 2026-11-08 16:28:06 ===
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `tam` (bin "tam" test) generated 16 warnings (run `cargo clippy --fix --bin "tam" -p tam --tests` to apply 12 suggestions)
+warning: `tam` (bin "tam") generated 15 warnings (14 duplicates) (run `cargo clippy --fix --bin "tam" -p tam` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+ALL_TARGETS_EXIT=0

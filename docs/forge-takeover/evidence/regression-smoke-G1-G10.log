@@ -1,0 +1,168 @@
+=== QA independent CLI smoke 2026-11-08 16:30:07 ===
+--- binary: /Users/wstreet7/project/tam/target/debug/tam
+/Users/wstreet7/project/tam/target/debug/tam: Mach-O 64-bit executable arm64
+--- REAL_HOME before:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+
+### A: G1 updated column + G10 injected-HOME confinement (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.8H3lMHHPDj)
+PASS[A] A1 project add exit (=0)
+PASS[A] A2 add stdout SUCCESS
+PASS[A] A3 add stderr quiet
+PASS[A] A4 project edit exit (=0)
+PASS[A] A5 project list exit (=0)
+PASS[A] A6 row name cell (=alpha-renamed)
+PASS[A] A7 Created != Updated (2026-11-08 08:30:07 vs 2026-11-08 08:30:08)
+PASS[A] A8 config under injected HOME (/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.8H3lMHHPDj/.tam/tam.config.toml)
+PASS[A] A9 db under injected HOME (/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.8H3lMHHPDj/.tam/tam.db3)
+PASS[A] A10 log under injected HOME (/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.8H3lMHHPDj/.tam/logs/tam.log)
+PASS[A] A11 config points at injected HOME
+
+### B: G2 rename consistency (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.iWTeip0aaV)
+PASS[B] B1 fixtures exit (=0)
+PASS[B] B2 failed rename exit=1 (=1)
+PASS[B] B3 failed rename stdout empty
+PASS[B] B4 failed rename stderr already exists
+PASS[B] B5 current after failed rename exit (=0)
+PASS[B] B6 current still alpha
+PASS[B] B7 list unchanged after failed rename (=╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│ alpha   │ 2026-11-08 08:30:08 │ 2026-11-08 08:30:08 │
+│ beta    │ 2026-11-08 08:30:08 │ 2026-11-08 08:30:08 │
+╰─────────┴─────────────────────┴─────────────────────╯)
+PASS[B] B8 successful rename exit (=0)
+PASS[B] B9 rename stdout success
+PASS[B] B10 current synced to gamma
+PASS[B] B11 list shows gamma
+PASS[B] B12 old name gone
+
+### B2: S9 blank edit rejected (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.KB4hC2ekYq)
+PASS[B2] B13 edit blank target exit=1 (=1)
+PASS[B2] B14 blank edit stdout empty
+PASS[B2] B15 blank edit stderr cannot be empty
+PASS[B2] B16 current unchanged after blank edit
+PASS[B2] B17 list unchanged after blank edit (=╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│ alpha   │ 2026-11-08 08:30:08 │ 2026-11-08 08:30:08 │
+╰─────────┴─────────────────────┴─────────────────────╯)
+PASS[B2] B18 task add after blank edit exit (=0)
+PASS[B2] B19 task edit blank title exit=1 (=1)
+PASS[B2] B20 task edit blank stderr
+PASS[B2] B21 task title unchanged
+
+### B3: S9 trim consistency (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.u23uLHRzPh)
+PASS[B3] B22 add padded exit (=0)
+PASS[B3] B23 list canonical alpha
+PASS[B3] B24 list no padded name
+PASS[B3] B25 use padded exit (=0)
+PASS[B3] B26 edit padded target exit (=0)
+PASS[B3] B27 config stores canonical beta
+PASS[B3] B28 config has no padding
+PASS[B3] B29 del padded exit (=0)
+PASS[B3] B30 current unset after padded delete (=1)
+PASS[B3] B31 current unset message
+
+### C: G3 delete guard (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.coZUE5onm4)
+PASS[C] C1 del with 2 tasks exit=1 (=1)
+PASS[C] C2 refused delete stdout empty
+PASS[C] C3 stderr count 2
+PASS[C] C4 project survives refusal
+PASS[C] C5 task t1 survives refusal
+PASS[C] C6 task t2 survives refusal
+PASS[C] C7 soft-delete task1 exit (=0)
+PASS[C] C8 del with 1 active task exit=1 (=1)
+PASS[C] C9 stderr count 1
+PASS[C] C10 soft-delete task2 exit (=0)
+PASS[C] C11 del with only soft-deleted tasks exit=0 (=0)
+PASS[C] C12 delete success output
+PASS[C] C13 project gone
+PASS[C] C14 DB project is_deleted=1 (=1)
+PASS[C] C15 DB task rows kept (soft-deleted, not removed) (=2)
+
+### C2: G3 delete current / missing / non-current (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.LKJTg71SU7)
+PASS[C2] C16 delete current exit=0 (=0)
+PASS[C2] C17 delete current SUCCESS
+PASS[C2] C18 current cleared exit=1 (=1)
+PASS[C2] C19 current cleared message
+PASS[C2] C20 delete missing exit=1 (=1)
+PASS[C2] C21 delete missing stdout empty
+PASS[C2] C22 delete missing stderr
+PASS[C2] C23 delete already-deleted exit=1 (=1)
+PASS[C2] C24 already-deleted not found
+PASS[C2] C25 delete non-current exit=0 (=0)
+PASS[C2] C26 delete non-current SUCCESS
+
+### D: G4 restore soft-deleted name (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.61KhstvGRS)
+PASS[D] D1 delete beta exit (=0)
+PASS[D] D2 re-add deleted name exit=0 (=0)
+PASS[D] D3 re-add reports restored
+PASS[D] D4 restore refreshed Updated (2026-11-08 08:30:09 vs 2026-11-08 08:30:10)
+PASS[D] D5 restore does not change current
+PASS[D] D6 active duplicate exit=1 (=1)
+PASS[D] D7 active duplicate stdout empty
+PASS[D] D8 active duplicate stderr
+
+### E: G5 not-found / id parsing / stream separation (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.jknzMxAm2P)
+PASS[E] E1 task done 999 exit=1 (=1)
+PASS[E] E2 task done 999 stdout empty
+PASS[E] E3 task 999 not found stderr
+PASS[E] E4 no raw SQL stderr
+PASS[E] E5 task done 'abc' clap exit=2 (=2)
+PASS[E] E6 task done 'abc' no raw SQL
+PASS[E] E5 task done '0' clap exit=2 (=2)
+PASS[E] E6 task done '0' no raw SQL
+PASS[E] E5 task done '-1' clap exit=2 (=2)
+PASS[E] E6 task done '-1' no raw SQL
+PASS[E] E7 project use nope exit=1 (=1)
+PASS[E] E8 project use nope stdout empty
+PASS[E] E9 project not found stderr
+PASS[E] E10 success path exit=0 (=0)
+PASS[E] E11 success on stdout
+PASS[E] E12 success stderr quiet
+PASS[E] E13 task edit 999 exit=1 (=1)
+PASS[E] E14 task edit 999 stderr
+
+### F: G7 blank names (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.Dqs3UIDn24)
+PASS[F] F1 project add '' exit=1 (=1)
+PASS[F] F2 project add '' stdout empty
+PASS[F] F3 project add '' stderr
+PASS[F] F4 project add spaces exit=1 (=1)
+PASS[F] F5 no project rows created
+PASS[F] F6 DB project count 0 (=0)
+PASS[F] F7 task add spaces exit=1 (=1)
+PASS[F] F8 task add spaces stderr
+PASS[F] F9 task add '' exit=1 (=1)
+PASS[F] F10 DB task count 0 (=0)
+PASS[F] F11 task list empty
+
+### G: G9 task list --status (home=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.kTeqLCLCr1)
+PASS[G] G1 start exit (=0)
+PASS[G] G2 done exit (=0)
+PASS[G] G3 no-arg task list exit=0 (=0)
+PASS[G] G4 no-arg output byte-identical to pre-change baseline
+PASS[G] G5 no-arg row count (=3)
+PASS[G] G6 title 'task-1 todo' appears once (=1)
+PASS[G] G6 title 'task-2 progress' appears once (=1)
+PASS[G] G6 title 'task-3 done' appears once (=1)
+PASS[G] G7 --status done exit=0 (=0)
+PASS[G] G8 done filter includes done task
+PASS[G] G9 done filter excludes todo
+PASS[G] G10 done filter excludes progress
+PASS[G] G11 done filter 1 data row (=1)
+PASS[G] G12 --status in-progress exit=0 (=0)
+PASS[G] G13 filter includes progress
+PASS[G] G14 filter excludes todo
+PASS[G] G15 --status todo exit=0 (=0)
+PASS[G] G16 filter includes todo
+PASS[G] G17 --status wip exit=2 (=2)
+PASS[G] G18 invalid status no raw SQL
+PASS[G] G19 --status missing value exit=2 (=2)
+PASS[G] G20 missing value has usage stderr
+
+### H: G10 real user data untouched
+PASS[H] H1 real ~/.tam sha256 unchanged across smoke
+PASS[H] H2 real ~/.tam matches iteration-00-sha256-before.txt
+
+SMOKE_RESULT: PASS=129 FAIL=0

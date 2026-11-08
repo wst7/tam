@@ -1,0 +1,77 @@
+=== test quality review 2026-11-08 16:35:04 ===
+--- test inventory (cargo test -- --list)
+     1	config::test::test_config_deserialize_explicit_paths
+     2	config::test::test_config_toml_round_trip
+     3	config::test::test_default_config_paths
+     4	services::project::test::project_name_normalization_trims_and_rejects_blank
+     5	services::task::test::sqlite_timestamp_invalid_is_err
+     6	services::task::test::sqlite_timestamp_parsed_as_utc
+     7	services::task::test::task_title_normalization_trims_and_rejects_blank
+     8	add_active_duplicate_already_exists
+     9	add_restores_soft_deleted_project
+    10	binary_writes_only_under_injected_home
+    11	delete_allowed_when_only_soft_deleted_tasks
+    12	delete_current_project_clears_config
+    13	delete_missing_project_not_found
+    14	delete_refuses_project_with_active_tasks
+    15	errors_use_stderr
+    16	invalid_status_value_usage_error
+    17	non_numeric_task_id_usage_error
+    18	project_edit_blank_name_rejected
+    19	project_list_updated_column
+    20	project_names_trimmed_consistently
+    21	project_not_found_message
+    22	reject_blank_project_name
+    23	reject_blank_task_title
+    24	rename_failure_keeps_current_project
+    25	rename_success_updates_current_project
+    26	rename_to_soft_deleted_name_errors
+    27	task_edit_blank_title_rejected
+    28	task_list_status_filter
+    29	task_list_without_status_unchanged
+    30	task_not_found_message
+
+--- counts
+integration #[test]: 23
+inline #[test] src: 7
+ignore attributes anywhere: 0
+should_panic: 0
+TempHome::new() uses: 23 (23 tests + helpers expected)
+
+--- every test fn creates its own TempHome (lines of fn + TempHome)
+      23
+OK fn binary_writes_only_under_injected_home() {
+OK fn task_not_found_message() {
+OK fn project_not_found_message() {
+OK fn non_numeric_task_id_usage_error() {
+OK fn errors_use_stderr() {
+OK fn reject_blank_project_name() {
+OK fn reject_blank_task_title() {
+OK fn project_list_updated_column() {
+OK fn rename_failure_keeps_current_project() {
+OK fn rename_success_updates_current_project() {
+OK fn rename_to_soft_deleted_name_errors() {
+OK fn delete_refuses_project_with_active_tasks() {
+OK fn delete_current_project_clears_config() {
+OK fn delete_missing_project_not_found() {
+OK fn delete_allowed_when_only_soft_deleted_tasks() {
+OK fn add_restores_soft_deleted_project() {
+OK fn add_active_duplicate_already_exists() {
+OK fn task_list_status_filter() {
+OK fn task_list_without_status_unchanged() {
+OK fn invalid_status_value_usage_error() {
+OK fn project_edit_blank_name_rejected() {
+OK fn task_edit_blank_title_rejected() {
+OK fn project_names_trimmed_consistently() {
+
+--- env mutation / process-level shared state
+env_mutation_grep_exit=1 (1 = zero hits)
+shared_state_grep_exit=1 (1 = zero hits)
+
+--- hardcoded absolute user paths in tests/src
+hardcoded_paths_grep_exit=1 (1 = zero hits)
+
+--- real user data logs untouched (mtime; tests must not init logging on real HOME)
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/logs/tam.log
+Nov  8 15:14:42 2026 /Users/wstreet7/.tam/tam.config.toml
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/tam.db3

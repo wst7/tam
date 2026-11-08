@@ -1,0 +1,32 @@
+=== AGENT GATE migration on copy of real ~/.tam/tam.db3 Sun Nov  8 17:18:15 CST 2026 ===
+TMPHOME=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.8O5pFLrKcV
+--- pre-migration snapshot ---
+user_version = 0
+task columns = ['id', 'title', 'content', 'created', 'updated', 'status', 'project_id', 'is_deleted']
+rows: project = 5 task = 37
+--- run tam (migration) on the copy, isolated HOME ---
+project.list ok= True count= 4
+project_list_exit=0
+task.list ok= True count= 15 first= 回撤粘贴后应该再次保持回撤之前剪切板内容
+task_list_exit=0
+status ok= True counts= {'done': 12, 'in_progress': 0, 'todo': 3} leased= 0 unassigned= 3
+status_exit=0
+
+--- post-migration assertions ---
+user_version = 1 OK; new columns present: ['assigned_agent', 'idempotency_key', 'lease_expires_at', 'priority', 'revision', 'tags']
+task_events + 4 indexes OK: ['idx_task_assignee', 'idx_task_events_task', 'idx_task_idempotency', 'idx_task_project_status']
+rows after: project = 5 task = 37
+legacy row defaults OK: (3, 1, '', None, None)
+project 'pastoid' readable: (4, 'pastoid')
+post_assert_exit=0
+--- backup file ---
+-rw-r--r--@ 1 wstreet7  staff  20480 Nov  8 17:18 /var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.8O5pFLrKcV/.tam/tam.db3.bak.v1
+--- second run (idempotent) ---
+second_run_exit=0
+user_version after 2nd run = 1
+--- real ~/.tam sha256 before/after ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+REAL_USER_DATA_UNTOUCHED

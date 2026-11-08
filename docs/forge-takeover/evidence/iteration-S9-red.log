@@ -1,0 +1,86 @@
+=== S9 red: Lead-review tests before fix Sun Nov  8 16:18:53 CST 2026 ===
+error: unexpected argument 'task_edit_blank_title_rejected' found
+
+Usage: cargo test [OPTIONS] [TESTNAME] [-- [ARGS]...]
+
+For more information, try '--help'.
+note: cargo test accepts one filter; running full cli suite instead
+test invalid_status_value_usage_error ... ok
+test reject_blank_task_title ... ok
+test rename_success_updates_current_project ... ok
+test task_edit_blank_title_rejected ... FAILED
+test rename_to_soft_deleted_name_errors ... ok
+test rename_failure_keeps_current_project ... ok
+test task_not_found_message ... ok
+test task_list_status_filter ... ok
+test task_list_without_status_unchanged ... ok
+test add_restores_soft_deleted_project ... ok
+test project_list_updated_column ... ok
+
+failures:
+
+---- project_edit_blank_name_rejected stdout ----
+
+thread 'project_edit_blank_name_rejected' (10338126) panicked at tests/cli.rs:640:9:
+assertion `left == right` failed: unexpected exit code
+stdout:
+SUCCESS Project 'alpha' updated to '' successfully.
+
+stderr:
+
+  left: Some(0)
+ right: Some(1)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- project_names_trimmed_consistently stdout ----
+
+thread 'project_names_trimmed_consistently' (10338141) panicked at tests/cli.rs:702:5:
+assertion `left == right` failed: unexpected exit code
+stdout:
+
+stderr:
+ERROR project ' alpha ' not found
+
+  left: Some(1)
+ right: Some(0)
+
+---- task_edit_blank_title_rejected stdout ----
+
+thread 'task_edit_blank_title_rejected' (10338173) panicked at tests/cli.rs:674:9:
+assertion `left == right` failed: unexpected exit code
+stdout:
+SUCCESS Task '1' updated successfully.
+
+stderr:
+
+  left: Some(0)
+ right: Some(1)
+
+
+failures:
+    project_edit_blank_name_rejected
+    project_names_trimmed_consistently
+    task_edit_blank_title_rejected
+
+test result: FAILED. 20 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.62s
+
+error: test failed, to rerun pass `--test cli`
+TEST_EXIT=101
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+
+=== S9 red (unit): normalize helpers referenced before they exist Sun Nov  8 16:19:17 CST 2026 ===
+error[E0425]: cannot find function `normalize_project_name` in this scope
+    |                    ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+error[E0425]: cannot find function `normalize_project_name` in this scope
+    |                    ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+error[E0425]: cannot find function `normalize_project_name` in this scope
+    |                 ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+error[E0425]: cannot find function `normalize_project_name` in this scope
+    |                 ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+error[E0425]: cannot find function `normalize_project_name` in this scope
+    |                 ^^^^^^^^^^^^^^^^^^^^^^ not found in this scope
+error[E0425]: cannot find function `normalize_task_title` in this scope
+    |                    ^^^^^^^^^^^^^^^^^^^^ not found in this scope
+TEST_EXIT=101

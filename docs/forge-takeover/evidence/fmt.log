@@ -1,0 +1,177 @@
+Diff in /Users/wstreet7/project/tam/src/cli.rs:43:
+ #[derive(Subcommand, Debug)]
+ pub enum ProjectSubcommand {
+     /// Add a new project
+-    #[command(name = "add",  visible_alias = "a")]
++    #[command(name = "add", visible_alias = "a")]
+     Add { name: String },
+     /// List all projects
+     #[command(name = "list", visible_alias = "l")]
+Diff in /Users/wstreet7/project/tam/src/cli.rs:100:
+ impl TaskSubcommand {
+     pub fn execute_command(command: Option<Self>) -> anyhow::Result<bool> {
+         match command.unwrap_or(Self::List) {
+-            TaskSubcommand::Add{title} => task::add(title),
++            TaskSubcommand::Add { title } => task::add(title),
+             TaskSubcommand::List => task::list(),
+             TaskSubcommand::Edit { id, title } => task::edit(id, title),
+             TaskSubcommand::Delete { id } => task::delete(id),
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:1:
+ use crate::config::get_config;
+ use crate::model::Project;
+-use crate::{print_info, print_success};
+ use crate::services::project;
++use crate::{print_info, print_success};
+ 
+-
+ pub fn add(name: String) -> anyhow::Result<bool> {
+     let project = project::add(name)?;
+     print_success!("Project '{}' added successfully.", project.name);
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:10:
+-    print_info!("Use `tam project use {}` to switch to this project.", project.name);
++    print_info!(
++        "Use `tam project use {}` to switch to this project.",
++        project.name
++    );
+     Ok(true)
+ }
+ 
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:27:
+     match config.save() {
+         Ok(_) => {
+             print_success!("Project '{}' switched successfully.", project.name);
+-        },
++        }
+         Err(e) => {
+             eprintln!("Failed to change current project: {}", e);
+             std::process::exit(1);
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:47:
+ 
+     if let Some(current) = config.current_project {
+         // TODO: 查询是否有tasks关联，如果有任务关联，则不能删除
+-        
+-        
++
+         if current == name {
+             config.current_project = None;
+             match config.save() {
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:55:
+                 Ok(_) => {
+-                    print_success!("Current project '{}' removed successfully.", current);  
+-                },
++                    print_success!("Current project '{}' removed successfully.", current);
++                }
+                 Err(e) => {
+                     eprintln!("Failed to remove current project: {}", e);
+                     std::process::exit(1);
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:66:
+     Ok(true)
+ }
+ 
+-
+ pub fn edit(name: String, new_name: String) -> anyhow::Result<bool> {
+     if name == new_name {
+         print_info!("Project name is the same, no changes made.");
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:81:
+             match new_config.save() {
+                 Ok(_) => {
+                     print_success!("Current project updated to '{}'.", new_name);
+-                },
++                }
+                 Err(e) => {
+                     eprintln!("Failed to update current project: {}", e);
+                     std::process::exit(1);
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:90:
+         }
+     }
+ 
+-    
+     project::edit(name.clone(), new_name.clone())?;
+     print_success!("Project '{}' updated to '{}' successfully.", name, new_name);
+     Ok(true)
+Diff in /Users/wstreet7/project/tam/src/commands/project.rs:97:
+ }
++
+Diff in /Users/wstreet7/project/tam/src/commands.rs:1:
+ pub mod config;
+ pub mod project;
+ pub mod task;
++
+Diff in /Users/wstreet7/project/tam/src/main.rs:3:
+ use db::init_db;
+ use std::process;
+ 
+-use crate::{app::App, cli::{ProjectSubcommand, TaskSubcommand}};
++use crate::{
++    app::App,
++    cli::{ProjectSubcommand, TaskSubcommand},
++};
+ 
+ mod app;
+ mod cli;
+Diff in /Users/wstreet7/project/tam/src/main.rs:10:
+ mod commands;
+ mod config;
+ mod db;
++mod logs;
+ mod model;
+ mod services;
+ mod sql;
+Diff in /Users/wstreet7/project/tam/src/main.rs:16:
+ mod theme;
+ mod ui;
+ mod utils;
+-mod logs;
+ 
+ fn main() {
+     logs::init_logging();
+Diff in /Users/wstreet7/project/tam/src/services.rs:1:
+ pub mod project;
+ pub mod task;
++
+Diff in /Users/wstreet7/project/tam/src/sql.rs:17:
+ END;
+ "#;
+ 
+-
+ pub const CREATE_TASK_TABLE_SQL: &str = r#"
+ CREATE TABLE IF NOT EXISTS task (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+Diff in /Users/wstreet7/project/tam/src/sql.rs:53:
+ INSERT INTO project (name) VALUES (?);
+ "#;
+ 
+-
+ pub const DELETE_PROJECT_SQL: &str = r#"
+ UPDATE project SET is_deleted = 1 WHERE name = ?;
+ "#;
+Diff in /Users/wstreet7/project/tam/src/sql.rs:65:
+ pub const CREATE_TASK_SQL: &str = r#"
+ INSERT INTO task (title, project_id) VALUES (?, ?);
+ "#;
+-
+ 
+ pub const SELECT_ALL_TASKS_SQL: &str = r#"
+ SELECT id, title, status, created, updated FROM task WHERE project_id = ? AND is_deleted = 0
+Diff in /Users/wstreet7/project/tam/src/sql.rs:87:
+ pub const DELETE_TASK_SQL: &str = r#"
+ UPDATE task SET is_deleted = 1 WHERE id = ?;
+ "#;
++
+Diff in /Users/wstreet7/project/tam/src/ui.rs:1:
++mod components;
+ mod project_screen;
+ mod task_screen;
+-mod components;
+ 
+-use ratatui::Frame;
+ use crate::app::{App, CurrentScreen};
++use ratatui::Frame;
+ 
+ pub fn draw(frame: &mut Frame, app: &mut App) {
+     match app.current_screen {
+Diff in /Users/wstreet7/project/tam/src/utils.rs:1:
+-
+ #[macro_export]
+ macro_rules! print_success {
+     ($msg:expr) => {{

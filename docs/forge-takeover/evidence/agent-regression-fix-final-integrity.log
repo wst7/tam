@@ -1,0 +1,56 @@
+=== Gate B2 FINAL integrity 2026-11-08 18:05:29 ===
+--- real user data vs iteration-00 baseline
+USER_DATA_UNTOUCHED
+real db user_version(ro)=0 current_project=current_project = "pastoid"
+Nov  8 15:14:42 2026 /Users/wstreet7/.tam/tam.config.toml
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/tam.db3
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/logs/tam.log
+
+--- repo state (only doc/evidence added by QA; no source/test edits)
+ M AGENTS.md
+ M README.md
+ M skills/tam-usage/SKILL.md
+ M src/app.rs
+ M src/cli.rs
+ M src/commands.rs
+ M src/commands/project.rs
+ M src/commands/task.rs
+ M src/config.rs
+ M src/db.rs
+ M src/main.rs
+ M src/model.rs
+ M src/services.rs
+ M src/services/project.rs
+ M src/services/task.rs
+ M src/sql.rs
+ M src/ui.rs
+ M src/utils.rs
+?? docs/
+?? skills/tam-agent/
+?? src/agent.rs
+?? src/commands/agent.rs
+?? src/mcp.rs
+?? tests/
+ 18 files changed, 2540 insertions(+), 342 deletions(-)
+Cargo changed files=0
+
+--- docs mtimes (agent-protocol/impl 17:57 builder; QA updated only agent-regression.md)
+Nov  8 17:57:23 2026 docs/agent-protocol.md
+Nov  8 17:57:23 2026 docs/agent-implementation.md
+Nov  8 18:05:02 2026 docs/agent-regression.md
+
+--- evidence counts
+fix logs=15 total agent-regression=31
+
+--- no leftover tam/MCP processes
+none
+
+--- B2 assertion totals (all 0 FAIL)
+CONCURRENCY_RESULT: PASS=70 FAIL=0
+D1_FIX_RESULT: PASS=48 FAIL=0
+D2D3L1_FIX_RESULT: PASS=89 FAIL=0
+D4D5P3_FIX_RESULT: PASS=113 FAIL=0
+JSON_CLI_RESULT: PASS=391 FAIL=0
+MCP_RESULT: PASS=62 FAIL=0
+
+--- doc line count:      251

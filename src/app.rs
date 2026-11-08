@@ -263,7 +263,8 @@ impl App {
     }
 
     fn next_task(&mut self) {
-        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+        let status = self.selected_task_status.unwrap_or(TaskStatus::Todo);
+        let tasks = self.get_tasks_with_status(status);
         let len = tasks.len();
         if len == 0 {
             return;
@@ -280,7 +281,8 @@ impl App {
     }
 
     fn prev_task(&mut self) {
-        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+        let status = self.selected_task_status.unwrap_or(TaskStatus::Todo);
+        let tasks = self.get_tasks_with_status(status);
         let len = tasks.len();
         if len == 0 {
             return;
@@ -297,31 +299,47 @@ impl App {
     }
 
     fn next_task_status(&mut self) {
-        self.selected_task_status = Some(self.selected_task_status.unwrap().next());
-        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+        let next = self.selected_task_status.unwrap_or(TaskStatus::Todo).next();
+        self.selected_task_status = Some(next);
+        let tasks = self.get_tasks_with_status(next);
         self.selected_task = if tasks.is_empty() { None } else { Some(0) };
     }
     fn prev_task_status(&mut self) {
-        self.selected_task_status = Some(self.selected_task_status.unwrap().prev());
-        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+        let prev = self.selected_task_status.unwrap_or(TaskStatus::Todo).prev();
+        self.selected_task_status = Some(prev);
+        let tasks = self.get_tasks_with_status(prev);
         self.selected_task = if tasks.is_empty() { None } else { Some(0) };
     }
 
     fn submit_project(&mut self) {
         if self.add_project {
             let name = self.input.value_and_reset();
-            match services::project::add(String::from(name)) {
-                Ok(_) => {}
-                Err(err) => {
-                    self.tip_message = Some(err.to_string());
-                }
+            if let Err(err) = services::project::add(String::from(name)) {
+                self.tip_message = Some(format!("新增项目失败：{}", err));
             }
             self.add_project = false;
         }
         if self.edit_project {
+            let new_name = self.input.value_and_reset().trim().to_string();
             if let Some(project) = self.get_project() {
-                services::project::edit(project.name, String::from(self.input.value_and_reset()))
-                    .unwrap();
+                let old_name = project.name;
+                match services::project::edit(old_name.clone(), new_name.clone()) {
+                    Ok(_) => {
+                        // Only keep the config in sync when the renamed project
+                        // is the current one.
+                        let mut config = config::get_config();
+                        if config.current_project.as_deref() == Some(old_name.as_str()) {
+                            config.current_project = Some(new_name.clone());
+                            if let Err(err) = config.save() {
+                                self.tip_message = Some(format!(
+                                    "项目已改名，但保存当前项目失败：{}；请运行 `tam project use {}`",
+                                    err, new_name
+                                ));
+                            }
+                        }
+                    }
+                    Err(err) => self.tip_message = Some(format!("重命名项目失败：{}", err)),
+                }
             }
             self.edit_project = false;
         }
@@ -329,24 +347,25 @@ impl App {
 
     fn submit_task(&mut self) {
         if self.add_task {
-            let title = self.input.value_and_reset();
+            let title = String::from(self.input.value_and_reset());
             if let Some(project) = self.get_project() {
                 log::info!("current project in submit_task: {:?}", project);
                 let project_id = project.id;
-                services::task::add(String::from(title), project_id).unwrap();
-                self.add_task = false;
+                if let Err(err) = services::task::add(title, project_id) {
+                    self.tip_message = Some(format!("新增任务失败：{}", err));
+                }
             } else {
                 self.tip_message = Some(String::from("请先选择项目"));
             }
+            self.add_task = false;
         }
         if self.edit_task {
+            let title = String::from(self.input.value_and_reset());
             if let Some(task) = self.get_task() {
                 if let Some(id) = task.id {
-                    services::task::edit(
-                        id.to_string(),
-                        String::from(self.input.value_and_reset()),
-                    )
-                    .unwrap();
+                    if let Err(err) = services::task::edit(id, title) {
+                        self.tip_message = Some(format!("修改任务失败：{}", err));
+                    }
                 }
             }
             self.edit_task = false;
@@ -354,19 +373,36 @@ impl App {
     }
 
     fn delete_project(&mut self) {
-        if let Some(project) = self.get_project() {
-            services::project::delete(project.name).unwrap();
+        let Some(project) = self.get_project() else {
+            return;
+        };
+        match services::project::delete(project.name.clone()) {
+            Ok(_) => {
+                // Sync the config only for the current project; a failed save
+                // must not abort the TUI, just inform the user.
+                let mut config = config::get_config();
+                if config.current_project.as_deref() == Some(project.name.as_str()) {
+                    config.current_project = None;
+                    if let Err(err) = config.save() {
+                        self.tip_message = Some(format!(
+                            "项目已删除，但清除当前项目失败：{}；请运行 `tam project use <existing project>`",
+                            err
+                        ));
+                    }
+                }
+                self.selected_project = None;
+                self.selected_task = None;
+                self.tasks.clear();
+            }
+            Err(err) => self.tip_message = Some(format!("删除项目失败：{}", err)),
         }
     }
 
     fn start_task(&mut self) {
         if let Some(task) = self.get_task() {
             if let Some(id) = task.id {
-                match services::task::start(id.to_string()) {
-                    Ok(_) => {}
-                    Err(_) => {
-                        self.tip_message = Some(String::from("任务开始失败"));
-                    }
+                if let Err(err) = services::task::start(id) {
+                    self.tip_message = Some(format!("任务开始失败：{}", err));
                 }
             }
         } else {
@@ -377,11 +413,8 @@ impl App {
     fn complete_task(&mut self) {
         if let Some(task) = self.get_task() {
             if let Some(id) = task.id {
-                match services::task::done(id.to_string()) {
-                    Ok(_) => {}
-                    Err(_) => {
-                        self.tip_message = Some(String::from("任务完成失败"));
-                    }
+                if let Err(err) = services::task::done(id) {
+                    self.tip_message = Some(format!("任务完成失败：{}", err));
                 }
             }
         } else {
@@ -392,8 +425,16 @@ impl App {
     fn delete_task(&mut self) {
         if let Some(task) = self.get_task() {
             if let Some(id) = task.id {
-                services::task::delete(id.to_string()).unwrap();
+                match services::task::delete(id) {
+                    Ok(_) => {
+                        self.selected_task = None;
+                        self.query_tasks();
+                    }
+                    Err(err) => self.tip_message = Some(format!("删除任务失败：{}", err)),
+                }
             }
+        } else {
+            self.tip_message = Some(String::from("请先选择任务"));
         }
     }
 
@@ -414,18 +455,28 @@ impl App {
     }
 
     pub fn query_projects(&mut self) {
-        self.projects = services::project::list().unwrap();
+        match services::project::list() {
+            Ok(projects) => self.projects = projects,
+            Err(err) => self.tip_message = Some(format!("加载项目失败：{}", err)),
+        }
     }
     pub fn query_tasks(&mut self) {
         if let Some(project) = self.get_project() {
             if let Some(id) = project.id {
-                self.tasks = services::task::list(id as i32).unwrap();
+                match services::task::list(id, None) {
+                    Ok(tasks) => self.tasks = tasks,
+                    Err(err) => self.tip_message = Some(format!("加载任务失败：{}", err)),
+                }
             }
         }
     }
     pub fn get_project(&mut self) -> Option<Project> {
         if let Some(selected) = self.selected_project {
-            return Some(self.projects[selected].clone());
+            if let Some(project) = self.projects.get(selected).cloned() {
+                return Some(project);
+            }
+            // The list shrank (e.g. after a delete): drop the stale index.
+            self.selected_project = None;
         }
         self.tip_message = Some(String::from("请先选择项目"));
         None

@@ -1,0 +1,51 @@
+=== S4 green: isolated-HOME cargo test Sun Nov  8 16:04:16 CST 2026 ===
+warning: `tam` (bin "tam" test) generated 5 warnings (3 duplicates) (run `cargo fix --bin "tam" -p tam --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.47s
+     Running unittests src/main.rs (target/debug/deps/tam-1ff1ff064e11f82a)
+
+running 5 tests
+test services::task::test::sqlite_timestamp_invalid_is_err ... ok
+test services::task::test::sqlite_timestamp_parsed_as_utc ... ok
+test config::test::test_default_config_paths ... ok
+test config::test::test_config_deserialize_explicit_paths ... ok
+test config::test::test_config_toml_round_trip ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+
+running 17 tests
+test binary_writes_only_under_injected_home ... ok
+test delete_missing_project_not_found ... ok
+test errors_use_stderr ... ok
+test add_active_duplicate_already_exists ... ok
+test delete_current_project_clears_config ... ok
+test reject_blank_project_name ... ok
+test project_not_found_message ... ok
+test delete_allowed_when_only_soft_deleted_tasks ... ok
+test delete_refuses_project_with_active_tasks ... ok
+test non_numeric_task_id_usage_error ... ok
+test task_not_found_message ... ok
+test reject_blank_task_title ... ok
+test rename_to_soft_deleted_name_errors ... ok
+test rename_success_updates_current_project ... ok
+test rename_failure_keeps_current_project ... ok
+test project_list_updated_column ... ok
+test add_restores_soft_deleted_project ... ok
+
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.62s
+
+TEST_EXIT=0
+
+--- targeted delete_ / add_ ---
+test delete_missing_project_not_found ... ok
+test delete_current_project_clears_config ... ok
+test delete_allowed_when_only_soft_deleted_tasks ... ok
+test delete_refuses_project_with_active_tasks ... ok
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 13 filtered out; finished in 0.32s
+test add_active_duplicate_already_exists ... ok
+test add_restores_soft_deleted_project ... ok
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 1.42s
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

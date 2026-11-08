@@ -1,0 +1,55 @@
+=== Gate B fixes: MCP smoke Sun Nov  8 17:50:47 CST 2026 ===
+PASS[seed.project]
+PASS[initialize.id]
+PASS[initialize.protocol]
+PASS[initialize.capabilities]
+PASS[initialize.serverInfo]
+PASS[tools/list.id]
+PASS[tools.list.count]
+PASS[tools.list.names]
+PASS[tools.list.schema]
+PASS[ping.id]
+PASS[ping]
+PASS[tools/call.id]
+PASS[tools.call.create.isError]
+PASS[tools.call.create.title]
+PASS[tools/call.id]
+PASS[tools.call.update.clear_tags_array]
+PASS[tools/call.id]
+PASS[tools.call.update.set_tags]
+PASS[tools/call.id]
+PASS[tools.call.update.clear_tags_string]
+PASS[tools/call.id]
+PASS[tools.call.list.count]
+PASS[tools/call.id]
+PASS[tools.call.claim.owner]
+PASS[tools.call.claim.status]
+PASS[tools/call.id]
+PASS[tools.call.heartbeat]
+PASS[tools/call.id]
+PASS[tools.call.get.events]
+PASS[tools/call.id]
+PASS[tools.call.complete.status]
+PASS[tools/call.id]
+PASS[tools.call.next.null]
+PASS[tools/call.id]
+PASS[tools.call.error.isError]
+PASS[tools.call.error.code]
+PASS[tools/call.id]
+PASS[tools.call.unknown.isError]
+PASS[nope/method.id]
+PASS[jsonrpc.unknown_method]
+PASS[jsonrpc.invalid_params]
+PASS[jsonrpc.parse_error]
+PASS[tools/call.id]
+PASS[tools.call.status]
+PASS[mcp.stderr.quiet]
+
+MCP_SMOKE_RESULT: PASS=45 FAIL=0
+MCP_SMOKE_EXIT=0
+
+--- real ~/.tam sha256 before/after ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

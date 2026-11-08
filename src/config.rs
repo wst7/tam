@@ -3,7 +3,7 @@ use env_home::env_home_dir;
 use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub const TAM_DIR: &str = ".tam";
 pub const CONFIG_FILE: &str = "tam.config.toml";
@@ -27,6 +27,12 @@ pub fn get_config() -> Config {
     CONFIG.clone()
 }
 
+/// Validate that the config file can be loaded without initializing the global
+/// `Lazy` singleton (D5: `--json` startup errors must be machine readable).
+pub fn preflight_load() -> anyhow::Result<()> {
+    Config::load().map(|_| ())
+}
+
 #[derive(Debug, Deserialize, Serialize, Clone, PartialEq)]
 pub struct Config {
     pub db_file: String,
@@ -45,21 +51,29 @@ impl Default for Config {
                 std::process::exit(1);
             }
         };
-        let db_file = tam_dir.join(DB_FILE);
-        let log_file = tam_dir.join(LOG_FILE_PATH);
-        let log_file_pattern = tam_dir.join(LOG_FILE_PATTERN);
-
-        Config {
-            db_file: db_file.display().to_string(),
-            current_project: None,
-            logfile_path: log_file.display().to_string(),
-            logfile_pattern: log_file_pattern.display().to_string(),
-            theme: "dark".to_string(),
-        }
+        Self::default_for_dir(&tam_dir)
     }
 }
 
 impl Config {
+    /// Build the default config for an explicit `.tam` directory.
+    /// Pure helper: performs no filesystem access, so it is safe to unit-test.
+    fn default_for_dir(tam_dir: &Path) -> Self {
+        Config {
+            db_file: tam_dir.join(DB_FILE).display().to_string(),
+            current_project: None,
+            logfile_path: tam_dir.join(LOG_FILE_PATH).display().to_string(),
+            logfile_pattern: tam_dir.join(LOG_FILE_PATTERN).display().to_string(),
+            theme: "dark".to_string(),
+        }
+    }
+
+    /// Build the default config for an explicit home directory (test-only).
+    #[cfg(test)]
+    fn default_for(home: &Path) -> Self {
+        Self::default_for_dir(&home.join(TAM_DIR))
+    }
+
     fn load() -> anyhow::Result<Self> {
         let config_dir = Self::config_dir()?;
         let config_file = config_dir.join(CONFIG_FILE);
@@ -103,49 +117,50 @@ impl Config {
 mod test {
     use super::*;
 
+    fn unit_home() -> std::path::PathBuf {
+        std::env::temp_dir().join("tam-unit-home")
+    }
+
     #[test]
-    fn test_config_dir() {
-        let result = Config::config_dir();
-        assert!(result.is_ok());
+    fn test_default_config_paths() {
+        let home = unit_home();
+        let tam_dir = home.join(TAM_DIR);
+        let config = Config::default_for(&home);
+        assert_eq!(config.db_file, tam_dir.join(DB_FILE).display().to_string());
         assert_eq!(
-            result.unwrap().display().to_string(),
-            "/Users/wstreet7/.tam".to_string()
+            config.logfile_path,
+            tam_dir.join(LOG_FILE_PATH).display().to_string()
         );
-    }
-    #[test]
-    fn test_config_dir_error_path() {
-        let result = Config::config_dir();
-        assert!(result.is_ok());
-        assert_ne!(
-            result.unwrap().display().to_string(),
-            "/Users/xxx/.tam".to_string()
+        assert_eq!(
+            config.logfile_pattern,
+            tam_dir.join(LOG_FILE_PATTERN).display().to_string()
         );
+        assert_eq!(config.current_project, None);
+        assert_eq!(config.theme, "dark");
     }
 
     #[test]
-    fn test_load() {
-        let result = Config::load();
-        assert!(result.is_ok());
-        let mut c = result.unwrap();
-        c.current_project = None;
-        assert_eq!(c, Config::default());
+    fn test_config_toml_round_trip() {
+        let config = Config::default_for(&unit_home());
+        let text = toml::to_string(&config).expect("config should serialize to TOML");
+        let parsed: Config = toml::from_str(&text).expect("serialized config should parse back");
+        assert_eq!(parsed, config);
     }
 
     #[test]
-    fn test_edit_config() {
-        let mut config = Config::default();
-        config.current_project = Some(String::from("myproject"));
-        let result = config.save();
-        assert!(result.is_ok());
-        assert_eq!(result.unwrap(), true)
-    }
-    #[test]
-    fn test_load_edit_config() {
-        let result = Config::load();
-        assert!(result.is_ok());
-
-        let mut c = result.unwrap();
-        c.current_project = Some(String::from("myproject2"));
-        assert_ne!(c, Config::default());
+    fn test_config_deserialize_explicit_paths() {
+        let text = r#"
+db_file = "/tmp/custom/data.db3"
+current_project = "alpha"
+logfile_path = "/tmp/custom/logs/tam.log"
+logfile_pattern = "/tmp/custom/logs/tam.{}.log"
+theme = "light"
+"#;
+        let parsed: Config = toml::from_str(text).expect("explicit TOML should parse");
+        assert_eq!(parsed.db_file, "/tmp/custom/data.db3");
+        assert_eq!(parsed.current_project.as_deref(), Some("alpha"));
+        assert_eq!(parsed.logfile_path, "/tmp/custom/logs/tam.log");
+        assert_eq!(parsed.logfile_pattern, "/tmp/custom/logs/tam.{}.log");
+        assert_eq!(parsed.theme, "light");
     }
 }

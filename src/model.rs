@@ -50,13 +50,51 @@ impl Project {
 pub struct Task {
     pub id: Option<i32>,
 
+    pub project_id: i32,
+
+    /// Project name, resolved via JOIN when the task is loaded.
+    pub project: String,
+
     pub title: String,
 
+    /// Task description/context. The column existed from the start but was
+    /// unused before the agent-first extension.
+    pub content: String,
+
     pub status: TaskStatus,
+
+    /// 1 (highest) .. 5 (lowest).
+    pub priority: i32,
+
+    /// Canonical comma separated tag list (lowercase, deduplicated).
+    pub tags: String,
+
+    pub assigned_agent: Option<String>,
+
+    /// Unix seconds; `None` means no lease.
+    pub lease_expires_at: Option<i64>,
+
+    /// Incremented on every effective write; used for optimistic concurrency.
+    pub revision: i32,
 
     pub created: DateTime<Utc>,
 
     pub updated: DateTime<Utc>,
+}
+
+/// One row of the `task_events` audit log.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TaskEvent {
+    pub id: i32,
+    pub task_id: i32,
+    pub project_id: i32,
+    pub event: String,
+    pub actor: String,
+    pub from_status: Option<TaskStatus>,
+    pub to_status: Option<TaskStatus>,
+    /// Raw JSON metadata (stored as TEXT).
+    pub metadata: String,
+    pub created: DateTime<Utc>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
@@ -67,6 +105,14 @@ pub enum TaskStatus {
 }
 
 impl TaskStatus {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            TaskStatus::Todo => "todo",
+            TaskStatus::InProgress => "in-progress",
+            TaskStatus::Done => "done",
+        }
+    }
+
     pub fn is_done(&self) -> bool {
         self == &TaskStatus::Done
     }
@@ -113,8 +159,16 @@ impl Default for Task {
     fn default() -> Self {
         Task {
             id: None,
+            project_id: 0,
+            project: String::new(),
             title: "".to_string(),
+            content: String::new(),
             status: TaskStatus::Todo,
+            priority: 3,
+            tags: String::new(),
+            assigned_agent: None,
+            lease_expires_at: None,
+            revision: 1,
             created: Utc::now(),
             updated: Utc::now(),
         }

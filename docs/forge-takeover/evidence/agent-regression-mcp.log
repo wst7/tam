@@ -1,0 +1,69 @@
+=== QA independent MCP stdio regression ===
+PASS: M0 seed project via CLI
+PASS: P1 MCP process exit0 on EOF
+PASS: P2 stderr empty
+PASS: P3 every stdout line is JSON-RPC
+PASS: P4 no human text on stdout
+PASS: P5 one response per request id
+PASS: P6 initialize jsonrpc/id
+PASS: P7 protocolVersion 2024-11-05
+PASS: P8 capabilities.tools object
+PASS: P9 serverInfo name tam
+PASS: P10 tools/list 12 tools
+PASS: P11 tool names exact
+PASS: P12 every tool has description/inputSchema
+PASS: P13 initialize preceded tools/list (id order)
+PASS: T4.0 result shape
+PASS: T4 create ok
+PASS: T4b create tags normalized/priority
+PASS: T5.0 result shape
+PASS: T5 list count 1
+PASS: T6.0 result shape
+PASS: T6 get task+events
+PASS: T7.0 result shape
+PASS: T7 update title/revision
+PASS: T8.0 result shape
+PASS: T8 claim in-progress
+PASS: T9.0 result shape
+PASS: T9 heartbeat revision 4
+PASS: T10.0 result shape
+PASS: T10 events order
+PASS: T11.0 result shape
+PASS: T11 status counts
+PASS: T12.0 result shape
+PASS: T12 next null while claimed
+PASS: T13.0 result shape
+PASS: T13 release back to todo
+PASS: T14.0 result shape
+PASS: T14 reclaim after release
+PASS: T15.0 result shape
+PASS: T15 complete done
+PASS: T16.0 result shape
+PASS: T16 done filter
+PASS: T17.0 result shape
+PASS: T17 project list
+PASS: T18.0 result shape
+PASS: T18 next --claim null
+PASS: T19.0 result shape
+PASS: T19 create tags task
+PASS: T20.0 result shape
+OBSERVE tam_task_update tags='' only: isError=True body={"code": "invalid", "message": "task update requires at least one of --title/--description/--status/--priority/--tags"}
+PASS: T21.0 result shape
+OBSERVE tam_task_update description+tags='': isError=False tags=['x']
+PASS: T21 MCP empty tags cannot clear (suspected gap observed)
+PASS: T22.0 result shape
+PASS: T22 unknown tool isError
+PASS: T22b unknown tool message
+PASS: T23 missing tool name -32602
+PASS: T24 unknown method -32601
+PASS: T25 bad JSON -32700 with null id
+PASS: T26 invalid jsonrpc version -32600
+PASS: T26.0 result shape
+PASS: T27 claim missing agent tool error
+PASS: T27.0 result shape
+PASS: T28 get 999 tool error not_found
+MCP_RESULT: PASS=61 FAIL=0
+MCP_SCRIPT_EXIT=0
+--- real hashes after MCP test:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

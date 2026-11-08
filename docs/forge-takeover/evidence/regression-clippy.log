@@ -1,0 +1,176 @@
+=== cargo clippy (bare, gate) 2026-11-08 16:27:58 ===
+warning: unused import: `Color`
+ --> src/ui/project_screen.rs:3:13
+  |
+3 |     style::{Color, Style, Stylize},
+  |             ^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+  --> src/model.rs:70:12
+   |
+69 | impl TaskStatus {
+   | --------------- methods in this implementation
+70 |     pub fn is_done(&self) -> bool {
+   |            ^^^^^^^
+...
+73 |     pub fn is_todo(&self) -> bool {
+   |            ^^^^^^^
+...
+76 |     pub fn is_in_progress(&self) -> bool {
+   |            ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `set_title` is never used
+   --> src/model.rs:135:12
+    |
+134 | impl Task {
+    | --------- method in this implementation
+135 |     pub fn set_title(&mut self, title: String) {
+    |            ^^^^^^^^^
+
+warning: fields `tip_bg` and `tip_fg` are never read
+  --> src/theme.rs:14:9
+   |
+ 4 | pub struct Theme {
+   |            ----- fields in this struct
+...
+14 |     pub tip_bg: Color,
+   |         ^^^^^^
+15 |     pub tip_fg: Color,
+   |         ^^^^^^
+   |
+   = note: `Theme` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: you seem to be trying to use `match` for an equality check. Consider using `if`
+  --> src/app.rs:83:25
+   |
+83 | /                         match key.code {
+84 | |                             KeyCode::Enter => self.tip_message = None,
+85 | |                             _ => {}
+86 | |                         }
+   | |_________________________^ help: try: `if key.code == KeyCode::Enter { self.tip_message = None }`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#single_match
+   = note: `#[warn(clippy::single_match)]` on by default
+
+warning: you seem to be trying to use `match` for an equality check. Consider using `if`
+   --> src/app.rs:151:25
+    |
+151 | /                         match key.code {
+152 | |                             KeyCode::Enter => self.tip_message = None,
+153 | |                             _ => {}
+154 | |                         }
+    | |_________________________^ help: try: `if key.code == KeyCode::Enter { self.tip_message = None }`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#single_match
+
+warning: useless conversion to the same type: `std::string::String`
+   --> src/app.rs:317:54
+    |
+317 |             if let Err(err) = services::project::add(String::from(name)) {
+    |                                                      ^^^^^^^^^^^^^^^^^^ help: consider removing `String::from()`: `name`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#useless_conversion
+    = note: `#[warn(clippy::useless_conversion)]` on by default
+
+warning: useless conversion to the same type: `std::string::String`
+   --> src/app.rs:350:25
+    |
+350 |             let title = String::from(self.input.value_and_reset());
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider removing `String::from()`: `self.input.value_and_reset()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#useless_conversion
+
+warning: useless conversion to the same type: `std::string::String`
+   --> src/app.rs:363:25
+    |
+363 |             let title = String::from(self.input.value_and_reset());
+    |                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider removing `String::from()`: `self.input.value_and_reset()`
+    |
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#useless_conversion
+
+warning: useless use of `format!`
+  --> src/config.rs:85:55
+   |
+85 |         let home_dir = env_home_dir().with_context(|| format!("fail to get home dir"))?;
+   |                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using `.to_string()`: `"fail to get home dir".to_string()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#useless_format
+   = note: `#[warn(clippy::useless_format)]` on by default
+
+warning: useless use of `format!`
+  --> src/config.rs:88:58
+   |
+88 |             fs::create_dir_all(&tam_dir).with_context(|| format!("fail to create tam dir"))?;
+   |                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: consider using `.to_string()`: `"fail to create tam dir".to_string()`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#useless_format
+
+warning: unneeded `return` statement
+  --> src/db.rs:20:5
+   |
+20 |     return Ok(conn);
+   |     ^^^^^^^^^^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#needless_return
+   = note: `#[warn(clippy::needless_return)]` on by default
+help: remove `return`
+   |
+20 -     return Ok(conn);
+20 +     Ok(conn)
+   |
+
+warning: direct implementation of `ToString`
+   --> src/model.rs:124:1
+    |
+124 | / impl ToString for TaskStatus {
+125 | |     fn to_string(&self) -> String {
+126 | |         match self {
+127 | |             TaskStatus::Todo => "⏳ Todo".to_string(),
+...   |
+132 | | }
+    | |_^
+    |
+    = help: prefer implementing `Display` instead
+    = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#to_string_trait_impl
+    = note: `#[warn(clippy::to_string_trait_impl)]` on by default
+
+warning: the borrowed expression implements the required traits
+  --> src/main.rs:40:25
+   |
+40 |         Cli::parse_from(&["tam", "--help"]);
+   |                         ^^^^^^^^^^^^^^^^^^ help: change this to: `["tam", "--help"]`
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#needless_borrows_for_generic_args
+   = note: `#[warn(clippy::needless_borrows_for_generic_args)]` on by default
+
+warning: returning the result of a `let` binding from a block
+  --> src/main.rs:67:5
+   |
+62 | /     let result = match command {
+63 | |         Commands::Project { command } => ProjectSubcommand::execute_command(command),
+64 | |         Commands::Task { command } => TaskSubcommand::execute_command(command),
+65 | |         Commands::Config => commands::config::config(),
+66 | |     };
+   | |______- unnecessary `let` binding
+67 |       result
+   |       ^^^^^^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/rust-1.94.0/index.html#let_and_return
+   = note: `#[warn(clippy::let_and_return)]` on by default
+help: return the expression directly
+   |
+62 ~     
+63 ~     match command {
+64 +         Commands::Project { command } => ProjectSubcommand::execute_command(command),
+65 +         Commands::Task { command } => TaskSubcommand::execute_command(command),
+66 +         Commands::Config => commands::config::config(),
+67 +     }
+   |
+
+warning: `tam` (bin "tam") generated 15 warnings (run `cargo clippy --fix --bin "tam" -p tam` to apply 11 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.20s
+CLIPPY_EXIT=0

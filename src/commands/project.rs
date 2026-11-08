@@ -1,13 +1,19 @@
 use crate::config::get_config;
 use crate::model::Project;
-use crate::{print_info, print_success};
 use crate::services::project;
-
+use crate::{print_info, print_success};
 
 pub fn add(name: String) -> anyhow::Result<bool> {
-    let project = project::add(name)?;
-    print_success!("Project '{}' added successfully.", project.name);
-    print_info!("Use `tam project use {}` to switch to this project.", project.name);
+    let (project, restored) = project::add(name)?;
+    if restored {
+        print_success!("Project '{}' restored successfully.", project.name);
+    } else {
+        print_success!("Project '{}' added successfully.", project.name);
+    }
+    print_info!(
+        "Use `tam project use {}` to switch to this project.",
+        project.name
+    );
     Ok(true)
 }
 
@@ -27,7 +33,7 @@ pub fn use_project(name: String) -> anyhow::Result<bool> {
     match config.save() {
         Ok(_) => {
             print_success!("Project '{}' switched successfully.", project.name);
-        },
+        }
         Err(e) => {
             eprintln!("Failed to change current project: {}", e);
             std::process::exit(1);
@@ -43,55 +49,65 @@ pub fn get_current_project() -> anyhow::Result<bool> {
 }
 
 pub fn delete(name: String) -> anyhow::Result<bool> {
-    let mut config = get_config();
+    let name = name.trim().to_string();
+    if name.is_empty() {
+        anyhow::bail!("project name cannot be empty");
+    }
 
-    if let Some(current) = config.current_project {
-        // TODO: 查询是否有tasks关联，如果有任务关联，则不能删除
-        
-        
-        if current == name {
-            config.current_project = None;
-            match config.save() {
-                Ok(_) => {
-                    print_success!("Current project '{}' removed successfully.", current);  
-                },
-                Err(e) => {
-                    eprintln!("Failed to remove current project: {}", e);
-                    std::process::exit(1);
-                }
-            }
+    // Database first: the guard (active tasks) and the soft delete must
+    // succeed before the config is touched.
+    project::delete(name.clone())?;
+
+    // Keep the config in sync only when the deleted project is the current
+    // one. The delete is not rolled back if the config cannot be saved:
+    // report the recovery command instead.
+    let mut config = get_config();
+    if config.current_project.as_deref() == Some(name.as_str()) {
+        config.current_project = None;
+        if let Err(e) = config.save() {
+            anyhow::bail!(
+                "project '{}' was deleted, but clearing the current project from the config failed: {}; run `tam project use <existing project>` to reset the current project",
+                name,
+                e
+            );
         }
     }
-    project::delete(name)?;
+
+    print_success!("Project '{}' deleted successfully.", name);
     Ok(true)
 }
 
-
 pub fn edit(name: String, new_name: String) -> anyhow::Result<bool> {
+    let name = name.trim().to_string();
+    let new_name = new_name.trim().to_string();
+    if name.is_empty() || new_name.is_empty() {
+        anyhow::bail!("project name cannot be empty");
+    }
     if name == new_name {
         print_info!("Project name is the same, no changes made.");
         return Ok(true);
     }
-    let config = get_config();
-    if let Some(current) = &config.current_project {
-        if current == &name {
-            // 如果当前项目被编辑了，则需要更新配置文件中的current_project
-            let mut new_config = config.clone();
-            new_config.current_project = Some(new_name.clone());
-            match new_config.save() {
-                Ok(_) => {
-                    print_success!("Current project updated to '{}'.", new_name);
-                },
-                Err(e) => {
-                    eprintln!("Failed to update current project: {}", e);
-                    std::process::exit(1);
-                }
-            }
+
+    // Database first: never move `current_project` before the rename succeeded.
+    project::edit(name.clone(), new_name.clone())?;
+
+    // Only after the rename is committed, keep the config in sync when the
+    // edited project is the current one. The database change is not rolled
+    // back if the config cannot be saved: report the recovery command instead.
+    let mut config = get_config();
+    if config.current_project.as_deref() == Some(name.as_str()) {
+        config.current_project = Some(new_name.clone());
+        if let Err(e) = config.save() {
+            anyhow::bail!(
+                "project '{}' was renamed to '{}' in the database, but updating the config failed: {}; run `tam project use {}` to update the current project",
+                name,
+                new_name,
+                e,
+                new_name
+            );
         }
     }
 
-    
-    project::edit(name.clone(), new_name.clone())?;
     print_success!("Project '{}' updated to '{}' successfully.", name, new_name);
     Ok(true)
 }

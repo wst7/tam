@@ -1,0 +1,20 @@
+=== isolated-HOME targeted migration test (expect silent skip) 2026-11-08 17:37:16 ===
+   = note: `Theme` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: `tam` (bin "tam") generated 4 warnings (run `cargo fix --bin "tam" -p tam` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.32s
+     Running tests/agent.rs (target/debug/deps/agent-68fc88686487566b)
+
+running 1 test
+skipping: no real ~/.tam/tam.db3 on this machine
+test migrates_copy_of_real_database ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 15 filtered out; finished in 0.00s
+
+ISOLATED_MIG_TEST_EXIT=0
+
+=== backup size probe on a real-DB copy (temp HOME) ===
+real db size: 20480 bytes
+migrate exit=0
+backup exists: yes size=20480 bytes
+backup user_version=0 rows=(project=5,task=37)

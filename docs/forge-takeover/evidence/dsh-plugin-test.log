@@ -1,0 +1,16 @@
+✔ project/task CRUD through native tool specs (150.711333ms)
+✔ claim conflict, heartbeat, release, complete and events (89.421833ms)
+✔ idempotency key returns the same task (31.289542ms)
+✔ next claims highest priority and project isolation (77.757792ms)
+✔ raw tool argument validation (0.310334ms)
+✔ command resolution: explicit config wins over environment (0.108333ms)
+✔ panel HTTP API: meta, projects, task CRUD (129.264041ms)
+✔ panel HTTP API: missing project/task errors keep status semantics (18.189791ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 422.667333

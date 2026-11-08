@@ -1,0 +1,38 @@
+=== 04 declaration verification 2026-11-08 16:28:50 ===
+--- claim: 30 tests (7 unit + 23 integration)
+running 7 tests
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 23 tests
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.55s
+running 23 tests
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.37s
+
+--- claim: clippy 15
+builder log warning count: 0
+qa log warning count: 15
+
+--- claim: diff stat 16 files +527/-245
+ 16 files changed, 527 insertions(+), 245 deletions(-)
+src sum: +522 -240
+tests/cli.rs lines:      731
+
+--- claim: CLI smoke 47 assertions + S9 10
+59
+2
+--- real ~/.tam sha256 before/after smoke ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+
+--- claim: sha identical to iteration-00
+SHA_FILES_IDENTICAL
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+
+--- docs mtimes (00-04 + evidence)
+Nov  8 15:29:51 2026 docs/forge-takeover/00-discovery.md
+Nov  8 15:29:12 2026 docs/forge-takeover/01-asbuilt.md
+Nov  8 15:37:07 2026 docs/forge-takeover/02-gap.md
+Nov  8 15:50:48 2026 docs/forge-takeover/03-plan.md
+Nov  8 16:23:53 2026 docs/forge-takeover/04-implementation.md

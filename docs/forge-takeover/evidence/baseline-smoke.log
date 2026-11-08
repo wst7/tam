@@ -1,0 +1,72 @@
+### version
+tam 1.0.13
+### empty list
+No projects found. use `tam project add` to add a project.
+### add alpha
+SUCCESS Project 'alpha' added successfully.
+INFO Use `tam project use alpha` to switch to this project.
+### add beta
+SUCCESS Project 'beta' added successfully.
+INFO Use `tam project use beta` to switch to this project.
+### list (compare Created/Updated)
+╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│ alpha   │ 2026-11-08 07:14:54 │ 2026-11-08 07:14:54 │
+│ beta    │ 2026-11-08 07:14:55 │ 2026-11-08 07:14:55 │
+╰─────────┴─────────────────────┴─────────────────────╯
+### use alpha
+SUCCESS Project 'alpha' switched successfully.
+### add task under alpha
+SUCCESS Task 'task under alpha' added successfully.
+### task list
+INFO Current project: alpha
+╭────┬──────────────────┬─────────╮
+│ ID │ Title            │ Status  │
+├────┼──────────────────┼─────────┤
+│ 1  │ task under alpha │ ⏳ Todo │
+╰────┴──────────────────┴─────────╯
+### invalid task id
+ERROR Query returned no rows
+exit=1
+### failed rename alpha->beta (name taken)
+SUCCESS Current project updated to 'beta'.
+ERROR Failed to update project 'alpha': UNIQUE constraint failed: project.name
+exit=1
+### current project after failed rename
+INFO Current project: beta
+### add task after failed rename (where does it go?)
+SUCCESS Task 'misfiled task' added successfully.
+exit=0
+### task list after failed rename
+INFO Current project: beta
+╭────┬───────────────┬─────────╮
+│ ID │ Title         │ Status  │
+├────┼───────────────┼─────────┤
+│ 2  │ misfiled task │ ⏳ Todo │
+╰────┴───────────────┴─────────╯
+### delete project beta (has tasks)
+SUCCESS Current project 'beta' removed successfully.
+exit=0
+### project list after delete
+╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│ alpha   │ 2026-11-08 07:14:54 │ 2026-11-08 07:14:54 │
+╰─────────┴─────────────────────┴─────────────────────╯
+### re-add beta (soft-deleted name)
+ERROR project beta already exists
+exit=1
+### delete alpha (still has 1 task)
+exit=0
+### current project after deleting alpha
+ERROR No current project set. Use `tam project use <name>` to set a project.
+exit=1
+### task list with no current project
+ERROR No current project set. Use `tam project use <name>` to set a project.
+exit=1
+### db rows after deletes (orphans preserved)
+1|alpha|2026-11-08 07:14:54|2026-11-08 07:14:55|1
+2|beta|2026-11-08 07:14:55|2026-11-08 07:14:55|1
+1|task under alpha|0|1|0
+2|misfiled task|0|2|0

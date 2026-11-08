@@ -1,0 +1,28 @@
+=== AGENT GATE fmt (final run; only formatting) Sun Nov  8 17:21:06 CST 2026 ===
+FMT_RUN_EXIT=0
+FMT_CHECK_EXIT=0
+
+--- fmt-only diff (services/project.rs, pre-format copy vs now) ---
+--- /tmp/project-prefmt2.rs	2026-11-08 17:21:06
++++ src/services/project.rs	2026-11-08 17:21:06
+@@ -1,9 +1,9 @@
++use crate::agent::{self, AgentError};
+ use crate::sql::{
+     COUNT_ACTIVE_TASKS_SQL, CREATE_PROJECT_SQL, DELETE_PROJECT_SQL, RESTORE_PROJECT_SQL,
+     SELECT_PROJECTS_SQL, SELECT_PROJECT_INCLUDING_DELETED_SQL, SELECT_PROJECT_SQL,
+     UPDATE_PROJECT_SQL,
+ };
+-use crate::agent::{self, AgentError};
+ use crate::{db::get_db, model::Project};
+ use chrono::{DateTime, NaiveDateTime, Utc};
+ use rusqlite::OptionalExtension;
+@@ -142,8 +142,7 @@
+     if active_tasks > 0 {
+         return Err(agent::to_anyhow(AgentError::conflict(format!(
+             "project '{}' has {} active task(s)",
+-            name,
+-            active_tasks
++            name, active_tasks
+         ))));
+     }
+ 

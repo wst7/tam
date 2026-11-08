@@ -1,0 +1,101 @@
+=== S9 green: isolated-HOME full cargo test Sun Nov  8 16:20:20 CST 2026 ===
+running 7 tests
+test services::project::test::project_name_normalization_trims_and_rejects_blank ... ok
+test services::task::test::task_title_normalization_trims_and_rejects_blank ... ok
+test config::test::test_default_config_paths ... ok
+test services::task::test::sqlite_timestamp_parsed_as_utc ... ok
+test services::task::test::sqlite_timestamp_invalid_is_err ... ok
+test config::test::test_config_toml_round_trip ... ok
+test config::test::test_config_deserialize_explicit_paths ... ok
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 23 tests
+test binary_writes_only_under_injected_home ... ok
+test delete_missing_project_not_found ... ok
+test add_active_duplicate_already_exists ... ok
+test errors_use_stderr ... ok
+test delete_current_project_clears_config ... ok
+test delete_allowed_when_only_soft_deleted_tasks ... ok
+test delete_refuses_project_with_active_tasks ... ok
+test non_numeric_task_id_usage_error ... ok
+test project_not_found_message ... ok
+test reject_blank_project_name ... ok
+test invalid_status_value_usage_error ... ok
+test project_edit_blank_name_rejected ... ok
+test reject_blank_task_title ... ok
+test project_names_trimmed_consistently ... ok
+test rename_success_updates_current_project ... ok
+test rename_failure_keeps_current_project ... ok
+test rename_to_soft_deleted_name_errors ... ok
+test task_edit_blank_title_rejected ... ok
+test task_not_found_message ... ok
+test task_list_without_status_unchanged ... ok
+test task_list_status_filter ... ok
+test add_restores_soft_deleted_project ... ok
+test project_list_updated_column ... ok
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.63s
+TEST_EXIT=0
+
+--- targeted S9 tests ---
+test project_edit_blank_name_rejected ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.29s
+test task_edit_blank_title_rejected ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.27s
+test project_names_trimmed_consistently ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 22 filtered out; finished in 0.28s
+
+--- B4 static: service-level same-name early return (TUI path) ---
+166:    if name == new_name {
+--- B4 static: task edit blank guard ---
+24:fn normalize_task_title(raw: &str) -> anyhow::Result<String> {
+64:    let title = normalize_task_title(&title)?;
+150:    let title = normalize_task_title(&title)?;
+189:        assert_eq!(normalize_task_title("  do it  ").unwrap(), "do it");
+190:        assert!(normalize_task_title("").is_err());
+191:        assert!(normalize_task_title("   ").is_err());
+--- normalization helpers ---
+src/services/project.rs:13:pub(crate) fn normalize_project_name(raw: &str) -> anyhow::Result<String> {
+src/services/task.rs:24:fn normalize_task_title(raw: &str) -> anyhow::Result<String> {
+
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+
+=== S9 post-fix reproduction (same scenarios as iteration-S9-repro.log) Sun Nov  8 16:20:43 CST 2026 ===
+--- B1: project edit a "" ---
+ERROR project name cannot be empty
+B1_edit_exit=1
+--- B1 state (must be unchanged: current_project=a, list alpha) ---
+current_project = "a"
+INFO Current project: a
+--- B2: task edit 1 "   " ---
+ERROR task title cannot be empty
+B2_edit_exit=1
+INFO Current project: p2
+╭────┬──────────┬─────────╮
+│ ID │ Title    │ Status  │
+├────┼──────────┼─────────┤
+│ 1  │ original │ ⏳ Todo │
+╰────┴──────────┴─────────╯
+--- B3.1 use " alpha " / B3.2 edit padded / B3.3 del padded ---
+SUCCESS Project 'alpha' switched successfully.
+B3_use_exit=0
+SUCCESS Project 'alpha' updated to 'beta' successfully.
+B3_edit_exit=0
+current_project = "beta"
+INFO Current project: beta
+SUCCESS Project 'beta' deleted successfully.
+B3_del_exit=0
+
+=== S9 post-fix reproduction (continued; previous run aborted at grep after set -e) Sun Nov  8 16:20:55 CST 2026 ===
+SUCCESS Project 'beta' deleted successfully.
+B3_del_exit=0
+--- config after delete (current_project must be gone) ---
+NO_CURRENT_PROJECT_IN_CONFIG
+ERROR No current project set. Use `tam project use <name>` to set a project.
+B3_current_after_del_exit=1
+--- B4: CLI same name (early return) ---
+INFO Project name is the same, no changes made.
+B4_edit_exit=0
+--- B4: padded same name also treated as no-op ---
+INFO Project name is the same, no changes made.
+B4_padded_edit_exit=0

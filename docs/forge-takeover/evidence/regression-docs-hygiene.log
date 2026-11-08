@@ -1,0 +1,93 @@
+=== docs & hygiene 2026-11-08 16:28:39 ===
+--- README version
+66:Version: 1.0.13
+1.0.13_grep_exit=0
+1.0.10_grep_exit=1 (1 = absent, expected)
+--- tam -V (isolated HOME)
+tam 1.0.13
+V_EXIT=0
+
+--- SKILL three behaviors
+14:- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly. Re-adding a deleted project's name **restores** that project (`project add` reports `restored`); an active duplicate still fails with `already exists`.
+44:| `tam project del <name>` | Delete a project (soft delete); refused while it has active task(s), reporting the count | `tam p d` |
+53:| `tam task list [--status <todo\|in-progress\|done>]` | List tasks in the current project, optionally filtered by status | `tam t l` |
+
+--- AGENTS test section
+15:Unit tests are **inline** inside `src/` files (e.g. `src/config.rs`); integration tests live in `tests/cli.rs` and inject a temporary `HOME`, so the real `~/.tam` is never touched (`tests/` is only excluded from packaging in `Cargo.toml`).
+
+--- hardcoded home grep (src/tests)
+hardcoded_grep_exit=1 (1 = zero hits, expected)
+
+--- env::set_var in tests
+set_var_grep_exit=1 (1 = zero hits, expected)
+
+--- raw SQL leak in src
+rawsql_grep_exit=1 (1 = zero hits, expected)
+fake_now_grep_exit=1 (1 = zero hits, expected)
+string_match_grep_exit=1 (1 = zero hits, expected)
+
+--- docs 00-03 line counts (expected 250/296/185/221)
+     250 docs/forge-takeover/00-discovery.md
+     296 docs/forge-takeover/01-asbuilt.md
+     185 docs/forge-takeover/02-gap.md
+     221 docs/forge-takeover/03-plan.md
+     952 total
+
+--- docs diff scope: README/SKILL/AGENTS unified diff
+diff --git a/AGENTS.md b/AGENTS.md
+index 607b9a8..d9cc3b5 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -12,7 +12,7 @@ cargo run -- -i          # interactive TUI mode
+ 
+ ## Test
+ 
+-Tests are **inline** inside `src/` files (e.g. `src/config.rs`, `src/db.rs`). There is no `tests/` directory — it is excluded in `Cargo.toml`.
++Unit tests are **inline** inside `src/` files (e.g. `src/config.rs`); integration tests live in `tests/cli.rs` and inject a temporary `HOME`, so the real `~/.tam` is never touched (`tests/` is only excluded from packaging in `Cargo.toml`).
+ 
+ ```bash
+ cargo test
+diff --git a/README.md b/README.md
+index 34eb3bd..687fe42 100644
+--- a/README.md
++++ b/README.md
+@@ -63,7 +63,7 @@ tam -h
+ 
+ ```bash
+ A tasks manager cli tool
+-Version: 1.0.10
++Version: 1.0.13
+ 
+ Usage: tam [OPTIONS] [COMMAND]
+ 
+diff --git a/skills/tam-usage/SKILL.md b/skills/tam-usage/SKILL.md
+index 143cbbd..39233d6 100644
+--- a/skills/tam-usage/SKILL.md
++++ b/skills/tam-usage/SKILL.md
+@@ -11,7 +11,7 @@ description: Use when the user wants to manage projects or tasks with the tam CL
+ 
+ - **Project / Task hierarchy**: You must create a project first, then add tasks under it. Tasks cannot exist independently.
+ - **Current project mechanism**: `tam task` commands depend on a "current project" (set via `tam project use`). This avoids repeating the project name on every task operation.
+-- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly.
++- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly. Re-adding a deleted project's name **restores** that project (`project add` reports `restored`); an active duplicate still fails with `already exists`.
+ 
+ ## Installation
+ 
+@@ -41,7 +41,7 @@ cargo install tam
+ | `tam project add <name>` | Create a project | `tam p a` |
+ | `tam project list` | List all projects | `tam p l` |
+ | `tam project use <name>` | **Set current project** (required before task commands) | `tam p u` |
+-| `tam project del <name>` | Delete a project (soft delete) | `tam p d` |
++| `tam project del <name>` | Delete a project (soft delete); refused while it has active task(s), reporting the count | `tam p d` |
+ | `tam project current` | Show the current project | `tam p c` |
+ | `tam project edit <name> <new>` | Rename a project | `tam p e` |
+ 
+@@ -50,7 +50,7 @@ cargo install tam
+ | Command | Description | Alias |
+ |---------|-------------|-------|
+ | `tam task add <title>` | Add a task | `tam t a` |
+-| `tam task list` | List tasks in the current project | `tam t l` |
++| `tam task list [--status <todo\|in-progress\|done>]` | List tasks in the current project, optionally filtered by status | `tam t l` |
+ | `tam task edit <id> <title>` | Edit a task title | `tam t e` |
+ | `tam task del <id>` | Delete a task (soft delete) | `tam t d` |
+ | `tam task start <id>` | Mark a task as "in progress" | — |

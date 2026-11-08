@@ -1,0 +1,140 @@
+=== Lease integrity fix RED phase (non-holder update must conflict) Sun Nov  8 17:55:38 CST 2026 ===
+test agent_b_cannot_update_task_leased_by_agent_a ... FAILED
+
+failures:
+
+--
+thread 'agent_b_cannot_update_task_leased_by_agent_a' (10489847) panicked at tests/agent.rs:1352:9:
+assertion `left == right` failed: unexpected exit code
+stdout:
+{"command":"task.update","data":{"task":{"assigned_agent":"agent-a","created":"2026-11-08T09:55:40Z","description":"","id":1,"lease_expired":false,"lease_expires_at":"2026-11-08T10:05:40Z","priority":3,"project":"alpha","project_id":1,"revision":3,"status":"in-progress","tags":[],"title":"stolen","updated":"2026-11-08T09:55:40Z"}},"meta":{"agent":"agent-b","project":"alpha"},"ok":true,"schema":"tam.agent/v1"}
+
+--
+  left: Some(0)
+ right: Some(4)
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+--
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.31s
+
+error: test failed, to rerun pass `--test agent`
+TEST_EXIT=101
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+
+=== Lease integrity fix GREEN phase Sun Nov  8 17:55:58 CST 2026 ===
+test agent_b_cannot_update_task_leased_by_agent_a ... ok
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 24 filtered out; finished in 0.54s
+NEW_TEST_EXIT=0
+Usage: cargo test [OPTIONS] [TESTNAME] [-- [ARGS]...]
+
+For more information, try '--help'.
+NOTE: two filters not allowed; full suite follows
+=== Lease fix: full test gate Sun Nov  8 17:56:09 CST 2026 ===
+running 14 tests
+test config::test::test_default_config_paths ... ok
+test config::test::test_config_deserialize_explicit_paths ... ok
+--
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/agent.rs (target/debug/deps/agent-68fc88686487566b)
+--
+running 25 tests
+test d5_broken_config_json_uses_error_envelope ... ok
+test concurrent_claim_has_exactly_one_winner ... ok
+--
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.93s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+--
+running 23 tests
+test binary_writes_only_under_injected_home ... ok
+test delete_missing_project_not_found ... ok
+--
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.20s
+
+TEST_EXIT=0
+
+=== serial --test-threads=1 ===
+running 25 tests
+test agent_b_cannot_update_task_leased_by_agent_a ... ok
+test concurrent_claim_has_exactly_one_winner ... ok
+--
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.97s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+--
+running 23 tests
+test add_active_duplicate_already_exists ... ok
+test add_restores_soft_deleted_project ... ok
+--
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.26s
+
+SERIAL_EXIT=0
+
+--- real ~/.tam sha256 before ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+--- after ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+USER DATA UNTOUCHED
+
+=== Lease fix: isolated-HOME cargo test Sun Nov  8 17:56:41 CST 2026 ===
+running 14 tests
+test config::test::test_default_config_paths ... ok
+test services::project::test::project_name_normalization_trims_and_rejects_blank ... ok
+--
+test result: ok. 14 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+
+     Running tests/agent.rs (target/debug/deps/agent-68fc88686487566b)
+--
+running 25 tests
+test d5_broken_config_json_uses_error_envelope ... ok
+test concurrent_claim_has_exactly_one_winner ... ok
+--
+test result: ok. 25 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.99s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+--
+running 23 tests
+test binary_writes_only_under_injected_home ... ok
+test delete_missing_project_not_found ... ok
+--
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+TEST_EXIT=0
+
+=== Lease fix: build + fmt + clippy ===
+warning: `tam` (bin "tam") generated 4 warnings (run `cargo fix --bin "tam" -p tam` to apply 1 suggestion)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s
+BUILD_EXIT=0
+FMT_CHECK_EXIT=0
+warning: `tam` (bin "tam") generated 12 warnings (run `cargo clippy --fix --bin "tam" -p tam` to apply 8 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.33s
+CLIPPY_EXIT=0
+--- clippy warning count (excl. generated) ---
+      12
+--- clippy categories ---
+   1 warning: direct implementation of `ToString`
+   1 warning: fields `tip_bg` and `tip_fg` are never read
+   1 warning: method `set_title` is never used
+   1 warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+   1 warning: unused import: `Color`
+   3 warning: useless conversion to the same type: `std::string::String`
+   2 warning: useless use of `format!`
+   2 warning: you seem to be trying to use `match` for an equality check. Consider using `if`
+
+--- real ~/.tam sha256 final ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+SHA256_IDENTICAL_TO_BASELINE
+=== Lease fix: final sanity Sun Nov  8 17:57:35 CST 2026 ===
+FMT_CHECK_EXIT=0
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+--- current_project ---
+current_project = "pastoid"

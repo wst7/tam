@@ -1,0 +1,102 @@
+=== QA quality & backward-compat checks 2026-11-08 17:35:21 ===
+
+--- test inventory (per binary, independent rerun)
+     1	concurrent_claim_has_exactly_one_winner
+     2	context_from_env_and_explicit_flag
+     3	done_conflicts_only_for_agents_holding_other_leases
+     4	filters_and_next_ordering
+     5	heartbeat_and_release_lifecycle
+     6	human_output_is_not_json
+     7	idempotency_key_is_project_scoped
+     8	json_envelopes_and_exit_codes
+     9	lease_expiry_allows_new_owner
+    10	mcp_handshake_and_tools
+    11	mcp_unknown_tool_is_iserror_and_missing_params_are_protocol_errors
+    12	migrates_copy_of_real_database
+    13	project_isolation_for_explicit_project
+    14	status_summary_counts_and_next
+    15	task_crud_views_and_events
+    16	task_update_requires_a_field
+agent integration count = 16
+cli integration count   = 23
+inline unit count       = 13 (re-measured with `cargo test --bins -- --list`; --lib is empty for a bin-only crate)
+total                   = 52
+
+--- tests/agent.rs quality
+agent #[test] = 16
+test fns with own TempHome = 16 / 16
+ignore=0 should_panic=0
+set_var/remove_var=0
+hardcoded /Users/wstreet7=0
+assert_ok=39 assert_error=13 raw asserts=108
+non-trivial view assertions (data/events/revision/lease): 72
+migration test real-HOME dependency: 783:    let real_db = match std::env::var_os("HOME") { (silently returns when isolated HOME has no real DB)
+
+--- schema safety: additive only
+HEAD DDL: ['CREATE_PROJECT_TABLE_SQL', 'CREATE_PROJECT_TABLE_TRIGGER_SQL', 'CREATE_TASK_TABLE_SQL', 'CREATE_TASK_TABLE_TRIGGER_SQL']
+WORK DDL: ['CREATE_PROJECT_TABLE_SQL', 'CREATE_PROJECT_TABLE_TRIGGER_SQL', 'CREATE_TASK_EVENTS_TABLE_SQL', 'CREATE_TASK_TABLE_SQL', 'CREATE_TASK_TABLE_TRIGGER_SQL']
+BASE_DDL_UNCHANGED
+ADDED_DDL: ['CREATE_TASK_EVENTS_TABLE_SQL']
+ADDED_ALTER: 6
+NEW_COLUMNS: ['priority', 'tags', 'assigned_agent', 'lease_expires_at', 'revision', 'idempotency_key']
+ADDED_INDEX: 4
+destructive SQL (DROP/RENAME/DELETE FROM): 0
+Cargo.toml/lock changes: 0
+
+--- human CLI output: no JSON contamination, tables intact
+--- captured human output ---
+SUCCESS Project 'alpha' added successfully.
+INFO Use `tam project use alpha` to switch to this project.
+SUCCESS Project 'alpha' switched successfully.
+SUCCESS Task 'human task' added successfully.
+INFO Current project: alpha
+╭────┬────────────┬─────────╮
+│ ID │ Title      │ Status  │
+├────┼────────────┼─────────┤
+│ 1  │ human task │ ⏳ Todo │
+╰────┴────────────┴─────────╯
+╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│ alpha   │ 2026-11-08 09:35:22 │ 2026-11-08 09:35:22 │
+╰─────────┴─────────────────────┴─────────────────────╯
+INFO Project: alpha
+todo=1 in-progress=0 done=0 leased=0 unassigned=1
+next: #1 human task [priority 3] status=todo
+--- end ---
+human_output_json_leak=0 (0 expected)
+human_status_is_text=2 (>=1 expected)
+
+--- TUI smoke (temp HOME, expect pty): launch + render + quit
+TUI_EXIT=0
+Projects views
+tui_json_leak=0 (0 expected)
+files under temp HOME: 3
+
+--- docs presence
+README Agent integration: 1
+AGENTS agent.rs/mcp.rs mentions: 4
+SKILL exists: yes; protocol=yes; impl=yes
+
+--- builder evidence claim numbers (cross-check only; independently reproduced above)
+JSON_SMOKE_RESULT: PASS=77 FAIL=0
+MCP_SMOKE_RESULT: PASS=39 FAIL=0
+CONCURRENCY_RESULT: PASS=70 FAIL=0
+GAPS_RESULT: PASS=63 FAIL=0
+JSON_CLI_RESULT: PASS=391 FAIL=0
+MCP_RESULT: PASS=61 FAIL=0
+MIGRATION_RESULT: PASS=40 FAIL=0
+
+--- diff size (tracked modifications + new untracked files)
+ 18 files changed, 2321 insertions(+), 334 deletions(-)
+     331 src/agent.rs
+     507 src/mcp.rs
+     431 src/commands/agent.rs
+    1129 tests/agent.rs
+     107 skills/tam-agent/SKILL.md
+     231 docs/agent-protocol.md
+     161 docs/agent-implementation.md
+
+--- real hashes after quality run:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

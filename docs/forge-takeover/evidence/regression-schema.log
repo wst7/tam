@@ -1,0 +1,49 @@
+=== schema / DDL integrity (precise extraction) 2026-11-08 16:28:28 ===
+--- 1) git diff -U0 src/sql.rs | grep -E 'CREATE (TABLE|TRIGGER)'
+grep_exit=1 (1 = no matches, expected)
+
+--- 2) exact DDL constant comparison HEAD vs working tree
+HEAD DDL consts : ['CREATE_PROJECT_TABLE_SQL', 'CREATE_PROJECT_TABLE_TRIGGER_SQL', 'CREATE_TASK_TABLE_SQL', 'CREATE_TASK_TABLE_TRIGGER_SQL']
+WORK DDL consts : ['CREATE_PROJECT_TABLE_SQL', 'CREATE_PROJECT_TABLE_TRIGGER_SQL', 'CREATE_TASK_TABLE_SQL', 'CREATE_TASK_TABLE_TRIGGER_SQL']
+DDL_IDENTICAL
+CREATE TABLE/TRIGGER occurrences: HEAD=4 WORK=4
+
+--- 3) physical delete convention: grep -rn 'DELETE FROM' src/
+delete_from_grep_exit=1 (1 = zero hits, expected)
+
+--- 4) Cargo.toml / Cargo.lock untouched
+(empty output above = untouched)
+       0
+
+--- 5) sql.rs diff summary (only new query constants expected)
+ src/sql.rs | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
++pub const SELECT_PROJECT_INCLUDING_DELETED_SQL: &str = r#"
++pub const RESTORE_PROJECT_SQL: &str = r#"
++pub const COUNT_ACTIVE_TASKS_SQL: &str = r#"
++pub const SELECT_TASKS_BY_STATUS_SQL: &str = r#"
+
+--- 6) schema sqlite facts on a throwaway isolated HOME DB
+table|project
+table|sqlite_sequence
+table|task
+trigger|project_update_timestamp
+trigger|task_update_timestamp
+CREATE TABLE project (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name CHAR(255) NOT NULL UNIQUE,
+    created DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    is_deleted BOOLEAN DEFAULT 0
+)
+CREATE TABLE task (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT DEFAULT '',
+    created DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated DATETIME DEFAULT CURRENT_TIMESTAMP,
+    status INTEGER NOT NULL DEFAULT '0' CHECK (status IN ('0', '1', '2')),
+    project_id INTEGER NOT NULL,
+    is_deleted BOOLEAN DEFAULT 0,
+    FOREIGN KEY (project_id) REFERENCES project(id)
+)

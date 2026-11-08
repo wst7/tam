@@ -1,0 +1,76 @@
+=== 04 claim cross-checks 2026-11-08 16:38:08 ===
+--- baseline app.rs service unwrap count (HEAD): 13 ; current: 0
+
+--- 04 integration test name list vs actual (names containing :: are unit tests)
+claimed=      23 actual=      23
+--- /tmp/qa-claim-tests.txt	2026-11-08 16:38:08
++++ /tmp/qa-actual-integration.txt	2026-11-08 16:38:08
+@@ -1,23 +1,23 @@
+-
+-
+-
+-
++add_active_duplicate_already_exists
+ add_restores_soft_deleted_project
+-d395841
+-default_for
+-default_for_dir
++binary_writes_only_under_injected_home
+ delete_allowed_when_only_soft_deleted_tasks
+ delete_current_project_clears_config
+ delete_missing_project_not_found
+ delete_refuses_project_with_active_tasks
+-i32
+-i32
+-normalize_project_name
+-normalize_task_title
+-parse_db_datetime
++errors_use_stderr
++invalid_status_value_usage_error
++non_numeric_task_id_usage_error
++project_edit_blank_name_rejected
+ project_list_updated_column
+-query_task
++project_names_trimmed_consistently
++project_not_found_message
++reject_blank_project_name
++reject_blank_task_title
+ rename_failure_keeps_current_project
+ rename_success_updates_current_project
+ rename_to_soft_deleted_name_errors
+-updated
++task_edit_blank_title_rejected
++task_list_status_filter
++task_list_without_status_unchanged
++task_not_found_message
+
+--- test count claims
+unit: 7  integration:       23  total: 30
+
+--- clippy category set: new categories vs baseline?
+new categories not in baseline:
+(none above = no new category)
+category counts: baseline=      12 current=      11
+
+--- diff/diffstat claims: 16 files +527/-245 ; src +522/-240 ; tests/cli.rs 731 lines
+ 16 files changed, 527 insertions(+), 245 deletions(-)
+src sum: +522 -240
+tests/cli.rs lines:      731
+
+--- smoke claim parsed from builder log
+SMOKE_RESULT: PASS=47 FAIL=0
+S9_SMOKE_RESULT: PASS=10 FAIL=0
+
+--- docs 00-03 line counts + mtimes (claim: unchanged; expected 250/296/185/221)
+     250 docs/forge-takeover/00-discovery.md
+     296 docs/forge-takeover/01-asbuilt.md
+     185 docs/forge-takeover/02-gap.md
+     221 docs/forge-takeover/03-plan.md
+     952 total
+Nov  8 15:29:51 2026 docs/forge-takeover/00-discovery.md
+Nov  8 15:29:12 2026 docs/forge-takeover/01-asbuilt.md
+Nov  8 15:37:07 2026 docs/forge-takeover/02-gap.md
+Nov  8 15:50:48 2026 docs/forge-takeover/03-plan.md
+Nov  8 16:23:53 2026 docs/forge-takeover/04-implementation.md
+
+--- Cargo.toml/lock unchanged: 0 changed files

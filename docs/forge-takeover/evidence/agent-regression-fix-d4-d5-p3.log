@@ -1,0 +1,122 @@
+=== Gate B2 D4 / D5 / P3 focused re-verification ===
+--- D4: MCP tam_task_update tags [] / "" clear; missing tags unchanged ---
+PASS: D4 seed project exit0
+PASS: D4 seed project stderr empty
+PASS: D4 stdout only JSON-RPC
+PASS: D4 stderr empty
+PASS: D4 EOF exit0
+PASS: D4 create isError=false
+PASS: D4 create tags
+PASS: D4 tags:[] isError=false
+PASS: D4 tags:[] clears
+PASS: D4 tags string isError=false
+PASS: D4 tags 'Z, z' normalized
+PASS: D4 tags:"" + description isError=false
+PASS: D4 tags:"" clears
+PASS: D4 tags [a,b] isError=false
+PASS: D4 tags [a,b]
+PASS: D4 title only isError=false
+PASS: D4 missing tags field leaves tags unchanged
+PASS: D4 tags null + title isError=false
+PASS: D4 tags:null leaves tags unchanged
+PASS: D4 tags:null with title applies title
+PASS: D4 unknown tool isError
+PASS: D4 bad JSON -32700
+--- D5: broken config + --json -> startup envelope ---
+PASS: D5 project list exit1
+PASS: D5 project list stdout empty
+PASS: D5 project list stderr single line
+PASS: D5 project list startup envelope
+PASS: D5 project list human mode exit1
+PASS: D5 project list human stderr is human text
+PASS: D5 task add exit1
+PASS: D5 task add stdout empty
+PASS: D5 task add stderr single line
+PASS: D5 task add startup envelope
+PASS: D5 task add human mode exit1
+PASS: D5 task add human stderr is human text
+PASS: D5 status exit1
+PASS: D5 status stdout empty
+PASS: D5 status stderr single line
+PASS: D5 status startup envelope
+PASS: D5 status human mode exit1
+PASS: D5 status human stderr is human text
+PASS: D5 flag before subcommand exit1
+PASS: D5 flag before subcommand stdout empty
+PASS: D5 flag before subcommand stderr single line
+PASS: D5 flag before subcommand startup envelope
+PASS: D5 flag before subcommand human mode exit1
+PASS: D5 flag before subcommand human stderr is human text
+--- P3: project timestamps, by-id meta.project, task del event, lease_expired ---
+PASS: P3 add alpha exit0
+PASS: P3 add alpha stderr empty
+PASS: P3 project.add timestamps non-null
+PASS: P3 list exit0
+PASS: P3 list stderr empty
+PASS: P3 project.list timestamps non-null
+PASS: P3 human use exit0
+PASS: P3 current exit0
+PASS: P3 current stderr empty
+PASS: P3 project.current timestamps non-null
+PASS: P3 human delete alpha (no tasks) exit0
+PASS: P3 restore alpha exit0
+PASS: P3 restore alpha stderr empty
+PASS: P3 restored project timestamps non-null
+PASS: P3 add task exit0
+PASS: P3 add task stderr empty
+PASS: P3 by-id show exit0
+PASS: P3 by-id show stderr empty
+PASS: P3 by-id show meta.project populated
+PASS: P3 by-id update exit0
+PASS: P3 by-id update stderr empty
+PASS: P3 by-id update meta.project populated
+PASS: P3 by-id claim exit0
+PASS: P3 by-id claim stderr empty
+PASS: P3 by-id claim meta.project populated
+PASS: P3 by-id heartbeat exit0
+PASS: P3 by-id heartbeat stderr empty
+PASS: P3 by-id heartbeat meta.project populated
+PASS: P3 by-id release exit0
+PASS: P3 by-id release stderr empty
+PASS: P3 by-id release meta.project populated
+PASS: P3 by-id claim2 exit0
+PASS: P3 by-id claim2 stderr empty
+PASS: P3 by-id claim2 meta.project populated
+PASS: P3 by-id done exit0
+PASS: P3 by-id done stderr empty
+PASS: P3 by-id done meta.project populated
+PASS: P3 by-id events exit0
+PASS: P3 by-id events stderr empty
+PASS: P3 by-id events meta.project populated
+PASS: P3 add del task exit0
+PASS: P3 add del task stderr empty
+PASS: P3 task del json exit0
+PASS: P3 task del json stderr empty
+PASS: P3 del returns task
+PASS: P3 del meta.project
+PASS: P3 del soft delete + revision+1
+PASS: P3 del writes deleted event
+PASS: P3 del event from/to same status
+PASS: P3 list after del exit0
+PASS: P3 list after del stderr empty
+PASS: P3 deleted task hidden from list
+PASS: P3 show deleted exit3
+PASS: P3 show deleted stdout empty
+PASS: P3 show deleted code=not_found
+PASS: P3 del twice exit3
+PASS: P3 del twice stdout empty
+PASS: P3 del twice code=not_found
+PASS: P3 add leaseview exit0
+PASS: P3 add leaseview stderr empty
+PASS: P3 unassigned lease_expired=false
+PASS: P3 claim leaseview exit0
+PASS: P3 claim leaseview stderr empty
+PASS: P3 active lease_expired=false
+PASS: P3 expired show exit0
+PASS: P3 expired show stderr empty
+PASS: P3 expired lease_expired=true
+D4D5P3_FIX_RESULT: PASS=113 FAIL=0
+D4D5P3_SCRIPT_EXIT=0
+--- real hashes after:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

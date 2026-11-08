@@ -1,0 +1,56 @@
+=== Gate B baseline vs current gate summary 2026-11-08 17:37:27 ===
+
+[build] exit=BUILD_EXIT=0; warnings=4
+warning: unused import: `Color`
+warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+warning: method `set_title` is never used
+warning: fields `tip_bg` and `tip_fg` are never read
+
+[test] counts: inline=13 agent=16 cli=23 total=52
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.28s
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+TEST_EXIT=0
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.52s
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.25s
+BARE_1T_EXIT=0
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.91s
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.22s
+ISO_EXIT=0
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.02s
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 6.47s
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.25s
+ISO_1T_EXIT=0
+
+[fmt] FMT_EXIT=0
+[clippy] CLIPPY_EXIT=0; warnings=12; errors=0
+[cargo] Cargo.toml/lock changed files = 0
+
+[real user data]
+USER_DATA_UNTOUCHED
+real db user_version (read-only) = 0 (0 = not migrated by QA)
+real current_project = current_project = "pastoid"
+Nov  8 15:14:42 2026 /Users/wstreet7/.tam/tam.config.toml
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/tam.db3
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/logs/tam.log
+
+[schema] additive only (see quality log): BASE_DDL_UNCHANGED, +1 task_events table, +6 ALTER ADD COLUMN, +4 indexes, no DROP/RENAME/DELETE FROM
+
+=== builder claims vs independent QA verification ===
+claim                                                          builder    QA verification
+tests total 52 (23 cli + 13 inline + 16 agent)                 52         cargo test -- --list
+new inline unit tests 6 (db 4 + task 2)                        6          13 inline total = 7 old + 6 new
+build 4 warnings exit0                                         4          agent-regression-build.log
+clippy 0 error / 12 warnings                                   12         agent-regression-clippy.log
+fmt --check exit0                                              0          agent-regression-fmt.log
+Cargo.toml/lock unchanged                                      0 changed  git status
+migration rows project=5 task=37                               5/37       agent-regression-migration.log
+backup 20480 bytes                                             20480      agent-regression-isolated-migration.log
+migration idempotent second run                                version 1  agent-regression-migration.log
+MCP 12 tools                                                   12         agent-regression-mcp.log
+12 JSON smoke claims (builder log PASS=77)                     77         builder agent-json-smoke.log; QA re-ran 391
+MCP smoke (builder log PASS=39)                                39         builder agent-mcp-smoke.log; QA re-ran 61
+
+QA independent assertion totals: json-cli=391, extra-json=13, concurrency=70, mcp=61, migration=40, gaps=63+12

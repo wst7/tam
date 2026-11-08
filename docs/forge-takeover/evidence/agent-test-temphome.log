@@ -1,0 +1,28 @@
+=== AGENT GATE isolated-HOME cargo test (final) Sun Nov  8 17:21:56 CST 2026 ===
+running 13 tests
+test config::test::test_default_config_paths ... ok
+test services::task::test::lease_bounds_are_validated ... ok
+--
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running tests/agent.rs (target/debug/deps/agent-68fc88686487566b)
+--
+running 16 tests
+test concurrent_claim_has_exactly_one_winner ... ok
+test human_output_is_not_json ... ok
+--
+test result: ok. 16 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 5.90s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+--
+running 23 tests
+test binary_writes_only_under_injected_home ... ok
+test delete_missing_project_not_found ... ok
+--
+test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.21s
+
+TEST_EXIT=0
+--- files under isolated HOME ---
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

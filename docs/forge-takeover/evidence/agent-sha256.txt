@@ -1,0 +1,7 @@
+=== AGENT FINAL sha256 (real user data) Sun Nov  8 17:22:23 CST 2026 ===
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+--- diff vs iteration-00-sha256-before.txt ---
+SHA256_IDENTICAL_TO_BASELINE
+--- current_project ---
+current_project = "pastoid"

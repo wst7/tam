@@ -1,0 +1,73 @@
+=== S2 green: isolated-HOME cargo test Sun Nov  8 16:00:17 CST 2026 ===
+   |
+   = note: `Theme` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: `tam` (test "cli") generated 1 warning
+warning: `tam` (bin "tam") generated 4 warnings (run `cargo fix --bin "tam" -p tam` to apply 1 suggestion)
+warning: unused import: `super::*`
+  --> src/db.rs:34:9
+   |
+34 |     use super::*;
+   |         ^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `Color`
+ --> src/ui/project_screen.rs:3:13
+  |
+3 |     style::{Color, Style, Stylize},
+  |             ^^^^^
+
+warning: `tam` (bin "tam" test) generated 5 warnings (3 duplicates) (run `cargo fix --bin "tam" -p tam --tests` to apply 2 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.08s
+     Running unittests src/main.rs (target/debug/deps/tam-1ff1ff064e11f82a)
+
+running 5 tests
+test config::test::test_default_config_paths ... ok
+test services::task::test::sqlite_timestamp_invalid_is_err ... ok
+test services::task::test::sqlite_timestamp_parsed_as_utc ... ok
+test config::test::test_config_toml_round_trip ... ok
+test config::test::test_config_deserialize_explicit_paths ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+
+running 7 tests
+test binary_writes_only_under_injected_home ... ok
+test project_not_found_message ... ok
+test reject_blank_project_name ... ok
+test errors_use_stderr ... ok
+test task_not_found_message ... ok
+test reject_blank_task_title ... ok
+test non_numeric_task_id_usage_error ... ok
+
+test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.50s
+
+TEST_EXIT=0
+
+--- targeted: not found / blank ---
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+
+running 2 tests
+test project_not_found_message ... ok
+test task_not_found_message ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.26s
+
+TARGET1_EXIT=0
+     Running tests/cli.rs (target/debug/deps/cli-24e76ea2952200ff)
+
+running 2 tests
+test reject_blank_project_name ... ok
+test reject_blank_task_title ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 5 filtered out; finished in 0.28s
+
+TARGET2_EXIT=0
+
+--- G8 fallback grep (expect zero) ---
+NO_NOW_FALLBACK
+--- real ~/.tam sha256 ---
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

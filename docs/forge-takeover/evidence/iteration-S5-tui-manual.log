@@ -1,0 +1,98 @@
+=== S5 red static: service-result unwraps in src/app.rs (pre-change) Sun Nov  8 16:04:56 CST 2026 ===
+266:        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+283:        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+300:        self.selected_task_status = Some(self.selected_task_status.unwrap().next());
+301:        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+305:        self.selected_task_status = Some(self.selected_task_status.unwrap().prev());
+306:        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
+324:                    .unwrap();
+336:                services::task::add(String::from(title), project_id).unwrap();
+349:                    .unwrap();
+358:            services::project::delete(project.name).unwrap();
+395:                services::task::delete(id).unwrap();
+417:        self.projects = services::project::list().unwrap();
+422:                self.tasks = services::task::list(id as i32).unwrap();
+--- count ---
+13
+--- direct index access ---
+428:            return Some(self.projects[selected].clone());
+
+=== S5 green static: grep after change Sun Nov  8 16:05:43 CST 2026 ===
+--- grep -n 'unwrap()' src/app.rs ---
+NO_UNWRAP_IN_APP
+--- direct index access self.projects[ / self.tasks[ ---
+NO_DIRECT_INDEX
+--- redundant 'as i32' ---
+NO_REDUNDANT_CAST
+--- config sync present only for current project ---
+331:                        if config.current_project.as_deref() == Some(old_name.as_str()) {
+384:                if config.current_project.as_deref() == Some(project.name.as_str()) {
+
+=== M1 manual item (executed via CLI; config save failure) Sun Nov  8 16:05:59 CST 2026 ===
+TMPHOME=/var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.ZquJHQjg0G
+add exit=0 out=SUCCESS Project 'alpha' added successfully.
+INFO Use `tam project use alpha` to switch to this project. err=
+use exit=0 out=SUCCESS Project 'alpha' switched successfully.
+--- config before edit (current) ---
+current_project = "alpha"
+edit exit=1
+--- edit stdout ---
+--- edit stderr ---
+ERROR project 'alpha' was renamed to 'beta' in the database, but updating the config failed: Permission denied (os error 13); run `tam project use beta` to update the current project
+--- config after failed save (must still be alpha) ---
+current_project = "alpha"
+--- project list (DB rename must have happened) ---
+╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│ beta    │ 2026-11-08 08:05:59 │ 2026-11-08 08:05:59 │
+╰─────────┴─────────────────────┴─────────────────────╯
+--- project current (stale config -> not found) ---
+current exit=1
+--- recovery: tam project use beta ---
+SUCCESS Project 'beta' switched successfully.
+INFO Current project: beta
+
+=== S5 verify: full isolated-HOME cargo test after app.rs changes Sun Nov  8 16:06:17 CST 2026 ===
+running 5 tests
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+running 17 tests
+test errors_use_stderr ... ok
+test non_numeric_task_id_usage_error ... ok
+test rename_to_soft_deleted_name_errors ... ok
+test result: ok. 17 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.41s
+TEST_EXIT=0
+
+=== M2–M7 TUI manual checklist (NOT EXECUTED: no interactive TUI session in this environment) ===
+NOTE: This is an honest status record. The TUI (ratatui/crossterm, `tam -i`) cannot be driven
+non-interactively here, so M2–M7 below were NOT executed. They are code-reviewed only; no
+screenshots or fake transcripts are provided.
+
+M2 rename to an existing name
+  - Not executed. Code audit: app.rs submit_project -> services::project::edit returns Err
+    (project 'x' already exists) -> tip_message = "重命名项目失败：..."; edit_project=false;
+    selected_project unchanged; DB/config unchanged (service validates before UPDATE).
+  - Expected: tip shown, TUI stays alive, selection kept, config current remains the old name.
+M3 delete a project that still has active tasks
+  - Not executed. Code audit: app.rs delete_project -> Err("project 'x' has N active task(s)")
+    -> tip_message = "删除项目失败：..."; selected_project/tasks untouched.
+  - Expected: tip contains the task count, project still listed.
+M4 delete the current project
+  - Not executed. Code audit: delete_project Ok -> if config.current_project == project.name,
+    clear + save; then selected_project=None, selected_task=None, tasks.clear().
+  - Expected after quit: `tam project current` reports "No current project set...".
+M5 delete the last project, then press Down/e/d
+  - Not executed. Code audit: get_project() uses projects.get(selected) and resets the stale
+    index; Down/Up return early on empty lists; e/d then show tip "请先选择项目"; no panic,
+    no direct indexing.
+  - Expected: no panic, tip "请先选择项目".
+M6 rename/delete a non-current project
+  - Not executed. Code audit: config is written only when
+    config.current_project.as_deref() == Some(operated project name); otherwise untouched.
+  - Expected: config.current_project unchanged.
+M7 task add/edit/delete/start/done failures (e.g. marking Done twice)
+  - Not executed. Code audit: every task service call is matched; Err -> Chinese tip
+    ("新增任务失败/修改任务失败/删除任务失败/任务开始失败/任务完成失败：<err>");
+    delete_task Ok -> selected_task=None; no unwrap() remains in app.rs
+    (verified by `grep -n "unwrap()" src/app.rs` above -> NO_UNWRAP_IN_APP).
+STATUS: M1 executed (see above). M2–M7 not executed; static assertions passed.

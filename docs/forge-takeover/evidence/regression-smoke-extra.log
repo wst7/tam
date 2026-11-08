@@ -1,0 +1,29 @@
+=== extra adversarial checks 2026-11-08 16:38:55 ===
+PASS: X1 rename to soft-deleted name exit=1 (=1)
+PASS: X2 message names deleted project
+PASS: X3 message suggests restore command
+PASS: X4 current unchanged beta
+PASS: X5 rename non-current exit=0 (=0)
+PASS: X6 current still beta after non-current rename
+PASS: X7 task add without current project exit=1 (=1)
+PASS: X8 task add no-current stdout empty
+PASS: X9 task add no-current stderr
+PASS: X10 task list without current project exit=1 (=1)
+PASS: X11 project use '' exit=1 (=1)
+PASS: X12 project use '' stderr cannot be empty
+PASS: X13 project del '' exit=1 (=1)
+PASS: X14 edit same name exit=0 (=0)
+PASS: X15 edit same name INFO
+PASS: X16 operate on soft-deleted task exit=1 (=1)
+PASS: X17 soft-deleted task not found
+PASS: X18 empty filtered list exit=0 (=0)
+PASS: X19 empty filtered list message
+PASS: X20 tam -h exit=0 (=0)
+PASS: X20b top-level help lists task subcommand
+PASS: X21 task list -h exit=0 (=0)
+PASS: X21b task list help documents --status
+PASS: X21c task list help documents allowed values
+PASS: X22 bare tam exit=0 (=0)
+PASS: X23 version 1.0.13
+PASS: X24 unknown command exit=2 (=2)
+EXTRA_RESULT: PASS=27 FAIL=0

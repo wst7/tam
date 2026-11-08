@@ -1,0 +1,96 @@
+=== TUI static impact check (agent-first model changes) 2026-11-08 17:38:03 ===
+app.rs unwrap() = 0 (expect 0, unchanged Gate-5 hardening)
+unwrap_grep_exit=1
+direct indexing self.projects[/tasks[ = 0 (expect 0)
+app.rs changes vs HEAD: 88	37	src/app.rs (unchanged since Gate 5)
+ui/ changes vs HEAD: 2	2	src/ui.rs
+model Task new fields used only via services (grep in app.rs for agent fields):
+  none (TUI unaware of agent fields)
+
+=== FINAL integrity (Gate B) 2026-11-08 17:38:03 ===
+--- real user data vs iteration-00 baseline
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+USER_DATA_UNTOUCHED
+real db user_version (read-only) = 0
+real current_project = current_project = "pastoid"
+Nov  8 15:14:42 2026 /Users/wstreet7/.tam/tam.config.toml
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/tam.db3
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/logs/tam.log
+
+--- repo state (QA added no source/test/doc changes)
+ M AGENTS.md
+ M README.md
+ M skills/tam-usage/SKILL.md
+ M src/app.rs
+ M src/cli.rs
+ M src/commands.rs
+ M src/commands/project.rs
+ M src/commands/task.rs
+ M src/config.rs
+ M src/db.rs
+ M src/main.rs
+ M src/model.rs
+ M src/services.rs
+ M src/services/project.rs
+ M src/services/task.rs
+ M src/sql.rs
+ M src/ui.rs
+ M src/utils.rs
+?? docs/
+?? skills/tam-agent/
+?? src/agent.rs
+?? src/commands/agent.rs
+?? src/mcp.rs
+?? tests/
+ 18 files changed, 2321 insertions(+), 334 deletions(-)
+
+--- docs mtimes (00-06 and agent docs predate this QA gate / untouched by QA)
+Nov  8 16:47:13 2026 docs/forge-takeover/00-discovery.md
+Nov  8 16:47:13 2026 docs/forge-takeover/01-asbuilt.md
+Nov  8 15:37:07 2026 docs/forge-takeover/02-gap.md
+Nov  8 15:50:48 2026 docs/forge-takeover/03-plan.md
+Nov  8 16:23:53 2026 docs/forge-takeover/04-implementation.md
+Nov  8 16:47:13 2026 docs/forge-takeover/05-regression.md
+Nov  8 16:45:50 2026 docs/forge-takeover/06-handover.md
+Nov  8 16:50:40 2026 docs/agent-protocol.md
+Nov  8 17:23:25 2026 docs/agent-implementation.md
+
+--- QA evidence files
+      16
+docs/forge-takeover/evidence/agent-regression-build.log
+docs/forge-takeover/evidence/agent-regression-clippy-cargo.log
+docs/forge-takeover/evidence/agent-regression-clippy.log
+docs/forge-takeover/evidence/agent-regression-concurrency.log
+docs/forge-takeover/evidence/agent-regression-final-integrity.log
+docs/forge-takeover/evidence/agent-regression-fmt.log
+docs/forge-takeover/evidence/agent-regression-gaps.log
+docs/forge-takeover/evidence/agent-regression-gate-summary.log
+docs/forge-takeover/evidence/agent-regression-isolated-migration.log
+docs/forge-takeover/evidence/agent-regression-json-cli.log
+docs/forge-takeover/evidence/agent-regression-mcp.log
+docs/forge-takeover/evidence/agent-regression-migration.log
+docs/forge-takeover/evidence/agent-regression-quality.log
+docs/forge-takeover/evidence/agent-regression-sha-before.log
+docs/forge-takeover/evidence/agent-regression-test-bare.log
+docs/forge-takeover/evidence/agent-regression-test-isolation.log
+
+--- no leftover tam/MCP processes
+no tam process running
+
+--- assertion totals from QA evidence
+CONCURRENCY_RESULT: PASS=70 FAIL=0
+GAPS_RESULT: PASS=63 FAIL=0
+EXTRA_GAP_RESULT: PASS=12 FAIL=0
+JSON_CLI_RESULT: PASS=391 FAIL=0
+ADDITIONAL_JSON_RESULT: PASS=13 FAIL=0
+SUPPLEMENTARY_RESULT: PASS=21 FAIL=0
+MCP_RESULT: PASS=61 FAIL=0
+MIGRATION_RESULT: PASS=40 FAIL=0
+JSON_SMOKE_RESULT: PASS=77 FAIL=0
+MCP_SMOKE_RESULT: PASS=39 FAIL=0
+CONCURRENCY_RESULT: PASS=70 FAIL=0
+GAPS_RESULT: PASS=63 FAIL=0
+JSON_CLI_RESULT: PASS=391 FAIL=0
+MCP_RESULT: PASS=61 FAIL=0
+MIGRATION_RESULT: PASS=40 FAIL=0

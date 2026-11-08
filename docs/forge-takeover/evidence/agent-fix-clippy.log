@@ -1,0 +1,17 @@
+=== Gate B fixes: clippy (final) Sun Nov  8 17:50:12 CST 2026 ===
+    = note: `#[warn(clippy::to_string_trait_impl)]` on by default
+
+warning: `tam` (bin "tam") generated 12 warnings (run `cargo clippy --fix --bin "tam" -p tam` to apply 8 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.38s
+CLIPPY_EXIT=0
+--- warning count ---
+      12
+--- categories ---
+   1 warning: direct implementation of `ToString`
+   1 warning: fields `tip_bg` and `tip_fg` are never read
+   1 warning: method `set_title` is never used
+   1 warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+   1 warning: unused import: `Color`
+   3 warning: useless conversion to the same type: `std::string::String`
+   2 warning: useless use of `format!`
+   2 warning: you seem to be trying to use `match` for an equality check. Consider using `if`

@@ -1,0 +1,98 @@
+=== Gate B2 D2 / D3 / L1 focused re-verification ===
+--- D2: update --status done respects lease and emits completed ---
+PASS: seed project exit0
+PASS: seed project stderr empty
+PASS: seed task 1 exit0
+PASS: seed task 1 stderr empty
+PASS: D2 claim by agent-a exit0
+PASS: D2 claim by agent-a stderr empty
+PASS: D2 agent-b update done exit4
+PASS: D2 agent-b update done stdout empty
+PASS: D2 agent-b update done code=conflict
+PASS: D2 conflict details expose lease holder
+PASS: D2 DB unchanged after conflict
+PASS: D2 no completed event after conflict
+PASS: D2 holder update done exit0
+PASS: D2 holder update done stderr empty
+PASS: D2 holder done status/lease
+PASS: D2 holder revision incremented
+PASS: D2 completed event with holder actor
+PASS: D2 completed event from/to status (DB ints: 1=in-progress,2=done)
+PASS: extra t2 exit0
+PASS: extra t2 stderr empty
+PASS: D2 claim t2 exit0
+PASS: D2 claim t2 stderr empty
+PASS: D2 human update done exit0
+PASS: D2 human update done stderr empty
+PASS: D2 human done clears lease
+PASS: D2 human completed event
+--- D3: update --status todo clears lease; next returns task ---
+PASS: extra d3-task exit0
+PASS: extra d3-task stderr empty
+PASS: D3 claim exit0
+PASS: D3 claim stderr empty
+PASS: D3 holder update todo exit0
+PASS: D3 holder update todo stderr empty
+PASS: D3 status todo
+PASS: D3 assigned cleared
+PASS: D3 lease cleared
+PASS: D3 revision incremented
+PASS: D3 next after todo exit0
+PASS: D3 next after todo stderr empty
+PASS: D3 next returns the task again
+--- L1: another agent cannot update any field of a validly leased task ---
+PASS: extra l1-task exit0
+PASS: extra l1-task stderr empty
+PASS: L1 claim by agent-a exit0
+PASS: L1 claim by agent-a stderr empty
+PASS: L1 agent-b title exit4
+PASS: L1 agent-b title stdout empty
+PASS: L1 agent-b title code=conflict
+PASS: L1 DB unchanged after agent-b title
+PASS: L1 no event after agent-b title
+PASS: L1 agent-b status todo exit4
+PASS: L1 agent-b status todo stdout empty
+PASS: L1 agent-b status todo code=conflict
+PASS: L1 DB unchanged after agent-b status todo
+PASS: L1 no event after agent-b status todo
+PASS: L1 agent-b priority exit4
+PASS: L1 agent-b priority stdout empty
+PASS: L1 agent-b priority code=conflict
+PASS: L1 DB unchanged after agent-b priority
+PASS: L1 no event after agent-b priority
+PASS: L1 agent-b tags exit4
+PASS: L1 agent-b tags stdout empty
+PASS: L1 agent-b tags code=conflict
+PASS: L1 DB unchanged after agent-b tags
+PASS: L1 no event after agent-b tags
+PASS: L1 holder title exit0
+PASS: L1 holder title stderr empty
+PASS: L1 holder title applied
+PASS: L1 holder keeps lease
+PASS: L1 human title exit0
+PASS: L1 human title stderr empty
+PASS: L1 human title applied
+PASS: L1 human keeps lease (still in-progress)
+PASS: L1 holder update todo exit0
+PASS: L1 holder update todo stderr empty
+PASS: L1 holder todo clears lease
+PASS: seed project exit0
+PASS: seed project stderr empty
+PASS: seed task 1 exit0
+PASS: seed task 1 stderr empty
+PASS: E unassigned show exit0
+PASS: E unassigned show stderr empty
+PASS: E unassigned lease_expired=false
+PASS: E claim short exit0
+PASS: E claim short stderr empty
+PASS: E active show exit0
+PASS: E active show stderr empty
+PASS: E active lease_expired=false
+PASS: E expired show exit0
+PASS: E expired show stderr empty
+PASS: E expired lease_expired=true
+D2D3L1_FIX_RESULT: PASS=89 FAIL=0
+D2D3L1_SCRIPT_EXIT=0
+--- real hashes after:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3

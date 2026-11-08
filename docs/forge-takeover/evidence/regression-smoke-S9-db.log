@@ -1,0 +1,9 @@
+=== S9 blank-edit DB-level assertions (independent, fresh temp HOME /var/folders/_v/0mkjll614d3cp8y_kczk3h3r0000gp/T/tmp.SsXAzdLZSd) 2026-11-08 16:40:19 ===
+edit alpha '' exit=1
+DB project rows: alpha
+config current: current_project = "alpha"
+edit alpha '   ' exit=1
+DB project rows: alpha
+task edit 1 '   ' exit=1
+DB task title: original title
+DB project id/name: 1:alpha

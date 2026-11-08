@@ -1,0 +1,1324 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 607b9a8..d9cc3b5 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -12,7 +12,7 @@ cargo run -- -i          # interactive TUI mode
+ 
+ ## Test
+ 
+-Tests are **inline** inside `src/` files (e.g. `src/config.rs`, `src/db.rs`). There is no `tests/` directory — it is excluded in `Cargo.toml`.
++Unit tests are **inline** inside `src/` files (e.g. `src/config.rs`); integration tests live in `tests/cli.rs` and inject a temporary `HOME`, so the real `~/.tam` is never touched (`tests/` is only excluded from packaging in `Cargo.toml`).
+ 
+ ```bash
+ cargo test
+diff --git a/README.md b/README.md
+index 34eb3bd..687fe42 100644
+--- a/README.md
++++ b/README.md
+@@ -63,7 +63,7 @@ tam -h
+ 
+ ```bash
+ A tasks manager cli tool
+-Version: 1.0.10
++Version: 1.0.13
+ 
+ Usage: tam [OPTIONS] [COMMAND]
+ 
+diff --git a/skills/tam-usage/SKILL.md b/skills/tam-usage/SKILL.md
+index 143cbbd..39233d6 100644
+--- a/skills/tam-usage/SKILL.md
++++ b/skills/tam-usage/SKILL.md
+@@ -11,7 +11,7 @@ description: Use when the user wants to manage projects or tasks with the tam CL
+ 
+ - **Project / Task hierarchy**: You must create a project first, then add tasks under it. Tasks cannot exist independently.
+ - **Current project mechanism**: `tam task` commands depend on a "current project" (set via `tam project use`). This avoids repeating the project name on every task operation.
+-- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly.
++- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly. Re-adding a deleted project's name **restores** that project (`project add` reports `restored`); an active duplicate still fails with `already exists`.
+ 
+ ## Installation
+ 
+@@ -41,7 +41,7 @@ cargo install tam
+ | `tam project add <name>` | Create a project | `tam p a` |
+ | `tam project list` | List all projects | `tam p l` |
+ | `tam project use <name>` | **Set current project** (required before task commands) | `tam p u` |
+-| `tam project del <name>` | Delete a project (soft delete) | `tam p d` |
++| `tam project del <name>` | Delete a project (soft delete); refused while it has active task(s), reporting the count | `tam p d` |
+ | `tam project current` | Show the current project | `tam p c` |
+ | `tam project edit <name> <new>` | Rename a project | `tam p e` |
+ 
+@@ -50,7 +50,7 @@ cargo install tam
+ | Command | Description | Alias |
+ |---------|-------------|-------|
+ | `tam task add <title>` | Add a task | `tam t a` |
+-| `tam task list` | List tasks in the current project | `tam t l` |
++| `tam task list [--status <todo\|in-progress\|done>]` | List tasks in the current project, optionally filtered by status | `tam t l` |
+ | `tam task edit <id> <title>` | Edit a task title | `tam t e` |
+ | `tam task del <id>` | Delete a task (soft delete) | `tam t d` |
+ | `tam task start <id>` | Mark a task as "in progress" | — |
+diff --git a/src/app.rs b/src/app.rs
+index a3023a3..3a7318a 100644
+--- a/src/app.rs
++++ b/src/app.rs
+@@ -263,7 +263,8 @@ impl App {
+     }
+ 
+     fn next_task(&mut self) {
+-        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
++        let status = self.selected_task_status.unwrap_or(TaskStatus::Todo);
++        let tasks = self.get_tasks_with_status(status);
+         let len = tasks.len();
+         if len == 0 {
+             return;
+@@ -280,7 +281,8 @@ impl App {
+     }
+ 
+     fn prev_task(&mut self) {
+-        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
++        let status = self.selected_task_status.unwrap_or(TaskStatus::Todo);
++        let tasks = self.get_tasks_with_status(status);
+         let len = tasks.len();
+         if len == 0 {
+             return;
+@@ -297,31 +299,47 @@ impl App {
+     }
+ 
+     fn next_task_status(&mut self) {
+-        self.selected_task_status = Some(self.selected_task_status.unwrap().next());
+-        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
++        let next = self.selected_task_status.unwrap_or(TaskStatus::Todo).next();
++        self.selected_task_status = Some(next);
++        let tasks = self.get_tasks_with_status(next);
+         self.selected_task = if tasks.is_empty() { None } else { Some(0) };
+     }
+     fn prev_task_status(&mut self) {
+-        self.selected_task_status = Some(self.selected_task_status.unwrap().prev());
+-        let tasks = self.get_tasks_with_status(self.selected_task_status.unwrap());
++        let prev = self.selected_task_status.unwrap_or(TaskStatus::Todo).prev();
++        self.selected_task_status = Some(prev);
++        let tasks = self.get_tasks_with_status(prev);
+         self.selected_task = if tasks.is_empty() { None } else { Some(0) };
+     }
+ 
+     fn submit_project(&mut self) {
+         if self.add_project {
+             let name = self.input.value_and_reset();
+-            match services::project::add(String::from(name)) {
+-                Ok(_) => {}
+-                Err(err) => {
+-                    self.tip_message = Some(err.to_string());
+-                }
++            if let Err(err) = services::project::add(String::from(name)) {
++                self.tip_message = Some(format!("新增项目失败：{}", err));
+             }
+             self.add_project = false;
+         }
+         if self.edit_project {
++            let new_name = self.input.value_and_reset().trim().to_string();
+             if let Some(project) = self.get_project() {
+-                services::project::edit(project.name, String::from(self.input.value_and_reset()))
+-                    .unwrap();
++                let old_name = project.name;
++                match services::project::edit(old_name.clone(), new_name.clone()) {
++                    Ok(_) => {
++                        // Only keep the config in sync when the renamed project
++                        // is the current one.
++                        let mut config = config::get_config();
++                        if config.current_project.as_deref() == Some(old_name.as_str()) {
++                            config.current_project = Some(new_name.clone());
++                            if let Err(err) = config.save() {
++                                self.tip_message = Some(format!(
++                                    "项目已改名，但保存当前项目失败：{}；请运行 `tam project use {}`",
++                                    err, new_name
++                                ));
++                            }
++                        }
++                    }
++                    Err(err) => self.tip_message = Some(format!("重命名项目失败：{}", err)),
++                }
+             }
+             self.edit_project = false;
+         }
+@@ -329,24 +347,25 @@ impl App {
+ 
+     fn submit_task(&mut self) {
+         if self.add_task {
+-            let title = self.input.value_and_reset();
++            let title = String::from(self.input.value_and_reset());
+             if let Some(project) = self.get_project() {
+                 log::info!("current project in submit_task: {:?}", project);
+                 let project_id = project.id;
+-                services::task::add(String::from(title), project_id).unwrap();
+-                self.add_task = false;
++                if let Err(err) = services::task::add(title, project_id) {
++                    self.tip_message = Some(format!("新增任务失败：{}", err));
++                }
+             } else {
+                 self.tip_message = Some(String::from("请先选择项目"));
+             }
++            self.add_task = false;
+         }
+         if self.edit_task {
++            let title = String::from(self.input.value_and_reset());
+             if let Some(task) = self.get_task() {
+                 if let Some(id) = task.id {
+-                    services::task::edit(
+-                        id.to_string(),
+-                        String::from(self.input.value_and_reset()),
+-                    )
+-                    .unwrap();
++                    if let Err(err) = services::task::edit(id, title) {
++                        self.tip_message = Some(format!("修改任务失败：{}", err));
++                    }
+                 }
+             }
+             self.edit_task = false;
+@@ -354,19 +373,36 @@ impl App {
+     }
+ 
+     fn delete_project(&mut self) {
+-        if let Some(project) = self.get_project() {
+-            services::project::delete(project.name).unwrap();
++        let Some(project) = self.get_project() else {
++            return;
++        };
++        match services::project::delete(project.name.clone()) {
++            Ok(_) => {
++                // Sync the config only for the current project; a failed save
++                // must not abort the TUI, just inform the user.
++                let mut config = config::get_config();
++                if config.current_project.as_deref() == Some(project.name.as_str()) {
++                    config.current_project = None;
++                    if let Err(err) = config.save() {
++                        self.tip_message = Some(format!(
++                            "项目已删除，但清除当前项目失败：{}；请运行 `tam project use <existing project>`",
++                            err
++                        ));
++                    }
++                }
++                self.selected_project = None;
++                self.selected_task = None;
++                self.tasks.clear();
++            }
++            Err(err) => self.tip_message = Some(format!("删除项目失败：{}", err)),
+         }
+     }
+ 
+     fn start_task(&mut self) {
+         if let Some(task) = self.get_task() {
+             if let Some(id) = task.id {
+-                match services::task::start(id.to_string()) {
+-                    Ok(_) => {}
+-                    Err(_) => {
+-                        self.tip_message = Some(String::from("任务开始失败"));
+-                    }
++                if let Err(err) = services::task::start(id) {
++                    self.tip_message = Some(format!("任务开始失败：{}", err));
+                 }
+             }
+         } else {
+@@ -377,11 +413,8 @@ impl App {
+     fn complete_task(&mut self) {
+         if let Some(task) = self.get_task() {
+             if let Some(id) = task.id {
+-                match services::task::done(id.to_string()) {
+-                    Ok(_) => {}
+-                    Err(_) => {
+-                        self.tip_message = Some(String::from("任务完成失败"));
+-                    }
++                if let Err(err) = services::task::done(id) {
++                    self.tip_message = Some(format!("任务完成失败：{}", err));
+                 }
+             }
+         } else {
+@@ -392,8 +425,16 @@ impl App {
+     fn delete_task(&mut self) {
+         if let Some(task) = self.get_task() {
+             if let Some(id) = task.id {
+-                services::task::delete(id.to_string()).unwrap();
++                match services::task::delete(id) {
++                    Ok(_) => {
++                        self.selected_task = None;
++                        self.query_tasks();
++                    }
++                    Err(err) => self.tip_message = Some(format!("删除任务失败：{}", err)),
++                }
+             }
++        } else {
++            self.tip_message = Some(String::from("请先选择任务"));
+         }
+     }
+ 
+@@ -414,18 +455,28 @@ impl App {
+     }
+ 
+     pub fn query_projects(&mut self) {
+-        self.projects = services::project::list().unwrap();
++        match services::project::list() {
++            Ok(projects) => self.projects = projects,
++            Err(err) => self.tip_message = Some(format!("加载项目失败：{}", err)),
++        }
+     }
+     pub fn query_tasks(&mut self) {
+         if let Some(project) = self.get_project() {
+             if let Some(id) = project.id {
+-                self.tasks = services::task::list(id as i32).unwrap();
++                match services::task::list(id, None) {
++                    Ok(tasks) => self.tasks = tasks,
++                    Err(err) => self.tip_message = Some(format!("加载任务失败：{}", err)),
++                }
+             }
+         }
+     }
+     pub fn get_project(&mut self) -> Option<Project> {
+         if let Some(selected) = self.selected_project {
+-            return Some(self.projects[selected].clone());
++            if let Some(project) = self.projects.get(selected).cloned() {
++                return Some(project);
++            }
++            // The list shrank (e.g. after a delete): drop the stale index.
++            self.selected_project = None;
+         }
+         self.tip_message = Some(String::from("请先选择项目"));
+         None
+diff --git a/src/cli.rs b/src/cli.rs
+index 50a32a2..c3cce7d 100644
+--- a/src/cli.rs
++++ b/src/cli.rs
+@@ -1,7 +1,8 @@
+-use clap::{Parser, Subcommand};
++use clap::{value_parser, Parser, Subcommand, ValueEnum};
+ use colored::Colorize;
+ 
+ use crate::commands::{self, task};
++use crate::model::TaskStatus;
+ 
+ #[derive(Parser, Debug)]
+ #[command(
+@@ -43,7 +44,7 @@ pub enum Commands {
+ #[derive(Subcommand, Debug)]
+ pub enum ProjectSubcommand {
+     /// Add a new project
+-    #[command(name = "add",  visible_alias = "a")]
++    #[command(name = "add", visible_alias = "a")]
+     Add { name: String },
+     /// List all projects
+     #[command(name = "list", visible_alias = "l")]
+@@ -82,26 +83,60 @@ pub enum TaskSubcommand {
+     Add { title: String },
+     /// Edit an existing task
+     #[command(name = "edit", visible_alias = "e")]
+-    Edit { id: String, title: String },
++    Edit {
++        #[arg(value_parser = value_parser!(i32).range(1..))]
++        id: i32,
++        title: String,
++    },
+     /// List all tasks
+     #[command(name = "list", visible_alias = "l")]
+-    List,
++    List {
++        /// Only show tasks with this status
++        #[arg(long, value_enum)]
++        status: Option<StatusArg>,
++    },
+     /// Delete a task
+     #[command(name = "del", visible_alias = "d")]
+-    Delete { id: String },
++    Delete {
++        #[arg(value_parser = value_parser!(i32).range(1..))]
++        id: i32,
++    },
+     /// Start a task
+     #[command(name = "start")]
+-    Start { id: String },
++    Start {
++        #[arg(value_parser = value_parser!(i32).range(1..))]
++        id: i32,
++    },
+     /// Mark a task as done
+     #[command(name = "done")]
+-    Done { id: String },
++    Done {
++        #[arg(value_parser = value_parser!(i32).range(1..))]
++        id: i32,
++    },
++}
++
++#[derive(ValueEnum, Clone, Copy, Debug)]
++pub enum StatusArg {
++    Todo,
++    InProgress,
++    Done,
++}
++
++impl From<StatusArg> for TaskStatus {
++    fn from(value: StatusArg) -> Self {
++        match value {
++            StatusArg::Todo => TaskStatus::Todo,
++            StatusArg::InProgress => TaskStatus::InProgress,
++            StatusArg::Done => TaskStatus::Done,
++        }
++    }
+ }
+ 
+ impl TaskSubcommand {
+     pub fn execute_command(command: Option<Self>) -> anyhow::Result<bool> {
+-        match command.unwrap_or(Self::List) {
+-            TaskSubcommand::Add{title} => task::add(title),
+-            TaskSubcommand::List => task::list(),
++        match command.unwrap_or(Self::List { status: None }) {
++            TaskSubcommand::Add { title } => task::add(title),
++            TaskSubcommand::List { status } => task::list(status),
+             TaskSubcommand::Edit { id, title } => task::edit(id, title),
+             TaskSubcommand::Delete { id } => task::delete(id),
+             TaskSubcommand::Start { id } => task::start(id),
+diff --git a/src/commands.rs b/src/commands.rs
+index 74ba852..790aff0 100644
+--- a/src/commands.rs
++++ b/src/commands.rs
+@@ -1,3 +1,3 @@
+ pub mod config;
+ pub mod project;
+-pub mod task;
+\ No newline at end of file
++pub mod task;
+diff --git a/src/commands/project.rs b/src/commands/project.rs
+index 30709a2..c8da105 100644
+--- a/src/commands/project.rs
++++ b/src/commands/project.rs
+@@ -1,13 +1,19 @@
+ use crate::config::get_config;
+ use crate::model::Project;
+-use crate::{print_info, print_success};
+ use crate::services::project;
+-
++use crate::{print_info, print_success};
+ 
+ pub fn add(name: String) -> anyhow::Result<bool> {
+-    let project = project::add(name)?;
+-    print_success!("Project '{}' added successfully.", project.name);
+-    print_info!("Use `tam project use {}` to switch to this project.", project.name);
++    let (project, restored) = project::add(name)?;
++    if restored {
++        print_success!("Project '{}' restored successfully.", project.name);
++    } else {
++        print_success!("Project '{}' added successfully.", project.name);
++    }
++    print_info!(
++        "Use `tam project use {}` to switch to this project.",
++        project.name
++    );
+     Ok(true)
+ }
+ 
+@@ -27,7 +33,7 @@ pub fn use_project(name: String) -> anyhow::Result<bool> {
+     match config.save() {
+         Ok(_) => {
+             print_success!("Project '{}' switched successfully.", project.name);
+-        },
++        }
+         Err(e) => {
+             eprintln!("Failed to change current project: {}", e);
+             std::process::exit(1);
+@@ -43,55 +49,65 @@ pub fn get_current_project() -> anyhow::Result<bool> {
+ }
+ 
+ pub fn delete(name: String) -> anyhow::Result<bool> {
+-    let mut config = get_config();
++    let name = name.trim().to_string();
++    if name.is_empty() {
++        anyhow::bail!("project name cannot be empty");
++    }
+ 
+-    if let Some(current) = config.current_project {
+-        // TODO: 查询是否有tasks关联，如果有任务关联，则不能删除
+-        
+-        
+-        if current == name {
+-            config.current_project = None;
+-            match config.save() {
+-                Ok(_) => {
+-                    print_success!("Current project '{}' removed successfully.", current);  
+-                },
+-                Err(e) => {
+-                    eprintln!("Failed to remove current project: {}", e);
+-                    std::process::exit(1);
+-                }
+-            }
++    // Database first: the guard (active tasks) and the soft delete must
++    // succeed before the config is touched.
++    project::delete(name.clone())?;
++
++    // Keep the config in sync only when the deleted project is the current
++    // one. The delete is not rolled back if the config cannot be saved:
++    // report the recovery command instead.
++    let mut config = get_config();
++    if config.current_project.as_deref() == Some(name.as_str()) {
++        config.current_project = None;
++        if let Err(e) = config.save() {
++            anyhow::bail!(
++                "project '{}' was deleted, but clearing the current project from the config failed: {}; run `tam project use <existing project>` to reset the current project",
++                name,
++                e
++            );
+         }
+     }
+-    project::delete(name)?;
++
++    print_success!("Project '{}' deleted successfully.", name);
+     Ok(true)
+ }
+ 
+-
+ pub fn edit(name: String, new_name: String) -> anyhow::Result<bool> {
++    let name = name.trim().to_string();
++    let new_name = new_name.trim().to_string();
++    if name.is_empty() || new_name.is_empty() {
++        anyhow::bail!("project name cannot be empty");
++    }
+     if name == new_name {
+         print_info!("Project name is the same, no changes made.");
+         return Ok(true);
+     }
+-    let config = get_config();
+-    if let Some(current) = &config.current_project {
+-        if current == &name {
+-            // 如果当前项目被编辑了，则需要更新配置文件中的current_project
+-            let mut new_config = config.clone();
+-            new_config.current_project = Some(new_name.clone());
+-            match new_config.save() {
+-                Ok(_) => {
+-                    print_success!("Current project updated to '{}'.", new_name);
+-                },
+-                Err(e) => {
+-                    eprintln!("Failed to update current project: {}", e);
+-                    std::process::exit(1);
+-                }
+-            }
++
++    // Database first: never move `current_project` before the rename succeeded.
++    project::edit(name.clone(), new_name.clone())?;
++
++    // Only after the rename is committed, keep the config in sync when the
++    // edited project is the current one. The database change is not rolled
++    // back if the config cannot be saved: report the recovery command instead.
++    let mut config = get_config();
++    if config.current_project.as_deref() == Some(name.as_str()) {
++        config.current_project = Some(new_name.clone());
++        if let Err(e) = config.save() {
++            anyhow::bail!(
++                "project '{}' was renamed to '{}' in the database, but updating the config failed: {}; run `tam project use {}` to update the current project",
++                name,
++                new_name,
++                e,
++                new_name
++            );
+         }
+     }
+ 
+-    
+-    project::edit(name.clone(), new_name.clone())?;
+     print_success!("Project '{}' updated to '{}' successfully.", name, new_name);
+     Ok(true)
+-}
+\ No newline at end of file
++}
+diff --git a/src/commands/task.rs b/src/commands/task.rs
+index 7013548..59b717e 100644
+--- a/src/commands/task.rs
++++ b/src/commands/task.rs
+@@ -1,5 +1,6 @@
+ use crate::{
+-    model::Task,
++    cli::StatusArg,
++    model::{Task, TaskStatus},
+     print_info, print_success,
+     services::{project, task},
+ };
+@@ -10,13 +11,14 @@ pub fn add(title: String) -> anyhow::Result<bool> {
+     Ok(true)
+ }
+ 
+-pub fn list() -> anyhow::Result<bool> {
++pub fn list(status: Option<StatusArg>) -> anyhow::Result<bool> {
+     let project = project::get_current_project()?;
+     if project.id.is_none() {
+         anyhow::bail!("No current project set. Use `tam project use <name>` to set a project.");
+     }
+     let project_id = project.id.unwrap();
+-    let tasks = task::list(project_id)?;
++    let status = status.map(TaskStatus::from);
++    let tasks = task::list(project_id, status)?;
+     if tasks.is_empty() {
+         print_info!("No tasks found. Use `tam task add` to add a task.");
+     } else {
+@@ -26,23 +28,23 @@ pub fn list() -> anyhow::Result<bool> {
+     Ok(true)
+ }
+ 
+-pub fn delete(id: String) -> anyhow::Result<bool> {
+-    task::delete(id.clone())?;
++pub fn delete(id: i32) -> anyhow::Result<bool> {
++    task::delete(id)?;
+     print_success!("Task '{}' deleted successfully.", id);
+     Ok(true)
+ }
+-pub fn start(id: String) -> anyhow::Result<bool> {
+-    task::start(id.clone())?;
++pub fn start(id: i32) -> anyhow::Result<bool> {
++    task::start(id)?;
+     print_success!("Task '{}' started successfully.", id);
+     Ok(true)
+ }
+-pub fn done(id: String) -> anyhow::Result<bool> {
+-    task::done(id.clone())?;
++pub fn done(id: i32) -> anyhow::Result<bool> {
++    task::done(id)?;
+     print_success!("Task '{}' marked as done successfully.", id);
+     Ok(true)
+ }
+-pub fn edit(id: String, title: String) -> anyhow::Result<bool> {
+-    task::edit(id.clone(), title.clone())?;
++pub fn edit(id: i32, title: String) -> anyhow::Result<bool> {
++    task::edit(id, title.clone())?;
+     print_success!("Task '{}' updated successfully.", id);
+     Ok(true)
+ }
+diff --git a/src/config.rs b/src/config.rs
+index 5e493d2..72cca36 100644
+--- a/src/config.rs
++++ b/src/config.rs
+@@ -3,7 +3,7 @@ use env_home::env_home_dir;
+ use once_cell::sync::Lazy;
+ use serde::{Deserialize, Serialize};
+ use std::fs;
+-use std::path::PathBuf;
++use std::path::{Path, PathBuf};
+ 
+ pub const TAM_DIR: &str = ".tam";
+ pub const CONFIG_FILE: &str = "tam.config.toml";
+@@ -45,21 +45,29 @@ impl Default for Config {
+                 std::process::exit(1);
+             }
+         };
+-        let db_file = tam_dir.join(DB_FILE);
+-        let log_file = tam_dir.join(LOG_FILE_PATH);
+-        let log_file_pattern = tam_dir.join(LOG_FILE_PATTERN);
++        Self::default_for_dir(&tam_dir)
++    }
++}
+ 
++impl Config {
++    /// Build the default config for an explicit `.tam` directory.
++    /// Pure helper: performs no filesystem access, so it is safe to unit-test.
++    fn default_for_dir(tam_dir: &Path) -> Self {
+         Config {
+-            db_file: db_file.display().to_string(),
++            db_file: tam_dir.join(DB_FILE).display().to_string(),
+             current_project: None,
+-            logfile_path: log_file.display().to_string(),
+-            logfile_pattern: log_file_pattern.display().to_string(),
++            logfile_path: tam_dir.join(LOG_FILE_PATH).display().to_string(),
++            logfile_pattern: tam_dir.join(LOG_FILE_PATTERN).display().to_string(),
+             theme: "dark".to_string(),
+         }
+     }
+-}
+ 
+-impl Config {
++    /// Build the default config for an explicit home directory (test-only).
++    #[cfg(test)]
++    fn default_for(home: &Path) -> Self {
++        Self::default_for_dir(&home.join(TAM_DIR))
++    }
++
+     fn load() -> anyhow::Result<Self> {
+         let config_dir = Self::config_dir()?;
+         let config_file = config_dir.join(CONFIG_FILE);
+@@ -103,49 +111,50 @@ impl Config {
+ mod test {
+     use super::*;
+ 
++    fn unit_home() -> std::path::PathBuf {
++        std::env::temp_dir().join("tam-unit-home")
++    }
++
+     #[test]
+-    fn test_config_dir() {
+-        let result = Config::config_dir();
+-        assert!(result.is_ok());
++    fn test_default_config_paths() {
++        let home = unit_home();
++        let tam_dir = home.join(TAM_DIR);
++        let config = Config::default_for(&home);
++        assert_eq!(config.db_file, tam_dir.join(DB_FILE).display().to_string());
+         assert_eq!(
+-            result.unwrap().display().to_string(),
+-            "/Users/wstreet7/.tam".to_string()
++            config.logfile_path,
++            tam_dir.join(LOG_FILE_PATH).display().to_string()
+         );
+-    }
+-    #[test]
+-    fn test_config_dir_error_path() {
+-        let result = Config::config_dir();
+-        assert!(result.is_ok());
+-        assert_ne!(
+-            result.unwrap().display().to_string(),
+-            "/Users/xxx/.tam".to_string()
++        assert_eq!(
++            config.logfile_pattern,
++            tam_dir.join(LOG_FILE_PATTERN).display().to_string()
+         );
++        assert_eq!(config.current_project, None);
++        assert_eq!(config.theme, "dark");
+     }
+ 
+     #[test]
+-    fn test_load() {
+-        let result = Config::load();
+-        assert!(result.is_ok());
+-        let mut c = result.unwrap();
+-        c.current_project = None;
+-        assert_eq!(c, Config::default());
++    fn test_config_toml_round_trip() {
++        let config = Config::default_for(&unit_home());
++        let text = toml::to_string(&config).expect("config should serialize to TOML");
++        let parsed: Config = toml::from_str(&text).expect("serialized config should parse back");
++        assert_eq!(parsed, config);
+     }
+ 
+     #[test]
+-    fn test_edit_config() {
+-        let mut config = Config::default();
+-        config.current_project = Some(String::from("myproject"));
+-        let result = config.save();
+-        assert!(result.is_ok());
+-        assert_eq!(result.unwrap(), true)
+-    }
+-    #[test]
+-    fn test_load_edit_config() {
+-        let result = Config::load();
+-        assert!(result.is_ok());
+-
+-        let mut c = result.unwrap();
+-        c.current_project = Some(String::from("myproject2"));
+-        assert_ne!(c, Config::default());
++    fn test_config_deserialize_explicit_paths() {
++        let text = r#"
++db_file = "/tmp/custom/data.db3"
++current_project = "alpha"
++logfile_path = "/tmp/custom/logs/tam.log"
++logfile_pattern = "/tmp/custom/logs/tam.{}.log"
++theme = "light"
++"#;
++        let parsed: Config = toml::from_str(text).expect("explicit TOML should parse");
++        assert_eq!(parsed.db_file, "/tmp/custom/data.db3");
++        assert_eq!(parsed.current_project.as_deref(), Some("alpha"));
++        assert_eq!(parsed.logfile_path, "/tmp/custom/logs/tam.log");
++        assert_eq!(parsed.logfile_pattern, "/tmp/custom/logs/tam.{}.log");
++        assert_eq!(parsed.theme, "light");
+     }
+ }
+diff --git a/src/main.rs b/src/main.rs
+index cb95122..638bb67 100644
+--- a/src/main.rs
++++ b/src/main.rs
+@@ -3,20 +3,23 @@ use cli::{Cli, Commands};
+ use db::init_db;
+ use std::process;
+ 
+-use crate::{app::App, cli::{ProjectSubcommand, TaskSubcommand}};
++use crate::{
++    app::App,
++    cli::{ProjectSubcommand, TaskSubcommand},
++};
+ 
+ mod app;
+ mod cli;
+ mod commands;
+ mod config;
+ mod db;
++mod logs;
+ mod model;
+ mod services;
+ mod sql;
+ mod theme;
+ mod ui;
+ mod utils;
+-mod logs;
+ 
+ fn main() {
+     logs::init_logging();
+diff --git a/src/services.rs b/src/services.rs
+index 06670ed..44b6789 100644
+--- a/src/services.rs
++++ b/src/services.rs
+@@ -1,2 +1,2 @@
+ pub mod project;
+-pub mod task;
+\ No newline at end of file
++pub mod task;
+diff --git a/src/services/project.rs b/src/services/project.rs
+index 4260482..bc67fe4 100644
+--- a/src/services/project.rs
++++ b/src/services/project.rs
+@@ -1,24 +1,59 @@
+ use crate::sql::{
+-    CREATE_PROJECT_SQL, DELETE_PROJECT_SQL, SELECT_PROJECTS_SQL, SELECT_PROJECT_SQL,
++    COUNT_ACTIVE_TASKS_SQL, CREATE_PROJECT_SQL, DELETE_PROJECT_SQL, RESTORE_PROJECT_SQL,
++    SELECT_PROJECTS_SQL, SELECT_PROJECT_INCLUDING_DELETED_SQL, SELECT_PROJECT_SQL,
+     UPDATE_PROJECT_SQL,
+ };
+ use crate::{db::get_db, model::Project};
+ use chrono::{DateTime, NaiveDateTime, Utc};
++use rusqlite::OptionalExtension;
+ 
+-pub fn add(name: String) -> anyhow::Result<Project> {
++/// Canonicalize a project name coming from the CLI or the TUI: surrounding
++/// whitespace is ignored (the database stores the canonical form) and blank
++/// names are rejected.
++pub(crate) fn normalize_project_name(raw: &str) -> anyhow::Result<String> {
++    let name = raw.trim();
++    if name.is_empty() {
++        anyhow::bail!("project name cannot be empty");
++    }
++    Ok(name.to_string())
++}
++
++/// Add a project. Returns the project and whether an existing soft-deleted
++/// row was restored instead of inserting a new one.
++pub fn add(name: String) -> anyhow::Result<(Project, bool)> {
++    let name = normalize_project_name(&name)?;
+     let conn = get_db()?;
++
++    // `project.name` is UNIQUE across soft-deleted rows: same name + deleted
++    // row means "restore", same name + active row means "already exists".
++    let target_state = conn
++        .query_row(
++            SELECT_PROJECT_INCLUDING_DELETED_SQL,
++            (name.clone(),),
++            |row| row.get::<_, bool>(0),
++        )
++        .optional()?;
++    if let Some(is_deleted) = target_state {
++        if !is_deleted {
++            anyhow::bail!("project '{}' already exists", name);
++        }
++        conn.execute(RESTORE_PROJECT_SQL, (name.clone(),))
++            .map_err(|e| anyhow::anyhow!("failed to restore project '{}': {}", name, e))?;
++        return Ok((Project::new(name), true));
++    }
++
+     let mut stmt = conn.prepare(CREATE_PROJECT_SQL)?;
+     match stmt.execute((name.clone(),)) {
+         Ok(_) => {}
+         Err(e) => {
+             if e.to_string().contains("UNIQUE constraint failed") {
+-                anyhow::bail!("project {} already exists", name);
++                anyhow::bail!("project '{}' already exists", name);
+             } else {
+-                anyhow::bail!("failed to add project {}: {}", name, e);
++                anyhow::bail!("failed to add project '{}': {}", name, e);
+             }
+         }
+     }
+-    Ok(Project::new(name))
++    Ok((Project::new(name), false))
+ }
+ pub fn list() -> anyhow::Result<Vec<Project>> {
+     let conn = get_db()?;
+@@ -37,10 +72,10 @@ pub fn list() -> anyhow::Result<Vec<Project>> {
+                         )
+                     })?;
+             let updated =
+-                NaiveDateTime::parse_from_str(&row.get::<_, String>(2)?, "%Y-%m-%d %H:%M:%S")
++                NaiveDateTime::parse_from_str(&row.get::<_, String>(3)?, "%Y-%m-%d %H:%M:%S")
+                     .map_err(|e| {
+                         rusqlite::Error::FromSqlConversionFailure(
+-                            2,
++                            3,
+                             rusqlite::types::Type::Text,
+                             Box::new(e),
+                         )
+@@ -57,6 +92,7 @@ pub fn list() -> anyhow::Result<Vec<Project>> {
+ }
+ 
+ pub fn query_project(name: String) -> anyhow::Result<Project> {
++    let name = normalize_project_name(&name)?;
+     let conn = get_db()?;
+     let mut stmt = conn.prepare(SELECT_PROJECT_SQL)?;
+     let project = stmt
+@@ -71,27 +107,42 @@ pub fn query_project(name: String) -> anyhow::Result<Project> {
+                 updated: None,
+             })
+         })
+-        .map_err(|e| {
+-            if e.to_string().contains("no rows returned") {
+-                anyhow::anyhow!("project {} not found", name)
+-            } else {
+-                anyhow::anyhow!("failed to query project {}: {}", name, e)
++        .map_err(|e| match e {
++            rusqlite::Error::QueryReturnedNoRows => {
++                anyhow::anyhow!("project '{}' not found", name)
+             }
++            other => anyhow::anyhow!("failed to query project '{}': {}", name, other),
+         })?;
+     Ok(project)
+ }
+ 
+ pub fn delete(name: String) -> anyhow::Result<bool> {
++    let name = normalize_project_name(&name)?;
++
++    // Only active projects can be deleted; soft-deleted rows report not found.
++    let project = query_project(name.clone())?;
++    let project_id = project
++        .id
++        .ok_or_else(|| anyhow::anyhow!("project '{}' not found", name))?;
++
++    // Refuse to delete a project that still has active tasks: they would
++    // become orphaned because the FK is not enforced (Q1).
+     let conn = get_db()?;
++    let active_tasks: i64 =
++        conn.query_row(COUNT_ACTIVE_TASKS_SQL, (project_id,), |row| row.get(0))?;
++    if active_tasks > 0 {
++        anyhow::bail!("project '{}' has {} active task(s)", name, active_tasks);
++    }
++
+     let mut stmt = conn.prepare(DELETE_PROJECT_SQL)?;
+     match stmt.execute((name.clone(),)) {
+         Ok(rows) => {
+             if rows == 0 {
+-                anyhow::bail!("project {} not found", name);
++                anyhow::bail!("project '{}' not found", name);
+             }
+         }
+         Err(e) => {
+-            anyhow::bail!("failed to delete project {}: {}", name, e);
++            anyhow::bail!("failed to delete project '{}': {}", name, e);
+         }
+     }
+     Ok(true)
+@@ -107,17 +158,64 @@ pub fn get_current_project() -> anyhow::Result<Project> {
+ }
+ 
+ pub fn edit(name: String, new_name: String) -> anyhow::Result<bool> {
++    let name = normalize_project_name(&name)?;
++    let new_name = normalize_project_name(&new_name)?;
++
++    // Renaming a project to its own name is a no-op. This also covers the TUI
++    // path, which calls the service directly (the CLI short-circuits earlier).
++    if name == new_name {
++        return Ok(true);
++    }
++
++    // The source must be an active project, otherwise report a friendly error
++    // instead of a raw SQL failure (soft-deleted rows are not editable).
++    query_project(name.clone())?;
++
++    // `project.name` is UNIQUE across soft-deleted rows, so a target name can
++    // collide with a deleted project: give a dedicated, actionable message.
+     let conn = get_db()?;
++    let target_state = conn
++        .query_row(
++            SELECT_PROJECT_INCLUDING_DELETED_SQL,
++            (new_name.clone(),),
++            |row| row.get::<_, bool>(0),
++        )
++        .optional()?;
++    if let Some(is_deleted) = target_state {
++        if is_deleted {
++            anyhow::bail!(
++                "name '{}' belongs to a deleted project; run `tam project add {}` to restore it or choose another name",
++                new_name,
++                new_name
++            );
++        }
++        anyhow::bail!("project '{}' already exists", new_name);
++    }
++
+     let mut stmt = conn.prepare(UPDATE_PROJECT_SQL)?;
+     match stmt.execute((new_name.clone(), name.clone())) {
+         Ok(rows) => {
+             if rows == 0 {
+-                anyhow::bail!("Project '{}' not found.", name);
++                anyhow::bail!("project '{}' not found", name);
+             }
+         }
+         Err(e) => {
+-            anyhow::bail!("Failed to update project '{}': {}", name, e);
++            anyhow::bail!("failed to update project '{}': {}", name, e);
+         }
+     }
+     Ok(true)
+ }
++
++#[cfg(test)]
++mod test {
++    use super::*;
++
++    #[test]
++    fn project_name_normalization_trims_and_rejects_blank() {
++        assert_eq!(normalize_project_name("  alpha  ").unwrap(), "alpha");
++        assert_eq!(normalize_project_name("beta").unwrap(), "beta");
++        assert!(normalize_project_name("").is_err());
++        assert!(normalize_project_name("   ").is_err());
++        assert!(normalize_project_name("\t\n").is_err());
++    }
++}
+diff --git a/src/services/task.rs b/src/services/task.rs
+index a67c632..6de70c3 100644
+--- a/src/services/task.rs
++++ b/src/services/task.rs
+@@ -5,12 +5,63 @@ use crate::{
+     model::{Task, TaskStatus},
+     services::project,
+     sql::{
+-        CREATE_TASK_SQL, DELETE_TASK_SQL, SELECT_ALL_TASKS_SQL, SELECT_TASK_SQL,
+-        UPDATE_TASK_STATUS_SQL, UPDATE_TASK_TITLE_SQL,
++        CREATE_TASK_SQL, DELETE_TASK_SQL, SELECT_ALL_TASKS_SQL, SELECT_TASKS_BY_STATUS_SQL,
++        SELECT_TASK_SQL, UPDATE_TASK_STATUS_SQL, UPDATE_TASK_TITLE_SQL,
+     },
+ };
+ 
++/// Parse a SQLite `DATETIME` value (`YYYY-MM-DD HH:MM:SS`, stored as UTC) into
++/// a UTC timestamp. Invalid values are reported as errors; the current time is
++/// never used as a fallback.
++pub(crate) fn parse_db_datetime(value: &str) -> anyhow::Result<DateTime<Utc>> {
++    let naive = NaiveDateTime::parse_from_str(value, "%Y-%m-%d %H:%M:%S")
++        .map_err(|e| anyhow::anyhow!("invalid database timestamp {:?}: {}", value, e))?;
++    Ok(DateTime::<Utc>::from_naive_utc_and_offset(naive, Utc))
++}
++
++/// Canonicalize a task title coming from the CLI or the TUI: surrounding
++/// whitespace is ignored and blank titles are rejected.
++fn normalize_task_title(raw: &str) -> anyhow::Result<String> {
++    let title = raw.trim();
++    if title.is_empty() {
++        anyhow::bail!("task title cannot be empty");
++    }
++    Ok(title.to_string())
++}
++
++/// Raw task row before timestamp parsing.
++struct RawTask {
++    id: i32,
++    title: String,
++    status: TaskStatus,
++    created: String,
++    updated: String,
++}
++
++impl RawTask {
++    fn into_task(self) -> anyhow::Result<Task> {
++        Ok(Task {
++            id: Some(self.id),
++            title: self.title,
++            status: self.status,
++            created: parse_db_datetime(&self.created)?,
++            updated: parse_db_datetime(&self.updated)?,
++        })
++    }
++}
++
++fn map_raw_task(row: &rusqlite::Row<'_>) -> rusqlite::Result<RawTask> {
++    Ok(RawTask {
++        id: row.get(0)?,
++        title: row.get(1)?,
++        status: row.get(2)?,
++        created: row.get(3)?,
++        updated: row.get(4)?,
++    })
++}
++
+ pub fn add(title: String, p_id: Option<i32>) -> anyhow::Result<bool> {
++    let title = normalize_task_title(&title)?;
+     log::info!("add task: {} {:?}", title, p_id);
+     let db = db::get_db()?;
+ 
+@@ -33,71 +84,40 @@ pub fn add(title: String, p_id: Option<i32>) -> anyhow::Result<bool> {
+     Ok(true)
+ }
+ 
+-pub fn list(project_id: i32) -> anyhow::Result<Vec<Task>> {
++pub fn list(project_id: i32, status: Option<TaskStatus>) -> anyhow::Result<Vec<Task>> {
+     let db = db::get_db()?;
+-    let mut stmt = db.prepare(SELECT_ALL_TASKS_SQL)?;
+-
+-    let tasks = stmt
+-        .query_map((project_id,), |row| {
+-            let id: i32 = row.get(0)?;
+-            let title: String = row.get(1)?;
+-            let status: TaskStatus = row.get(2)?;
+-            let created =
+-                NaiveDateTime::parse_from_str(&row.get::<_, String>(3)?, "%Y-%m-%d %H:%M:%S")
+-                    .map_err(|e| {
+-                        rusqlite::Error::FromSqlConversionFailure(
+-                            3,
+-                            rusqlite::types::Type::Text,
+-                            Box::new(e),
+-                        )
+-                    })?;
+-            let updated =
+-                NaiveDateTime::parse_from_str(&row.get::<_, String>(4)?, "%Y-%m-%d %H:%M:%S")
+-                    .map_err(|e| {
+-                        rusqlite::Error::FromSqlConversionFailure(
+-                            4,
+-                            rusqlite::types::Type::Text,
+-                            Box::new(e),
+-                        )
+-                    })?;
+-            Ok(Task {
+-                id: Some(id),
+-                title,
+-                status,
+-                created: DateTime::<Utc>::from_naive_utc_and_offset(created, Utc),
+-                updated: DateTime::<Utc>::from_naive_utc_and_offset(updated, Utc),
+-            })
+-        })?
+-        .collect::<Result<Vec<_>, _>>()?;
+-    Ok(tasks)
++
++    // Without a filter keep the original query byte-for-byte; with a filter
++    // add `AND status = ?` (same `created DESC` ordering).
++    let rows = match status {
++        None => {
++            let mut stmt = db.prepare(SELECT_ALL_TASKS_SQL)?;
++            let mapped = stmt.query_map((project_id,), map_raw_task)?;
++            mapped.collect::<Result<Vec<_>, _>>()?
++        }
++        Some(status) => {
++            let mut stmt = db.prepare(SELECT_TASKS_BY_STATUS_SQL)?;
++            let mapped = stmt.query_map((project_id, status), map_raw_task)?;
++            mapped.collect::<Result<Vec<_>, _>>()?
++        }
++    };
++
++    rows.into_iter().map(RawTask::into_task).collect()
+ }
+ 
+-fn query_task(id: String) -> anyhow::Result<Task> {
++fn query_task(id: i32) -> anyhow::Result<Task> {
+     let db = db::get_db()?;
+     let mut stmt = db.prepare(SELECT_TASK_SQL)?;
+-    let task: Task = stmt.query_row((id,), |row| {
+-        let id: i32 = row.get(0)?;
+-        let title: String = row.get(1)?;
+-        let status: TaskStatus = row.get(2)?;
+-        let created = row.get::<_, String>(3)?;
+-        let updated = row.get::<_, String>(4)?;
+-        Ok(Task {
+-            id: Some(id),
+-            title,
+-            status,
+-            created: created
+-                .parse::<DateTime<Utc>>()
+-                .unwrap_or_else(|_| Utc::now()),
+-            updated: updated
+-                .parse::<DateTime<Utc>>()
+-                .unwrap_or_else(|_| Utc::now()),
+-        })
++    let raw = stmt.query_row((id,), map_raw_task).map_err(|e| match e {
++        rusqlite::Error::QueryReturnedNoRows => anyhow::anyhow!("task {} not found", id),
++        other => anyhow::anyhow!("failed to query task {}: {}", id, other),
+     })?;
+-    Ok(task)
++    raw.into_task()
+ }
+-pub fn start(id: String) -> anyhow::Result<bool> {
++
++pub fn start(id: i32) -> anyhow::Result<bool> {
+     let db = db::get_db()?;
+-    let task = query_task(id.clone())?;
++    let task = query_task(id)?;
+     if task.status == TaskStatus::InProgress {
+         return Err(anyhow::anyhow!(
+             "Task '{}' is already in progress.",
+@@ -107,43 +127,74 @@ pub fn start(id: String) -> anyhow::Result<bool> {
+ 
+     // Update task status to InProgress
+     let mut update_stmt = db.prepare(UPDATE_TASK_STATUS_SQL)?;
+-    update_stmt.execute((TaskStatus::InProgress, task.id.unwrap()))?;
++    update_stmt.execute((TaskStatus::InProgress, task.id.unwrap_or(id)))?;
+ 
+     Ok(true)
+ }
+ 
+-pub fn done(id: String) -> anyhow::Result<bool> {
++pub fn done(id: i32) -> anyhow::Result<bool> {
+     let db = db::get_db()?;
+-    let task = query_task(id.clone())?;
++    let task = query_task(id)?;
+     if task.status == TaskStatus::Done {
+         return Err(anyhow::anyhow!("Task '{}' is already done.", task.title));
+     }
+ 
+     // Update task status to Done
+     let mut update_stmt = db.prepare(UPDATE_TASK_STATUS_SQL)?;
+-    update_stmt.execute((TaskStatus::Done, task.id.unwrap()))?;
++    update_stmt.execute((TaskStatus::Done, task.id.unwrap_or(id)))?;
+ 
+     Ok(true)
+ }
+ 
+-pub fn edit(id: String, title: String) -> anyhow::Result<bool> {
++pub fn edit(id: i32, title: String) -> anyhow::Result<bool> {
++    let title = normalize_task_title(&title)?;
+     let db = db::get_db()?;
+-    let task = query_task(id.clone())?;
++    let task = query_task(id)?;
+ 
+     // Update task title
+     let mut update_stmt = db.prepare(UPDATE_TASK_TITLE_SQL)?;
+-    update_stmt.execute((title, task.id.unwrap()))?;
++    update_stmt.execute((title, task.id.unwrap_or(id)))?;
+ 
+     Ok(true)
+ }
+ 
+-pub fn delete(id: String) -> anyhow::Result<bool> {
++pub fn delete(id: i32) -> anyhow::Result<bool> {
+     let db = db::get_db()?;
+-    let task = query_task(id.clone())?;
++    let task = query_task(id)?;
+ 
+     // Delete the task
+     let mut stmt = db.prepare(DELETE_TASK_SQL)?;
+-    stmt.execute((task.id.unwrap(),))?;
++    stmt.execute((task.id.unwrap_or(id),))?;
+ 
+     Ok(true)
+ }
++
++#[cfg(test)]
++mod test {
++    use super::*;
++    use chrono::TimeZone;
++
++    #[test]
++    fn sqlite_timestamp_parsed_as_utc() {
++        let parsed = parse_db_datetime("2026-11-08 07:14:54").expect("valid SQLite timestamp");
++        assert_eq!(
++            parsed,
++            Utc.with_ymd_and_hms(2026, 11, 8, 7, 14, 54).unwrap()
++        );
++        assert_eq!(parsed.to_rfc3339(), "2026-11-08T07:14:54+00:00");
++    }
++
++    #[test]
++    fn task_title_normalization_trims_and_rejects_blank() {
++        assert_eq!(normalize_task_title("  do it  ").unwrap(), "do it");
++        assert!(normalize_task_title("").is_err());
++        assert!(normalize_task_title("   ").is_err());
++    }
++
++    #[test]
++    fn sqlite_timestamp_invalid_is_err() {
++        assert!(parse_db_datetime("not-a-timestamp").is_err());
++        assert!(parse_db_datetime("2026-11-08T07:14:54").is_err());
++        assert!(parse_db_datetime("").is_err());
++    }
++}
+diff --git a/src/sql.rs b/src/sql.rs
+index ff23ceb..e007285 100644
+--- a/src/sql.rs
++++ b/src/sql.rs
+@@ -17,7 +17,6 @@ BEGIN
+ END;
+ "#;
+ 
+-
+ pub const CREATE_TASK_TABLE_SQL: &str = r#"
+ CREATE TABLE IF NOT EXISTS task (
+     id INTEGER PRIMARY KEY AUTOINCREMENT,
+@@ -53,11 +52,25 @@ pub const CREATE_PROJECT_SQL: &str = r#"
+ INSERT INTO project (name) VALUES (?);
+ "#;
+ 
++/// Looks up a project name across active *and* soft-deleted rows.
++pub const SELECT_PROJECT_INCLUDING_DELETED_SQL: &str = r#"
++SELECT is_deleted FROM project WHERE name = ?;
++"#;
+ 
+ pub const DELETE_PROJECT_SQL: &str = r#"
+ UPDATE project SET is_deleted = 1 WHERE name = ?;
+ "#;
+ 
++/// Restores a soft-deleted project; the update trigger refreshes `updated`.
++pub const RESTORE_PROJECT_SQL: &str = r#"
++UPDATE project SET is_deleted = 0 WHERE name = ?;
++"#;
++
++/// Number of active (non-deleted) tasks attached to a project.
++pub const COUNT_ACTIVE_TASKS_SQL: &str = r#"
++SELECT COUNT(*) FROM task WHERE project_id = ? AND is_deleted = 0;
++"#;
++
+ pub const UPDATE_PROJECT_SQL: &str = r#"
+ UPDATE project SET name = ? WHERE name = ?;
+ "#;
+@@ -66,12 +79,17 @@ pub const CREATE_TASK_SQL: &str = r#"
+ INSERT INTO task (title, project_id) VALUES (?, ?);
+ "#;
+ 
+-
+ pub const SELECT_ALL_TASKS_SQL: &str = r#"
+ SELECT id, title, status, created, updated FROM task WHERE project_id = ? AND is_deleted = 0
+ ORDER BY created DESC;
+ "#;
+ 
++pub const SELECT_TASKS_BY_STATUS_SQL: &str = r#"
++SELECT id, title, status, created, updated FROM task
++WHERE project_id = ? AND is_deleted = 0 AND status = ?
++ORDER BY created DESC;
++"#;
++
+ pub const SELECT_TASK_SQL: &str = r#"
+ SELECT id, title, status, created, updated FROM task WHERE id = ? AND is_deleted = 0;
+ "#;
+@@ -86,4 +104,4 @@ UPDATE task SET title = ? WHERE id = ?;
+ 
+ pub const DELETE_TASK_SQL: &str = r#"
+ UPDATE task SET is_deleted = 1 WHERE id = ?;
+-"#;
+\ No newline at end of file
++"#;
+diff --git a/src/ui.rs b/src/ui.rs
+index 5444fff..a7627d8 100644
+--- a/src/ui.rs
++++ b/src/ui.rs
+@@ -1,9 +1,9 @@
++mod components;
+ mod project_screen;
+ mod task_screen;
+-mod components;
+ 
+-use ratatui::Frame;
+ use crate::app::{App, CurrentScreen};
++use ratatui::Frame;
+ 
+ pub fn draw(frame: &mut Frame, app: &mut App) {
+     match app.current_screen {
+diff --git a/src/utils.rs b/src/utils.rs
+index b37280f..1b0049d 100644
+--- a/src/utils.rs
++++ b/src/utils.rs
+@@ -1,4 +1,3 @@
+-
+ #[macro_export]
+ macro_rules! print_success {
+     ($msg:expr) => {{
+@@ -15,11 +14,11 @@ macro_rules! print_success {
+ macro_rules! print_error {
+     ($msg:expr) => {{
+       use colored::Colorize;
+-      println!("{} {}", "ERROR".on_red().bold(), $msg);
++      eprintln!("{} {}", "ERROR".on_red().bold(), $msg);
+     }};
+     ($fmt:expr, $($arg:tt)*) => {{
+       use colored::Colorize;
+-      println!("{} {}", "ERROR".on_red().bold(), format!($fmt, $($arg)*));
++      eprintln!("{} {}", "ERROR".on_red().bold(), format!($fmt, $($arg)*));
+     }};
+ }
+ 

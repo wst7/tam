@@ -11,7 +11,7 @@ description: Use when the user wants to manage projects or tasks with the tam CL
 
 - **Project / Task hierarchy**: You must create a project first, then add tasks under it. Tasks cannot exist independently.
 - **Current project mechanism**: `tam task` commands depend on a "current project" (set via `tam project use`). This avoids repeating the project name on every task operation.
-- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly.
+- **Soft deletes**: Both `project` and `task` tables have an `is_deleted` field. Deletion updates `is_deleted = 1`, preserving historical data. Never run `DELETE FROM` directly. Re-adding a deleted project's name **restores** that project (`project add` reports `restored`); an active duplicate still fails with `already exists`.
 
 ## Installation
 
@@ -41,7 +41,7 @@ cargo install tam
 | `tam project add <name>` | Create a project | `tam p a` |
 | `tam project list` | List all projects | `tam p l` |
 | `tam project use <name>` | **Set current project** (required before task commands) | `tam p u` |
-| `tam project del <name>` | Delete a project (soft delete) | `tam p d` |
+| `tam project del <name>` | Delete a project (soft delete); refused while it has active task(s), reporting the count | `tam p d` |
 | `tam project current` | Show the current project | `tam p c` |
 | `tam project edit <name> <new>` | Rename a project | `tam p e` |
 
@@ -50,7 +50,7 @@ cargo install tam
 | Command | Description | Alias |
 |---------|-------------|-------|
 | `tam task add <title>` | Add a task | `tam t a` |
-| `tam task list` | List tasks in the current project | `tam t l` |
+| `tam task list [--status <todo\|in-progress\|done>]` | List tasks in the current project, optionally filtered by status | `tam t l` |
 | `tam task edit <id> <title>` | Edit a task title | `tam t e` |
 | `tam task del <id>` | Delete a task (soft delete) | `tam t d` |
 | `tam task start <id>` | Mark a task as "in progress" | — |

@@ -1,0 +1,31 @@
+=== FINAL GATE clippy (bare, after S9) Sun Nov  8 16:21:49 CST 2026 ===
+64 +         Commands::Project { command } => ProjectSubcommand::execute_command(command),
+65 +         Commands::Task { command } => TaskSubcommand::execute_command(command),
+66 +         Commands::Config => commands::config::config(),
+67 +     }
+   |
+
+warning: `tam` (bin "tam") generated 15 warnings (run `cargo clippy --fix --bin "tam" -p tam` to apply 11 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.18s
+CLIPPY_EXIT=0
+
+--- warning count (excl. generated summary) ---
+      15
+--- warning categories ---
+   1 warning: direct implementation of `ToString`
+   1 warning: fields `tip_bg` and `tip_fg` are never read
+   1 warning: method `set_title` is never used
+   1 warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+   1 warning: returning the result of a `let` binding from a block
+   1 warning: the borrowed expression implements the required traits
+   1 warning: unneeded `return` statement
+   1 warning: unused import: `Color`
+   3 warning: useless conversion to the same type: `std::string::String`
+   2 warning: useless use of `format!`
+   2 warning: you seem to be trying to use `match` for an equality check. Consider using `if`
+
+--- clippy --all-targets (informational) ---
+  |             ^^^^^
+
+warning: `tam` (bin "tam" test) generated 16 warnings (14 duplicates) (run `cargo clippy --fix --bin "tam" -p tam --tests` to apply 2 suggestions)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.37s

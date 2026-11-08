@@ -1,0 +1,36 @@
+=== Gate baseline (00) vs current (S9) summary 2026-11-08 16:37:35 ===
+
+[build] baseline: exit=0 warnings=5 lines (4 real + 1 generated-summary)
+warning: unused import: `Color`
+warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+warning: method `set_title` is never used
+warning: fields `tip_bg` and `tip_fg` are never read
+warning: `tam` (bin "tam") generated 4 warnings (run `cargo fix --bin "tam" -p tam` to apply 1 suggestion)
+[build] current: exit=BUILD_EXIT=0 warnings=5 lines (4 real + 1 generated-summary)
+warning: unused import: `Color`
+warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+warning: method `set_title` is never used
+warning: fields `tip_bg` and `tip_fg` are never read
+warning: `tam` (bin "tam") generated 4 warnings (run `cargo fix --bin "tam" -p tam` to apply 1 suggestion)
+
+[test] baseline: test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+[test] current bare parallel: test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.74s 
+[test] current isolated parallel: test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.40s 
+[test] current single-thread: test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.40s BARE_1T_EXIT=0 test result: ok. 7 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s test result: ok. 23 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 3.40s ISO_1T_EXIT=0 
+
+[fmt] baseline: exit=1 hunks=22 files=8
+[fmt] current: FMT_EXIT=0
+
+[clippy] baseline: exit=0 warnings=17 errors=0
+[clippy] current: CLIPPY_EXIT=0 warnings=15 errors=0
+
+[user data] iteration-00 baseline file:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+[user data] current:
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+
+[schema] DDL_IDENTICAL=1; DELETE FROM hits=0
+[docs] README 1.0.13=1 README 1.0.10=0 SKILL-behaviors=3 AGENTS-tests/cli=1
+[hygiene] /Users/wstreet7 in src+tests=0 set_var in tests=0 raw-SQL in src=0

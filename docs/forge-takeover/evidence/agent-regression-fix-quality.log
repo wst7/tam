@@ -1,0 +1,107 @@
+=== Gate B2 quality + backward compatibility 2026-11-08 18:03:43 ===
+--- test inventory
+inline=14 agent=25 cli=23 total=62
+new agent tests: 9
+agent #[test]=25 TempHome::new=25
+ignore=0 set_var=0 hardcoded_home=0
+
+--- build warnings (4 expected, same categories)
+warning: unused import: `Color`
+warning: methods `is_done`, `is_todo`, and `is_in_progress` are never used
+warning: method `set_title` is never used
+warning: fields `tip_bg` and `tip_fg` are never read
+count=4
+
+--- human CLI output (no JSON pollution)
+--- captured ---
+SUCCESS Project 'alpha' added successfully.
+INFO Use `tam project use alpha` to switch to this project.
+SUCCESS Project 'alpha' switched successfully.
+SUCCESS Task 'human task' added successfully.
+INFO Current project: alpha
+╭────┬────────────┬─────────╮
+│ ID │ Title      │ Status  │
+├────┼────────────┼─────────┤
+│ 1  │ human task │ ⏳ Todo │
+╰────┴────────────┴─────────╯
+╭─────────┬─────────────────────┬─────────────────────╮
+│ Project │ Created             │ Updated             │
+├─────────┼─────────────────────┼─────────────────────┤
+│ alpha   │ 2026-11-08 10:03:44 │ 2026-11-08 10:03:44 │
+╰─────────┴─────────────────────┴─────────────────────╯
+INFO Project: alpha
+todo=1 in-progress=0 done=0 leased=0 unassigned=1
+next: #1 human task [priority 3] status=todo
+SUCCESS Task '1' deleted successfully.
+--- end ---
+json_leak=0 (0 expected)
+deleted_event_for_human_del=1 (1 expected)
+
+--- TUI pty smoke (temp HOME): launch + render + quit
+TUI_EXIT=0
+Projects views
+tui_json_leak=0 (0 expected)
+
+--- real user data
+ad333f65313b902f1ce31e88f3afbae32dcf50253fcfea3e9d5a7f5d54706a23  /Users/wstreet7/.tam/tam.config.toml
+85d4d8ef17f4d59a3dbc3856faa76ba87ceafdcc1597699639c6ca0c6872a223  /Users/wstreet7/.tam/tam.db3
+real db user_version(ro)=0
+Nov  8 15:14:42 2026 /Users/wstreet7/.tam/tam.config.toml
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/tam.db3
+Jun 25 09:46:13 2026 /Users/wstreet7/.tam/logs/tam.log
+
+--- repo state (QA only added doc/evidence)
+ M AGENTS.md
+ M README.md
+ M skills/tam-usage/SKILL.md
+ M src/app.rs
+ M src/cli.rs
+ M src/commands.rs
+ M src/commands/project.rs
+ M src/commands/task.rs
+ M src/config.rs
+ M src/db.rs
+ M src/main.rs
+ M src/model.rs
+ M src/services.rs
+ M src/services/project.rs
+ M src/services/task.rs
+ M src/sql.rs
+ M src/ui.rs
+ M src/utils.rs
+?? docs/
+?? skills/tam-agent/
+?? src/agent.rs
+?? src/commands/agent.rs
+?? src/mcp.rs
+?? tests/
+ 18 files changed, 2540 insertions(+), 342 deletions(-)
+Cargo changes=0
+
+--- docs mtimes
+Nov  8 17:57:23 2026 docs/agent-protocol.md
+Nov  8 17:57:23 2026 docs/agent-implementation.md
+Nov  8 17:39:27 2026 docs/agent-regression.md
+Nov  8 16:47:13 2026 docs/forge-takeover/00-discovery.md
+Nov  8 16:47:13 2026 docs/forge-takeover/01-asbuilt.md
+Nov  8 15:37:07 2026 docs/forge-takeover/02-gap.md
+Nov  8 15:50:48 2026 docs/forge-takeover/03-plan.md
+Nov  8 16:23:53 2026 docs/forge-takeover/04-implementation.md
+Nov  8 16:47:13 2026 docs/forge-takeover/05-regression.md
+Nov  8 16:45:50 2026 docs/forge-takeover/06-handover.md
+
+--- QA fix evidence files: 14
+docs/forge-takeover/evidence/agent-regression-fix-build.log
+docs/forge-takeover/evidence/agent-regression-fix-clippy.log
+docs/forge-takeover/evidence/agent-regression-fix-concurrency.log
+docs/forge-takeover/evidence/agent-regression-fix-d1-migration.log
+docs/forge-takeover/evidence/agent-regression-fix-d2-d3-l1.log
+docs/forge-takeover/evidence/agent-regression-fix-d4-d5-p3.log
+docs/forge-takeover/evidence/agent-regression-fix-fmt.log
+docs/forge-takeover/evidence/agent-regression-fix-gate.log
+docs/forge-takeover/evidence/agent-regression-fix-json-smoke.log
+docs/forge-takeover/evidence/agent-regression-fix-mcp-smoke.log
+docs/forge-takeover/evidence/agent-regression-fix-quality.log
+docs/forge-takeover/evidence/agent-regression-fix-sha-before.log
+docs/forge-takeover/evidence/agent-regression-fix-test-bare.log
+docs/forge-takeover/evidence/agent-regression-fix-test-isolation.log

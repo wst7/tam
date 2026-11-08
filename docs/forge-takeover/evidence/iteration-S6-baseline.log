@@ -1,0 +1,11 @@
+=== S6 baseline: no-arg `task list` output BEFORE --status implementation Sun Nov  8 16:06:45 CST 2026 ===
+--- output ---
+INFO Current project: demo
+╭────┬─────────────────┬────────────────╮
+│ ID │ Title           │ Status         │
+├────┼─────────────────┼────────────────┤
+│ 1  │ task-1 todo     │ ⏳ Todo        │
+│ 2  │ task-2 progress │ 🚧 In Progress │
+│ 3  │ task-3 done     │ ✅ Done        │
+╰────┴─────────────────┴────────────────╯
+--- exit=0 ---
