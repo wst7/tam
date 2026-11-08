@@ -2,12 +2,27 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.14] - 2026-11-08
+
+### 🚀 Features
+
+- Add tam-usage skill for AI assistants
+- Agent-first task protocol, MCP server, DSH plugin and visual panel
+
+### 📚 Documentation
+
+- Add download part to readme
+
 ## [1.0.13] - 2025-08-04
 
 ### 🚀 Features
 
 - Task list command show current project
 - Distributes npm and tap
+
+### ⚙️ Miscellaneous Tasks
+
+- Release tam version 1.0.13
 
 ## [1.0.12] - 2025-07-23
 
