@@ -47,9 +47,9 @@ agent 需要的不是更漂亮的表格，而是**稳定的机器契约**：单�
 | [tests/agent.rs](../tests/agent.rs) | 1614 | **新（未跟踪）**：25 个 JSON/MCP/租约/迁移/幂等/隔离用例 |
 | [skills/tam-agent/SKILL.md](../skills/tam-agent/SKILL.md) | 150 | **新**：agent 最短工作流、错误处理、MCP 注意点 |
 | [llms.txt](../llms.txt) | 221 | **新**：给 LLM 的单文件使用说明（README 说明如何交付） |
-| [dsh-plugin/README.md](../dsh-plugin/README.md) | 148 | **新**：DSH bundle `@wst7/dsh-tam`（14 个原生工具、左侧可视化面板、自动/回退安装、配置/测试） |
-| [dsh-plugin/PUBLISHING.md](../dsh-plugin/PUBLISHING.md) | 162 | **新**：npm/tarball/CI 发版、tam 先行发布与版本兼容说明 |
-| [README.md](../README.md) / [AGENTS.md](../AGENTS.md) | 274 / 87 | “Agent integration” / “Give this guide to an agent” / DSH plugin / 架构与测试段 |
+| [dsh-plugin/README.md](../dsh-plugin/README.md) | 151 | **新**：DSH bundle `@wst7/dsh-tam`（14 个原生工具、左侧可视化面板、自动/回退安装、配置/测试） |
+| [dsh-plugin/PUBLISHING.md](../dsh-plugin/PUBLISHING.md) | 167 | **新**：npm/tarball/CI 发版、tam 先行发布与版本兼容说明 |
+| [README.md](../README.md) / [AGENTS.md](../AGENTS.md) | 275 / 87 | “Agent integration” / “Give this guide to an agent” / DSH plugin / 架构与测试段 |
 
 既有 [tests/cli.rs](../tests/cli.rs)（731 行，23 用例）未改；人类代码路径仅增量。文档之外，本目录 `forge-takeover/evidence/agent-*.log` 为全部实拍证据；DSH 面板截图见 `dsh-tam-panel.png`，左侧入口见 `dsh-tam-entry.png`。
 
