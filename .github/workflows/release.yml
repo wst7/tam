@@ -80,6 +80,11 @@ jobs:
         run: |
           dist ${{ (!github.event.pull_request && format('host --steps=create --tag={0}', github.ref_name)) || 'plan' }} --output-format=json > plan-dist-manifest.json
           echo "dist ran successfully"
+          # macos-13 was retired by GitHub Actions; cargo-dist 0.28 still
+          # selects it. Map the two Apple rows to current runners before the
+          # matrix is consumed: arm64 -> macos-15, Intel -> macos-15-intel.
+          jq '.ci.github.artifacts_matrix.include |= map(if .runner == "macos-13" then .runner = (if (.targets | index("x86_64-apple-darwin")) then "macos-15-intel" else "macos-15" end) else . end)' plan-dist-manifest.json > plan-dist-manifest.fixed.json
+          mv plan-dist-manifest.fixed.json plan-dist-manifest.json
           cat plan-dist-manifest.json
           echo "manifest=$(jq -c "." plan-dist-manifest.json)" >> "$GITHUB_OUTPUT"
       - name: "Upload dist-manifest.json"
