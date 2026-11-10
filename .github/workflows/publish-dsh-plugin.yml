@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 jobs:
   publish:
@@ -16,7 +15,7 @@ jobs:
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
-      - name: npm CLI for trusted publishing
+      - name: npm CLI for publishing
         run: npm install -g npm@latest
       - name: Build tam for plugin tests
         run: cargo build
@@ -24,4 +23,6 @@ jobs:
         run: node --test dsh-plugin/test/*.test.mjs
       - name: Publish @wst7/dsh-tam
         working-directory: dsh-plugin
-        run: npm publish --provenance --access public
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
