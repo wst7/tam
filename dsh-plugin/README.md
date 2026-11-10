@@ -31,7 +31,7 @@ back to a local/PATH `tam`.
 ```bash
 dsh plugin --profile desktop add @wst7/dsh-tam
 # pin a version
-dsh plugin --profile desktop add @wst7/dsh-tam@0.1.0
+dsh plugin --profile desktop add @wst7/dsh-tam@0.1.1
 ```
 
 Restart DeepSeek Harness after installing (a running app does not hot-add a new bundle).

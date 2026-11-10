@@ -188,7 +188,7 @@ This repository ships [`dsh-plugin/`](dsh-plugin/README.md), an installable Deep
 ```bash
 dsh plugin --profile desktop add @wst7/dsh-tam
 # pin a version
-dsh plugin --profile desktop add @wst7/dsh-tam@0.1.0
+dsh plugin --profile desktop add @wst7/dsh-tam@0.1.1
 # restart DeepSeek Harness; the tools appear in the next session
 ```
 
