@@ -26,10 +26,7 @@ back to a local/PATH `tam`.
 
 ## Install (users)
 
-### From npm
-
-> npm publication is pending a token with create rights for the `@wst7` scope.
-> The GitHub Release tarball below is available now.
+### From npm (recommended)
 
 ```bash
 dsh plugin --profile desktop add @wst7/dsh-tam

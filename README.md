@@ -183,8 +183,7 @@ Four practical ways to deliver it:
 
 This repository ships [`dsh-plugin/`](dsh-plugin/README.md), an installable DeepSeek Harness bundle (`@wst7/dsh-tam`) that exposes 14 native model-facing tools — `tam_status`, `tam_project_list/add`, `tam_task_list/show/create/update/claim/heartbeat/release/complete/next/events/delete`. It wraps the JSON CLI, so the model gets canonical task data without shelling out or parsing tables.
 
-**Install for users** (GitHub Release tarball is available now; the npm package
-is pending a token with create rights for the `@wst7` scope):
+**Install for users:**
 
 ```bash
 dsh plugin --profile desktop add @wst7/dsh-tam

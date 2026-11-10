@@ -41,10 +41,11 @@ npm config get registry
 npm publish --registry=https://registry.npmjs.org --access public
 ```
 
-`@wst7/dsh-tam` is published under the existing `@wst7` npm scope, so the
-`NPM_TOKEN` used for `@wst7/tam` can publish it too. If the package is renamed,
-update `package.json`, the bundle row in `cordis.patch.yml`, and the
-`__ModuleLoader__.load` id in `client.js` together.
+`@wst7/dsh-tam@0.1.0` is published under the existing `@wst7` npm scope.
+Future versions need an npm token that can publish this package (a token limited
+to `@wst7/tam` may not be enough); alternatively publish from a logged-in
+account. If the package is renamed, update `package.json`, the bundle row in
+`cordis.patch.yml`, and the `__ModuleLoader__.load` id in `client.js` together.
 
 ## Release order
 
